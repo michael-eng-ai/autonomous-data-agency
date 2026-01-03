@@ -135,6 +135,7 @@ class Agency:
             )
             
             state = self.state_manager.update_task_status(
+                state,
                 state["current_task_id"],
                 "completed",
                 result,
@@ -151,6 +152,7 @@ class Agency:
         except Exception as e:
             state = self.state_manager.add_error(state, str(e))
             state = self.state_manager.update_task_status(
+                state,
                 state["current_task_id"],
                 "failed",
             )

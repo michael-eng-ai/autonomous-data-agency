@@ -83,7 +83,7 @@ def test_agent_get_capabilities():
 
 def test_agent_message_history():
     """Test agent message history management."""
-    from langchain.schema import HumanMessage, AIMessage
+    from langchain_core.messages import HumanMessage, AIMessage
     
     agent = MockAgent(
         name="TestAgent",

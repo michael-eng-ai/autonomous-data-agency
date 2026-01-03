@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
-from langchain.schema import BaseMessage
+from langchain_core.messages import BaseMessage
 from pydantic import BaseModel, Field
 
 
