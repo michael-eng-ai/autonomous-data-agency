@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [
-    {name = "Michael Eng AI", email = "michael@example.com"}
+    {name = "Michael Eng AI"}
 ]
 keywords = ["ai", "agents", "langchain", "langgraph", "autonomous", "orchestration"]
 classifiers = [
