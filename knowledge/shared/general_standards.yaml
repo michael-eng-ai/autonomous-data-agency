@@ -1,0 +1,287 @@
+# Knowledge Base: Shared Standards
+# Este arquivo contém padrões e práticas compartilhadas entre todos os times
+
+metadata:
+  version: "1.0.0"
+  last_updated: "2026-01-05"
+  domain: "shared"
+  type: "standards"
+
+communication:
+  documentation:
+    principles:
+      - "Documente decisões, não apenas o que foi feito"
+      - "Mantenha documentação próxima ao código"
+      - "Atualize documentação junto com mudanças"
+    
+    templates:
+      adr:
+        name: "Architecture Decision Record"
+        structure:
+          - "Título"
+          - "Status (proposed, accepted, deprecated)"
+          - "Contexto"
+          - "Decisão"
+          - "Consequências"
+      
+      rfc:
+        name: "Request for Comments"
+        when: "Mudanças significativas que precisam de input"
+        structure:
+          - "Resumo"
+          - "Motivação"
+          - "Proposta detalhada"
+          - "Alternativas consideradas"
+          - "Plano de implementação"
+  
+  meetings:
+    effective_meetings:
+      - "Agenda clara antes da reunião"
+      - "Participantes necessários apenas"
+      - "Timeboxed"
+      - "Action items documentados"
+    
+    async_first:
+      - "Prefira comunicação assíncrona quando possível"
+      - "Documente decisões por escrito"
+      - "Use reuniões para discussões complexas"
+
+agile_practices:
+  scrum:
+    ceremonies:
+      sprint_planning:
+        duration: "2-4 horas para sprint de 2 semanas"
+        output: "Sprint backlog com itens comprometidos"
+      
+      daily_standup:
+        duration: "15 minutos máximo"
+        format: "O que fiz, o que vou fazer, impedimentos"
+      
+      sprint_review:
+        duration: "1-2 horas"
+        purpose: "Demonstrar incremento, coletar feedback"
+      
+      retrospective:
+        duration: "1-2 horas"
+        purpose: "Melhoria contínua do processo"
+    
+    artifacts:
+      product_backlog: "Lista priorizada de tudo a ser feito"
+      sprint_backlog: "Itens selecionados para a sprint"
+      increment: "Soma de todos os itens completados"
+  
+  kanban:
+    principles:
+      - "Visualize o fluxo de trabalho"
+      - "Limite o trabalho em progresso (WIP)"
+      - "Gerencie o fluxo"
+      - "Torne políticas explícitas"
+      - "Melhore colaborativamente"
+    
+    metrics:
+      lead_time: "Tempo do pedido até entrega"
+      cycle_time: "Tempo do início do trabalho até entrega"
+      throughput: "Itens entregues por período"
+
+code_standards:
+  general:
+    - "Código deve ser auto-documentado"
+    - "Nomes significativos para variáveis e funções"
+    - "Funções pequenas com responsabilidade única"
+    - "DRY (Don't Repeat Yourself)"
+    - "KISS (Keep It Simple, Stupid)"
+  
+  code_review:
+    what_to_check:
+      - "Lógica correta?"
+      - "Testes adequados?"
+      - "Código legível?"
+      - "Performance aceitável?"
+      - "Segurança considerada?"
+      - "Documentação atualizada?"
+    
+    etiquette:
+      reviewer:
+        - "Seja construtivo, não destrutivo"
+        - "Explique o porquê, não apenas o quê"
+        - "Diferencie sugestões de requisitos"
+        - "Responda em tempo hábil"
+      
+      author:
+        - "PRs pequenos e focados"
+        - "Descrição clara do que e porquê"
+        - "Responda a todos os comentários"
+        - "Não leve críticas para o pessoal"
+  
+  git:
+    branching:
+      main: "Sempre deployável"
+      feature: "feature/TICKET-123-descricao"
+      bugfix: "bugfix/TICKET-123-descricao"
+      hotfix: "hotfix/TICKET-123-descricao"
+    
+    commits:
+      format: |
+        type(scope): subject
+        
+        body (optional)
+        
+        footer (optional)
+      types:
+        feat: "Nova funcionalidade"
+        fix: "Correção de bug"
+        docs: "Documentação"
+        style: "Formatação"
+        refactor: "Refatoração"
+        test: "Testes"
+        chore: "Manutenção"
+
+data_governance:
+  lgpd_gdpr:
+    principles:
+      - "Minimização de dados: colete apenas o necessário"
+      - "Limitação de propósito: use apenas para o fim declarado"
+      - "Precisão: mantenha dados atualizados"
+      - "Limitação de armazenamento: não guarde além do necessário"
+      - "Integridade e confidencialidade: proteja os dados"
+    
+    data_subject_rights:
+      - "Direito de acesso"
+      - "Direito de retificação"
+      - "Direito de apagamento"
+      - "Direito de portabilidade"
+      - "Direito de oposição"
+    
+    implementation:
+      - "Mapeamento de dados pessoais"
+      - "Consentimento documentado"
+      - "Logs de acesso a dados pessoais"
+      - "Processo de anonimização"
+      - "Processo de exclusão"
+  
+  data_classification:
+    levels:
+      public:
+        description: "Pode ser divulgado publicamente"
+        examples: ["Informações de marketing", "Documentação pública"]
+      
+      internal:
+        description: "Uso interno, não sensível"
+        examples: ["Processos internos", "Métricas de negócio"]
+      
+      confidential:
+        description: "Acesso restrito, impacto se vazado"
+        examples: ["Dados de clientes", "Informações financeiras"]
+      
+      restricted:
+        description: "Altamente sensível, acesso mínimo"
+        examples: ["Dados de saúde", "Dados financeiros pessoais", "Senhas"]
+
+project_management:
+  estimation:
+    techniques:
+      story_points:
+        description: "Estimativa relativa de complexidade"
+        scale: ["1", "2", "3", "5", "8", "13", "21"]
+        guidelines:
+          - "Compare com histórias anteriores"
+          - "Considere complexidade, não tempo"
+          - "Inclua incerteza"
+      
+      t_shirt_sizing:
+        description: "Estimativa grosseira para roadmap"
+        sizes: ["XS", "S", "M", "L", "XL"]
+    
+    anti_patterns:
+      - "Estimar em horas exatas"
+      - "Pressionar por estimativas menores"
+      - "Não considerar incerteza"
+  
+  risk_management:
+    process:
+      - step: "Identificar"
+        activities: ["Brainstorm", "Análise de histórico", "Consulta a especialistas"]
+      
+      - step: "Analisar"
+        activities: ["Probabilidade", "Impacto", "Priorização"]
+      
+      - step: "Planejar resposta"
+        strategies:
+          avoid: "Eliminar a causa do risco"
+          mitigate: "Reduzir probabilidade ou impacto"
+          transfer: "Passar para terceiro (seguro, contrato)"
+          accept: "Aceitar e monitorar"
+      
+      - step: "Monitorar"
+        activities: ["Tracking regular", "Atualizar análise", "Executar respostas"]
+
+incident_management:
+  severity_levels:
+    sev1:
+      description: "Crítico - Sistema indisponível"
+      response_time: "Imediato"
+      communication: "Stakeholders, clientes"
+    
+    sev2:
+      description: "Alto - Funcionalidade crítica degradada"
+      response_time: "< 1 hora"
+      communication: "Stakeholders internos"
+    
+    sev3:
+      description: "Médio - Funcionalidade não-crítica afetada"
+      response_time: "< 4 horas"
+      communication: "Time responsável"
+    
+    sev4:
+      description: "Baixo - Inconveniência menor"
+      response_time: "Próximo dia útil"
+      communication: "Ticket"
+  
+  post_mortem:
+    principles:
+      - "Blameless: foco em sistemas, não pessoas"
+      - "Aprendizado: como evitar no futuro"
+      - "Transparência: compartilhar aprendizados"
+    
+    template:
+      - "Resumo do incidente"
+      - "Timeline detalhado"
+      - "Root cause analysis (5 Whys)"
+      - "Impacto (usuários, receita, etc.)"
+      - "O que funcionou bem"
+      - "O que pode melhorar"
+      - "Action items com responsáveis e prazos"
+
+continuous_improvement:
+  metrics:
+    dora_metrics:
+      - metric: "Deployment Frequency"
+        elite: "Múltiplas vezes por dia"
+        high: "Entre uma vez por dia e uma vez por semana"
+        medium: "Entre uma vez por semana e uma vez por mês"
+        low: "Menos de uma vez por mês"
+      
+      - metric: "Lead Time for Changes"
+        elite: "Menos de uma hora"
+        high: "Entre um dia e uma semana"
+        medium: "Entre uma semana e um mês"
+        low: "Mais de um mês"
+      
+      - metric: "Mean Time to Recovery (MTTR)"
+        elite: "Menos de uma hora"
+        high: "Menos de um dia"
+        medium: "Entre um dia e uma semana"
+        low: "Mais de uma semana"
+      
+      - metric: "Change Failure Rate"
+        elite: "0-15%"
+        high: "16-30%"
+        medium: "31-45%"
+        low: "> 45%"
+  
+  kaizen:
+    principles:
+      - "Pequenas melhorias contínuas"
+      - "Todos podem contribuir"
+      - "Baseado em dados"
+      - "Padronizar o que funciona"

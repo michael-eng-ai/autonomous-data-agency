@@ -1,0 +1,253 @@
+# Knowledge Base: Data Engineering - Best Practices
+# Este arquivo contém as melhores práticas para o time de Engenharia de Dados
+
+metadata:
+  version: "1.0.0"
+  last_updated: "2026-01-05"
+  domain: "data_engineering"
+  type: "best_practices"
+
+principles:
+  - name: "Data Quality First"
+    description: "Qualidade dos dados é mais importante que quantidade"
+    guidelines:
+      - "Implemente validações em cada etapa do pipeline"
+      - "Use contratos de dados (data contracts) entre sistemas"
+      - "Monitore métricas de qualidade continuamente"
+    
+  - name: "Idempotency"
+    description: "Pipelines devem produzir o mesmo resultado se executados múltiplas vezes"
+    guidelines:
+      - "Use MERGE/UPSERT em vez de INSERT simples"
+      - "Implemente lógica de deduplicação"
+      - "Armazene metadados de execução"
+
+  - name: "Observability"
+    description: "Todo pipeline deve ser observável e debugável"
+    guidelines:
+      - "Implemente logging estruturado"
+      - "Use métricas de latência e throughput"
+      - "Configure alertas para anomalias"
+
+architecture_patterns:
+  medallion:
+    description: "Arquitetura em camadas Bronze/Silver/Gold"
+    layers:
+      bronze:
+        purpose: "Dados brutos, exatamente como chegaram"
+        characteristics:
+          - "Append-only"
+          - "Schema-on-read"
+          - "Particionado por data de ingestão"
+      silver:
+        purpose: "Dados limpos e conformados"
+        characteristics:
+          - "Schema validado"
+          - "Deduplicados"
+          - "Tipos de dados corretos"
+      gold:
+        purpose: "Dados agregados e prontos para consumo"
+        characteristics:
+          - "Modelagem dimensional"
+          - "Métricas pré-calculadas"
+          - "Otimizado para queries"
+
+  lambda:
+    description: "Processamento batch + streaming"
+    components:
+      batch_layer: "Processamento de grandes volumes históricos"
+      speed_layer: "Processamento em tempo real"
+      serving_layer: "Camada de consulta unificada"
+    when_to_use:
+      - "Necessidade de dados em tempo real E históricos"
+      - "Tolerância a eventual consistency"
+
+  kappa:
+    description: "Streaming-first architecture"
+    characteristics:
+      - "Todo processamento via streaming"
+      - "Replay de eventos para reprocessamento"
+    when_to_use:
+      - "Eventos são a fonte da verdade"
+      - "Baixa latência é crítica"
+
+data_modeling:
+  dimensional:
+    description: "Star Schema / Snowflake para analytics"
+    components:
+      fact_tables:
+        purpose: "Métricas e eventos mensuráveis"
+        guidelines:
+          - "Granularidade bem definida"
+          - "Foreign keys para dimensões"
+          - "Métricas aditivas quando possível"
+      dimension_tables:
+        purpose: "Contexto descritivo"
+        guidelines:
+          - "Surrogate keys"
+          - "Slowly Changing Dimensions (SCD) quando necessário"
+          - "Atributos desnormalizados"
+    
+  data_vault:
+    description: "Modelagem para data warehouses flexíveis"
+    components:
+      hubs: "Entidades de negócio (chaves)"
+      links: "Relacionamentos entre hubs"
+      satellites: "Atributos descritivos com histórico"
+    when_to_use:
+      - "Múltiplas fontes de dados"
+      - "Necessidade de auditoria completa"
+      - "Schema evolui frequentemente"
+
+pipeline_patterns:
+  etl:
+    description: "Extract, Transform, Load"
+    flow: "Fonte → Transformação → Destino"
+    when_to_use:
+      - "Transformações complexas"
+      - "Dados estruturados"
+      - "Batch processing"
+  
+  elt:
+    description: "Extract, Load, Transform"
+    flow: "Fonte → Destino → Transformação (in-place)"
+    when_to_use:
+      - "Data warehouses modernos (Snowflake, BigQuery)"
+      - "Transformações via SQL"
+      - "Flexibilidade de schema"
+
+  cdc:
+    description: "Change Data Capture"
+    methods:
+      log_based: "Leitura de transaction logs (Debezium)"
+      trigger_based: "Triggers no banco de dados"
+      timestamp_based: "Coluna updated_at"
+    when_to_use:
+      - "Sincronização incremental"
+      - "Baixa latência"
+      - "Minimizar carga no sistema fonte"
+
+tool_recommendations:
+  orchestration:
+    - name: "Apache Airflow"
+      use_case: "Pipelines batch complexos"
+      pros: ["Maduro", "Grande comunidade", "Extensível"]
+      cons: ["Curva de aprendizado", "Não ideal para streaming"]
+    
+    - name: "Prefect"
+      use_case: "Pipelines modernos com Python"
+      pros: ["API Pythonica", "Cloud-native", "Fácil debugging"]
+      cons: ["Comunidade menor", "Menos integrações"]
+    
+    - name: "Dagster"
+      use_case: "Data-aware orchestration"
+      pros: ["Software-defined assets", "Testabilidade", "Observabilidade"]
+      cons: ["Relativamente novo", "Menos documentação"]
+
+  transformation:
+    - name: "dbt"
+      use_case: "Transformações SQL em data warehouses"
+      pros: ["SQL puro", "Versionamento", "Documentação automática"]
+      cons: ["Apenas SQL", "Dependente do warehouse"]
+    
+    - name: "Apache Spark"
+      use_case: "Processamento distribuído de grandes volumes"
+      pros: ["Escalável", "Versátil", "Batch e streaming"]
+      cons: ["Complexidade operacional", "Custo de infraestrutura"]
+
+  ingestion:
+    - name: "Airbyte"
+      use_case: "Ingestão de múltiplas fontes"
+      pros: ["Open source", "Muitos conectores", "Fácil configuração"]
+      cons: ["Pode ser lento para grandes volumes"]
+    
+    - name: "Fivetran"
+      use_case: "Ingestão gerenciada (SaaS)"
+      pros: ["Zero manutenção", "Confiável", "Muitos conectores"]
+      cons: ["Custo", "Menos controle"]
+
+  streaming:
+    - name: "Apache Kafka"
+      use_case: "Event streaming de alta performance"
+      pros: ["Escalável", "Durável", "Ecossistema rico"]
+      cons: ["Complexidade operacional"]
+    
+    - name: "Amazon Kinesis"
+      use_case: "Streaming gerenciado na AWS"
+      pros: ["Integração AWS", "Serverless", "Fácil setup"]
+      cons: ["Vendor lock-in", "Menos flexível"]
+
+data_quality:
+  dimensions:
+    - name: "Completude"
+      description: "Dados não nulos onde esperado"
+      check: "COUNT(*) WHERE column IS NOT NULL / COUNT(*)"
+    
+    - name: "Unicidade"
+      description: "Sem duplicatas em chaves primárias"
+      check: "COUNT(DISTINCT pk) = COUNT(*)"
+    
+    - name: "Validade"
+      description: "Valores dentro de ranges esperados"
+      check: "Validação de domínio (enums, ranges)"
+    
+    - name: "Consistência"
+      description: "Dados consistentes entre sistemas"
+      check: "Reconciliação entre fonte e destino"
+    
+    - name: "Atualidade"
+      description: "Dados atualizados no tempo esperado"
+      check: "MAX(updated_at) > NOW() - INTERVAL"
+    
+    - name: "Acurácia"
+      description: "Dados refletem a realidade"
+      check: "Validação contra fonte da verdade"
+
+  tools:
+    - name: "Great Expectations"
+      description: "Framework Python para validação de dados"
+      features: ["Expectations declarativas", "Documentação automática", "Integração CI/CD"]
+    
+    - name: "dbt tests"
+      description: "Testes integrados ao dbt"
+      features: ["Schema tests", "Custom tests", "Freshness checks"]
+    
+    - name: "Soda"
+      description: "Data quality monitoring"
+      features: ["SodaCL", "Alertas", "Dashboards"]
+
+anti_patterns:
+  - name: "Big Ball of Mud"
+    description: "Pipeline monolítico sem separação de responsabilidades"
+    solution: "Divida em componentes modulares e reutilizáveis"
+  
+  - name: "Silent Failures"
+    description: "Erros que não são detectados ou reportados"
+    solution: "Implemente validações, logging e alertas"
+  
+  - name: "Schema Drift"
+    description: "Mudanças de schema não gerenciadas"
+    solution: "Use contratos de dados e schema registry"
+  
+  - name: "Data Swamp"
+    description: "Data lake sem governança vira pântano"
+    solution: "Implemente catalogação, linhagem e qualidade"
+
+checklists:
+  pipeline_review:
+    - "O pipeline é idempotente?"
+    - "Há validações de qualidade de dados?"
+    - "O logging é suficiente para debugging?"
+    - "Há alertas para falhas?"
+    - "A documentação está atualizada?"
+    - "Os testes cobrem cenários críticos?"
+    - "O schema está versionado?"
+    - "Há estratégia de retry para falhas transientes?"
+  
+  production_readiness:
+    - "Performance foi testada com volume real?"
+    - "Há monitoramento de latência e throughput?"
+    - "Backfill foi testado?"
+    - "Há runbook para incidentes?"
+    - "Permissões seguem princípio do menor privilégio?"
+    - "Dados sensíveis estão protegidos?"

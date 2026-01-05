@@ -1,0 +1,155 @@
+# Knowledge Base: Product Owner - Best Practices
+# Este arquivo contém as melhores práticas para o time de Product Owner
+
+metadata:
+  version: "1.0.0"
+  last_updated: "2026-01-05"
+  domain: "product_owner"
+  type: "best_practices"
+
+principles:
+  - name: "User-Centric Design"
+    description: "Sempre coloque o usuário final no centro de todas as decisões"
+    guidelines:
+      - "Entenda profundamente as dores e necessidades do usuário"
+      - "Valide hipóteses com usuários reais antes de desenvolver"
+      - "Use personas para guiar decisões de produto"
+    
+  - name: "Value-Driven Prioritization"
+    description: "Priorize funcionalidades pelo valor entregue ao negócio"
+    guidelines:
+      - "Use frameworks como RICE, MoSCoW ou Kano para priorização"
+      - "Sempre questione: 'Qual problema isso resolve?'"
+      - "Meça o impacto esperado antes de iniciar desenvolvimento"
+
+  - name: "Clear Communication"
+    description: "Comunique requisitos de forma clara e sem ambiguidades"
+    guidelines:
+      - "Use o formato de User Stories: 'Como [persona], quero [ação] para [benefício]'"
+      - "Defina critérios de aceitação mensuráveis"
+      - "Documente decisões e suas justificativas"
+
+requirements_gathering:
+  questions_framework:
+    business_context:
+      - "Qual problema de negócio estamos resolvendo?"
+      - "Quem são os stakeholders principais?"
+      - "Qual é o impacto financeiro esperado?"
+      - "Existem restrições de prazo ou orçamento?"
+    
+    user_context:
+      - "Quem são os usuários finais?"
+      - "Qual é a jornada atual do usuário?"
+      - "Quais são as principais frustrações?"
+      - "Como o sucesso será medido pelo usuário?"
+    
+    technical_context:
+      - "Existem sistemas legados a integrar?"
+      - "Quais são as fontes de dados disponíveis?"
+      - "Há requisitos de segurança ou compliance?"
+      - "Qual é a infraestrutura atual?"
+    
+    scope_definition:
+      - "O que está DENTRO do escopo?"
+      - "O que está FORA do escopo?"
+      - "Quais são os riscos conhecidos?"
+      - "Quais são as dependências externas?"
+
+user_story_template:
+  format: |
+    **User Story:** [ID]
+    
+    **Como** [tipo de usuário/persona],
+    **Quero** [ação/funcionalidade],
+    **Para que** [benefício/valor].
+    
+    **Critérios de Aceitação:**
+    - [ ] Critério 1
+    - [ ] Critério 2
+    - [ ] Critério 3
+    
+    **Notas Técnicas:**
+    - Nota 1
+    
+    **Prioridade:** [Alta/Média/Baixa]
+    **Estimativa:** [Story Points]
+
+prioritization_frameworks:
+  rice:
+    description: "Reach, Impact, Confidence, Effort"
+    formula: "(Reach × Impact × Confidence) / Effort"
+    scale:
+      reach: "Número de usuários impactados por período"
+      impact: "0.25 (mínimo) a 3 (massivo)"
+      confidence: "0% a 100%"
+      effort: "Pessoa-meses"
+  
+  moscow:
+    description: "Must have, Should have, Could have, Won't have"
+    categories:
+      must: "Requisitos críticos sem os quais o produto não funciona"
+      should: "Importantes mas não críticos para o lançamento"
+      could: "Desejáveis se houver tempo e recursos"
+      wont: "Explicitamente fora do escopo atual"
+
+  kano:
+    description: "Modelo de satisfação do cliente"
+    categories:
+      basic: "Funcionalidades esperadas (ausência causa insatisfação)"
+      performance: "Quanto mais, melhor (satisfação proporcional)"
+      excitement: "Funcionalidades inesperadas que encantam"
+
+documentation_standards:
+  prd_structure:
+    - section: "Visão Geral"
+      content: "Resumo executivo do produto/feature"
+    - section: "Problema"
+      content: "Descrição detalhada do problema a resolver"
+    - section: "Solução Proposta"
+      content: "Como o produto resolve o problema"
+    - section: "Personas"
+      content: "Perfis dos usuários-alvo"
+    - section: "User Stories"
+      content: "Lista de histórias de usuário"
+    - section: "Requisitos Não-Funcionais"
+      content: "Performance, segurança, escalabilidade"
+    - section: "Métricas de Sucesso"
+      content: "KPIs e como serão medidos"
+    - section: "Cronograma"
+      content: "Milestones e datas-chave"
+    - section: "Riscos"
+      content: "Riscos identificados e mitigações"
+
+anti_patterns:
+  - name: "Feature Factory"
+    description: "Focar em entregar features sem medir impacto"
+    solution: "Sempre defina métricas de sucesso antes de desenvolver"
+  
+  - name: "HiPPO (Highest Paid Person's Opinion)"
+    description: "Priorizar baseado em opinião de executivos, não em dados"
+    solution: "Use dados e feedback de usuários para embasar decisões"
+  
+  - name: "Scope Creep"
+    description: "Escopo que cresce continuamente sem controle"
+    solution: "Documente escopo claramente e gerencie mudanças formalmente"
+  
+  - name: "Vague Requirements"
+    description: "Requisitos ambíguos que levam a retrabalho"
+    solution: "Use critérios de aceitação específicos e mensuráveis"
+
+checklists:
+  requirements_review:
+    - "O problema de negócio está claramente definido?"
+    - "Os usuários-alvo foram identificados?"
+    - "Os critérios de aceitação são mensuráveis?"
+    - "O escopo está bem delimitado?"
+    - "As dependências foram mapeadas?"
+    - "Os riscos foram identificados?"
+    - "As métricas de sucesso foram definidas?"
+  
+  story_ready:
+    - "A história segue o formato padrão?"
+    - "O valor para o usuário está claro?"
+    - "Os critérios de aceitação são testáveis?"
+    - "A história é pequena o suficiente para uma sprint?"
+    - "As dependências técnicas foram identificadas?"

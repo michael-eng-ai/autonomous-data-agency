@@ -2,6 +2,13 @@
 
 Um framework Python para criar e orquestrar times de agentes de IA autônomos para projetos de dados. Cada time é composto por múltiplos agentes usando diferentes LLMs para garantir diversidade de pensamento e validação contra alucinações.
 
+## Novidades da v2.0
+
+- **Sistema de Conhecimento em 3 Camadas**: Knowledge Base (YAML), RAG Engine (ChromaDB), Project Memory (SQLite)
+- **Fundamentação de Respostas**: Agentes agora têm acesso a best practices, checklists e anti-patterns
+- **Memória Persistente**: Decisões e preferências são armazenadas por projeto
+- **Busca Semântica**: RAG para conhecimento dinâmico e contextual
+
 ## Arquitetura
 
 ```
@@ -32,27 +39,66 @@ Um framework Python para criar e orquestrar times de agentes de IA autônomos pa
 └───────────────┘    └───────────────┘    └───────────────┘
 ```
 
-### Princípios de Design
+## Sistema de Conhecimento (3 Camadas)
+
+O framework inclui um sistema de conhecimento híbrido que fundamenta as respostas dos agentes:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    KNOWLEDGE MANAGER                             │
+│              (Gerenciador Unificado de Conhecimento)             │
+└─────────────────────────────────────────────────────────────────┘
+        │                     │                     │
+        ▼                     ▼                     ▼
+┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
+│  KNOWLEDGE BASE │ │   RAG ENGINE    │ │ PROJECT MEMORY  │
+│     (YAML)      │ │   (ChromaDB)    │ │    (SQLite)     │
+├─────────────────┤ ├─────────────────┤ ├─────────────────┤
+│ • Best practices│ │ • Docs técnicos │ │ • Decisões      │
+│ • Templates     │ │ • Papers        │ │ • Preferências  │
+│ • Anti-patterns │ │ • Casos de uso  │ │ • Histórico     │
+│ • Checklists    │ │ • Stack Overflow│ │ • Contexto      │
+└─────────────────┘ └─────────────────┘ └─────────────────┘
+```
+
+### Camada 1: Knowledge Base (YAML)
+- **Propósito**: Best practices, checklists, anti-patterns
+- **Características**: Rápido, determinístico, versionável no Git
+- **Localização**: `knowledge/*/best_practices.yaml`
+
+### Camada 2: RAG Engine (ChromaDB)
+- **Propósito**: Conhecimento dinâmico e busca semântica
+- **Características**: Flexível, extensível, contextual
+- **Tecnologia**: ChromaDB para armazenamento vetorial
+
+### Camada 3: Project Memory (SQLite)
+- **Propósito**: Memória de longo prazo por projeto
+- **Características**: Decisões, preferências, histórico
+- **Persistência**: Banco SQLite local
+
+## Princípios de Design
 
 1. **Diversidade de LLMs**: Cada agente operacional usa um modelo diferente (GPT-4.1-mini, GPT-4.1-nano, Gemini-2.5-flash) para evitar vieses e aumentar a qualidade das soluções.
 
 2. **Validação Hierárquica**: Agentes Mestres validam e consolidam as respostas dos operacionais, detectando alucinações e inconsistências.
 
-3. **Prevenção de Alucinações**: Sistema de múltiplas camadas de validação para garantir que as respostas são factualmente corretas.
+3. **Fundamentação em Conhecimento**: Respostas são validadas contra best practices e anti-patterns da Knowledge Base.
 
-4. **Modularidade**: Cada time é independente e pode ser usado isoladamente ou em conjunto.
+4. **Prevenção de Alucinações**: Sistema de múltiplas camadas de validação para garantir que as respostas são factualmente corretas.
+
+5. **Modularidade**: Cada time é independente e pode ser usado isoladamente ou em conjunto.
 
 ## Times Disponíveis
 
-| Time | Descrição | Agentes Operacionais |
-|------|-----------|---------------------|
-| **Product Owner** | Requisitos e escopo | Analista de Requisitos, Escritor de Escopo |
-| **Project Manager** | Planejamento e gestão | Planejador de Projeto, Gestor de Riscos |
-| **Data Engineering** | Arquitetura e pipelines | Arquiteto de Dados, Dev de Pipeline |
-| **Data Science** | ML e MLOps | Cientista de Dados, Engenheiro de ML |
-| **Data Analytics** | Análises e dashboards | Analista de Dados, Especialista em Viz |
-| **DevOps** | Infraestrutura e CI/CD | Eng. de Infraestrutura, Especialista CI/CD |
-| **QA** | Testes e qualidade | Eng. de Testes, Especialista em Data Quality |
+| Time | Domínio | Agentes Operacionais |
+|------|---------|---------------------|
+| **Product Owner** | `product_owner` | Analista de Requisitos, Escritor de Escopo |
+| **Project Manager** | `project_manager` | Planejador de Projeto, Gestor de Riscos |
+| **Data Engineering** | `data_engineering` | Arquiteto de Dados, Dev de Pipeline |
+| **Data Science** | `data_science` | Cientista de Dados, Engenheiro de ML |
+| **Data Analytics** | `data_analytics` | Analista de Dados, Especialista em Viz |
+| **DevOps** | `devops` | Eng. de Infraestrutura, Especialista CI/CD |
+| **QA** | `qa` | Eng. de Testes, Especialista em Data Quality |
 
 ## Instalação
 
@@ -94,10 +140,15 @@ python main.py --mode interactive
 ### Uso Programático
 
 ```python
-from core import get_agency_orchestrator
+from core import get_agency_orchestrator, get_knowledge_manager
 
 # Inicializa o orquestrador
 orchestrator = get_agency_orchestrator()
+
+# Opcional: Indexa conhecimento no RAG
+km = get_knowledge_manager()
+if km.rag_engine.is_available():
+    km.rag_engine.index_knowledge_base(km.knowledge_base)
 
 # Inicia um projeto
 project = orchestrator.start_project(
@@ -119,6 +170,44 @@ validation = orchestrator.global_validation(outputs)
 print(f"Qualidade: {validation.overall_quality_score * 100}%")
 ```
 
+### Usando o Sistema de Conhecimento
+
+```python
+from core.knowledge import (
+    get_knowledge_base,
+    get_rag_engine,
+    get_project_memory,
+    MemoryType
+)
+
+# Knowledge Base (YAML)
+kb = get_knowledge_base()
+de_practices = kb.get_best_practices("data_engineering")
+checklists = kb.get_checklists("qa")
+
+# RAG Engine (ChromaDB)
+rag = get_rag_engine()
+if rag.is_available():
+    results = rag.search("como orquestrar pipelines de dados", n_results=3)
+    for r in results:
+        print(f"Score: {r.relevance_score:.2%} - {r.content[:100]}...")
+
+# Project Memory (SQLite)
+memory = get_project_memory()
+memory.create_project("proj_001", "Meu Projeto", "Cliente XYZ")
+memory.store_decision(
+    project_id="proj_001",
+    decision_key="database_choice",
+    decision="PostgreSQL",
+    rationale="Melhor suporte a JSON e extensibilidade",
+    alternatives=["MySQL", "MongoDB"]
+)
+
+# Recupera contexto do projeto
+context = memory.format_context_for_prompt("proj_001")
+print(context)
+```
+
 ## Estrutura do Projeto
 
 ```
@@ -135,72 +224,59 @@ autonomous-data-agency/
 ├── core/                  # Núcleo do framework
 │   ├── __init__.py
 │   ├── base_team.py       # Classe base para times
-│   └── agency_orchestrator.py  # Orquestrador principal
+│   ├── agency_orchestrator.py  # Orquestrador principal
+│   └── knowledge/         # Sistema de conhecimento
+│       ├── __init__.py
+│       ├── knowledge_base.py   # Camada 1: YAML
+│       ├── rag_engine.py       # Camada 2: ChromaDB
+│       └── project_memory.py   # Camada 3: SQLite
 │
-└── teams/                 # Times de agentes
-    ├── __init__.py
-    ├── product_owner/
-    │   ├── __init__.py
-    │   └── team.py
-    ├── project_manager/
-    │   ├── __init__.py
-    │   └── team.py
-    ├── data_engineering/
-    │   ├── __init__.py
-    │   └── team.py
-    ├── data_science/
-    │   ├── __init__.py
-    │   └── team.py
-    ├── data_analytics/
-    │   ├── __init__.py
-    │   └── team.py
-    ├── devops/
-    │   ├── __init__.py
-    │   └── team.py
-    └── qa/
-        ├── __init__.py
-        └── team.py
+├── knowledge/             # Arquivos de conhecimento (YAML)
+│   ├── product_owner/
+│   │   └── best_practices.yaml
+│   ├── data_engineering/
+│   │   └── best_practices.yaml
+│   ├── data_science/
+│   │   └── best_practices.yaml
+│   ├── devops/
+│   │   └── best_practices.yaml
+│   ├── qa/
+│   │   └── best_practices.yaml
+│   └── shared/
+│       └── general_standards.yaml
+│
+├── teams/                 # Times de agentes
+│   ├── __init__.py
+│   ├── product_owner/
+│   ├── project_manager/
+│   ├── data_engineering/
+│   ├── data_science/
+│   ├── data_analytics/
+│   ├── devops/
+│   └── qa/
+│
+└── data/                  # Dados persistentes (gerado automaticamente)
+    ├── vectordb/          # ChromaDB
+    └── memory/            # SQLite
 ```
 
 ## Fluxo de Trabalho
 
 1. **Recebimento da Solicitação**: O cliente faz uma solicitação de projeto.
 
-2. **Análise de Requisitos**: O time de PO analisa a solicitação com múltiplos agentes, cada um oferecendo uma perspectiva diferente.
+2. **Carregamento de Conhecimento**: O sistema carrega best practices, histórico do projeto e conhecimento relevante.
 
-3. **Validação do Mestre**: O Agente Mestre do time consolida as respostas, detecta alucinações e produz uma saída validada.
+3. **Análise de Requisitos**: O time de PO analisa a solicitação com múltiplos agentes, cada um oferecendo uma perspectiva diferente, fundamentada no conhecimento base.
 
-4. **Delegação**: O orquestrador delega tarefas para outros times conforme necessário.
+4. **Validação do Mestre**: O Agente Mestre do time consolida as respostas, detecta alucinações e valida contra anti-patterns.
 
-5. **Validação Global**: O Agente Mestre Global revisa todas as saídas, garantindo consistência e qualidade.
+5. **Armazenamento de Decisões**: Decisões importantes são armazenadas na Project Memory.
 
-6. **Entrega**: O resultado final é entregue ao cliente.
+6. **Delegação**: O orquestrador delega tarefas para outros times conforme necessário.
 
-## Configuração de LLMs
+7. **Validação Global**: O Agente Mestre Global revisa todas as saídas, garantindo consistência e qualidade.
 
-O framework usa múltiplos LLMs para garantir diversidade:
-
-```python
-# config/llm_config.py
-LLM_CONFIGS = {
-    "master": LLMConfig(
-        model_name="gpt-4.1-mini",
-        temperature=0.3,  # Mais determinístico
-    ),
-    "operational_1": LLMConfig(
-        model_name="gpt-4.1-mini",
-        temperature=0.7,
-    ),
-    "operational_2": LLMConfig(
-        model_name="gpt-4.1-nano",
-        temperature=0.8,
-    ),
-    "operational_3": LLMConfig(
-        model_name="gemini-2.5-flash",
-        temperature=0.7,
-    ),
-}
-```
+8. **Entrega**: O resultado final é entregue ao cliente.
 
 ## Criando um Novo Time
 
@@ -213,6 +289,7 @@ class MeuNovoTime(BaseTeam):
         super().__init__(
             team_name="Meu Novo Time",
             team_description="Descrição do time",
+            domain="meu_dominio",  # Deve corresponder a uma pasta em knowledge/
             num_operational_agents=2
         )
     
@@ -226,6 +303,36 @@ class MeuNovoTime(BaseTeam):
         return "Prompt do agente mestre..."
 ```
 
+## Adicionando Conhecimento
+
+### Criar arquivo YAML para um novo domínio:
+
+```yaml
+# knowledge/meu_dominio/best_practices.yaml
+metadata:
+  version: "1.0.0"
+  last_updated: "2026-01-05"
+  domain: "meu_dominio"
+  type: "best_practices"
+
+principles:
+  - name: "Princípio 1"
+    description: "Descrição do princípio"
+    guidelines:
+      - "Diretriz 1"
+      - "Diretriz 2"
+
+checklists:
+  review_checklist:
+    - "Item 1"
+    - "Item 2"
+
+anti_patterns:
+  - name: "Anti-pattern 1"
+    description: "O que evitar"
+    solution: "Como resolver"
+```
+
 ## Contribuindo
 
 Contribuições são bem-vindas! Por favor, abra uma issue ou pull request.
@@ -236,4 +343,4 @@ MIT License
 
 ## Autor
 
-Desenvolvido como parte de um projeto de demonstração de arquitetura multi-agente.
+Desenvolvido por [Michael](https://github.com/michael-eng-ai)

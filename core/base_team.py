@@ -11,6 +11,12 @@ O fluxo de trabalho padrão é:
 2. Cada agente operacional propõe sua solução
 3. Agente Mestre avalia, detecta alucinações, consolida
 4. Resultado validado é retornado
+
+ATUALIZAÇÃO v2.0:
+- Integração com sistema de conhecimento em 3 camadas
+- Knowledge Base (YAML) para best practices
+- RAG Engine para conhecimento dinâmico
+- Project Memory para contexto persistente
 """
 
 from abc import ABC, abstractmethod
@@ -77,6 +83,7 @@ class TeamOutput:
     validation_result: ValidationResult
     final_output: str
     execution_time_seconds: float = 0.0
+    knowledge_used: Dict[str, bool] = field(default_factory=dict)
 
 
 class BaseTeam(ABC):
@@ -87,12 +94,18 @@ class BaseTeam(ABC):
     - Definição dos agentes operacionais
     - Lógica específica do domínio
     - Critérios de validação específicos
+    
+    RECURSOS DE CONHECIMENTO:
+    - Acesso automático à Knowledge Base do domínio
+    - Busca semântica via RAG para conhecimento dinâmico
+    - Memória de projeto para contexto persistente
     """
     
     def __init__(
         self,
         team_name: str,
         team_description: str,
+        domain: str,
         num_operational_agents: int = 2
     ):
         """
@@ -101,19 +114,129 @@ class BaseTeam(ABC):
         Args:
             team_name: Nome do time (ex: "Data Engineering")
             team_description: Descrição do propósito do time
+            domain: Domínio do conhecimento (ex: "data_engineering")
             num_operational_agents: Número de agentes operacionais (2-3)
         """
         self.team_name = team_name
         self.team_description = team_description
+        self.domain = domain
         self.num_operational_agents = min(max(num_operational_agents, 2), 3)
         
         # Inicializa os LLMs
         self.master_llm = get_llm("master")
         self.operational_llms = get_diverse_llms(self.num_operational_agents)
         
+        # Inicializa o sistema de conhecimento
+        self._init_knowledge_system()
+        
         # Inicializa os agentes
         self.master_agent = self._create_master_agent()
         self.operational_agents = self._create_operational_agents()
+        
+        # Projeto atual (pode ser definido via set_project)
+        self.current_project_id: Optional[str] = None
+    
+    def _init_knowledge_system(self) -> None:
+        """Inicializa o sistema de conhecimento em 3 camadas."""
+        try:
+            from core.knowledge import (
+                get_knowledge_base,
+                get_rag_engine,
+                get_project_memory,
+                get_knowledge_manager
+            )
+            
+            self.knowledge_base = get_knowledge_base()
+            self.rag_engine = get_rag_engine()
+            self.project_memory = get_project_memory()
+            self.knowledge_manager = get_knowledge_manager()
+            
+            self._knowledge_available = True
+            print(f"[{self.team_name}] Sistema de conhecimento inicializado")
+            
+        except ImportError as e:
+            print(f"[{self.team_name}] Sistema de conhecimento não disponível: {e}")
+            self.knowledge_base = None
+            self.rag_engine = None
+            self.project_memory = None
+            self.knowledge_manager = None
+            self._knowledge_available = False
+    
+    def set_project(self, project_id: str) -> None:
+        """
+        Define o projeto atual para contexto.
+        
+        Args:
+            project_id: ID do projeto
+        """
+        self.current_project_id = project_id
+        print(f"[{self.team_name}] Projeto definido: {project_id}")
+    
+    def _get_knowledge_context(self, task: str) -> str:
+        """
+        Obtém contexto de conhecimento relevante para a tarefa.
+        
+        Combina conhecimento das 3 camadas:
+        1. Knowledge Base (YAML) - Best practices do domínio
+        2. RAG Engine - Conhecimento dinâmico relevante
+        3. Project Memory - Contexto do projeto atual
+        
+        Args:
+            task: Descrição da tarefa
+            
+        Returns:
+            String formatada com conhecimento relevante
+        """
+        if not self._knowledge_available:
+            return ""
+        
+        parts = []
+        
+        # Camada 1: Knowledge Base
+        try:
+            kb_context = self.knowledge_base.format_for_prompt(
+                self.domain,
+                sections=['principles', 'checklists', 'anti_patterns']
+            )
+            if kb_context:
+                parts.append("=" * 50)
+                parts.append("CONHECIMENTO BASE (Best Practices)")
+                parts.append("=" * 50)
+                parts.append(kb_context)
+        except Exception as e:
+            print(f"[{self.team_name}] Erro ao carregar Knowledge Base: {e}")
+        
+        # Camada 2: RAG Engine
+        try:
+            if self.rag_engine and self.rag_engine.is_available():
+                rag_context = self.rag_engine.search_for_prompt(
+                    query=task,
+                    n_results=3,
+                    domain_filter=self.domain
+                )
+                if rag_context:
+                    parts.append("\n" + "=" * 50)
+                    parts.append("CONHECIMENTO DINÂMICO (RAG)")
+                    parts.append("=" * 50)
+                    parts.append(rag_context)
+        except Exception as e:
+            print(f"[{self.team_name}] Erro ao consultar RAG: {e}")
+        
+        # Camada 3: Project Memory
+        try:
+            if self.current_project_id and self.project_memory:
+                project_context = self.project_memory.format_context_for_prompt(
+                    self.current_project_id
+                )
+                if project_context:
+                    parts.append("\n" + "=" * 50)
+                    parts.append("CONTEXTO DO PROJETO")
+                    parts.append("=" * 50)
+                    parts.append(project_context)
+        except Exception as e:
+            print(f"[{self.team_name}] Erro ao carregar contexto do projeto: {e}")
+        
+        return "\n".join(parts) if parts else ""
     
     @abstractmethod
     def _get_operational_prompts(self) -> List[str]:
@@ -153,7 +276,11 @@ INSTRUÇÕES CRÍTICAS DE VALIDAÇÃO:
 3. CONSOLIDAÇÃO: Extraia as melhores ideias de cada resposta operacional.
    Combine-as de forma coerente, eliminando redundâncias e contradições.
    
-4. FORMATO DE SAÍDA: Sempre estruture sua validação no seguinte formato:
+4. VALIDAÇÃO COM CONHECIMENTO BASE: Compare as respostas com as best practices
+   e anti-patterns fornecidos no contexto de conhecimento. Rejeite sugestões
+   que violem princípios estabelecidos.
+   
+5. FORMATO DE SAÍDA: Sempre estruture sua validação no seguinte formato:
    - STATUS: [VÁLIDO/ALUCINAÇÃO/FORA_DO_TEMA/INCOMPLETO/REVISÃO_NECESSÁRIA]
    - PROBLEMAS ENCONTRADOS: [lista de problemas, se houver]
    - MELHORES IDEIAS DE: [quais agentes contribuíram com as melhores ideias]
@@ -185,6 +312,8 @@ DIRETRIZES DE QUALIDADE:
 3. Evite inventar dados, estatísticas ou exemplos fictícios.
 4. Mantenha o foco estritamente na tarefa solicitada.
 5. Seja específico e acionável em suas recomendações.
+6. UTILIZE O CONHECIMENTO BASE fornecido no contexto para fundamentar suas respostas.
+7. SIGA os checklists e EVITE os anti-patterns listados no conhecimento base.
 """
             
             prompt_template = ChatPromptTemplate.from_messages([
@@ -197,21 +326,36 @@ DIRETRIZES DE QUALIDADE:
         
         return agents
     
-    def _collect_operational_responses(self, task: str) -> List[AgentResponse]:
+    def _collect_operational_responses(
+        self,
+        task: str,
+        knowledge_context: str
+    ) -> List[AgentResponse]:
         """
         Coleta respostas de todos os agentes operacionais.
         
         Args:
             task: A tarefa a ser executada
+            knowledge_context: Contexto de conhecimento a ser incluído
             
         Returns:
             Lista de respostas dos agentes operacionais
         """
         responses = []
         
+        # Prepara o input com contexto de conhecimento
+        if knowledge_context:
+            full_input = f"""CONTEXTO DE CONHECIMENTO:
+{knowledge_context}
+
+TAREFA:
+{task}"""
+        else:
+            full_input = task
+        
         for agent_id, agent_name, model_name, agent in self.operational_agents:
             try:
-                result = agent.invoke({"input": task})
+                result = agent.invoke({"input": full_input})
                 response = AgentResponse(
                     agent_id=agent_id,
                     agent_name=agent_name,
@@ -234,7 +378,8 @@ DIRETRIZES DE QUALIDADE:
     def _validate_and_consolidate(
         self,
         task: str,
-        operational_responses: List[AgentResponse]
+        operational_responses: List[AgentResponse],
+        knowledge_context: str
     ) -> ValidationResult:
         """
         Usa o agente mestre para validar e consolidar as respostas.
@@ -242,6 +387,7 @@ DIRETRIZES DE QUALIDADE:
         Args:
             task: A tarefa original
             operational_responses: Respostas dos agentes operacionais
+            knowledge_context: Contexto de conhecimento para validação
             
         Returns:
             Resultado da validação e consolidação
@@ -255,14 +401,18 @@ DIRETRIZES DE QUALIDADE:
         validation_prompt = f"""TAREFA ORIGINAL:
 {task}
 
+CONTEXTO DE CONHECIMENTO (use para validar as respostas):
+{knowledge_context if knowledge_context else "Nenhum contexto adicional disponível."}
+
 RESPOSTAS DOS AGENTES OPERACIONAIS:
 {responses_text}
 
 Por favor, analise as respostas acima e:
 1. Identifique possíveis alucinações ou informações incorretas
-2. Verifique se as respostas estão alinhadas com a tarefa
-3. Extraia e consolide as melhores ideias de cada resposta
-4. Produza uma resposta final validada e otimizada
+2. Verifique se as respostas estão alinhadas com a tarefa E com o conhecimento base
+3. Identifique violações de best practices ou uso de anti-patterns
+4. Extraia e consolide as melhores ideias de cada resposta
+5. Produza uma resposta final validada e otimizada
 """
         
         try:
@@ -295,6 +445,45 @@ Por favor, analise as respostas acima e:
                 issues_found=[str(e)]
             )
     
+    def _store_execution_in_memory(
+        self,
+        task: str,
+        output: 'TeamOutput'
+    ) -> None:
+        """
+        Armazena a execução na memória do projeto.
+        
+        Args:
+            task: Tarefa executada
+            output: Resultado da execução
+        """
+        if not self._knowledge_available or not self.current_project_id:
+            return
+        
+        try:
+            from core.knowledge import MemoryType
+            
+            # Armazena a interação
+            self.project_memory.store_interaction(
+                project_id=self.current_project_id,
+                interaction_type=f"team_execution_{self.domain}",
+                content=f"Tarefa: {task[:200]}...\nStatus: {output.validation_result.status.value}",
+                participants=[self.team_name]
+            )
+            
+            # Se houver decisões importantes, armazena
+            if output.validation_result.status == ValidationStatus.VALID:
+                self.project_memory.store(
+                    project_id=self.current_project_id,
+                    memory_type=MemoryType.ARTIFACT,
+                    key=f"{self.domain}_output_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+                    value=output.final_output[:1000],
+                    metadata={"team": self.team_name, "task": task[:200]}
+                )
+                
+        except Exception as e:
+            print(f"[{self.team_name}] Erro ao armazenar na memória: {e}")
+    
     def execute(self, task: str) -> TeamOutput:
         """
         Executa o fluxo completo do time para uma tarefa.
@@ -312,31 +501,74 @@ Por favor, analise as respostas acima e:
         print(f"TIME: {self.team_name}")
         print(f"{'='*60}")
         print(f"Tarefa: {task[:100]}...")
-        print(f"\n[1/2] Coletando respostas dos {len(self.operational_agents)} agentes operacionais...")
+        
+        # Obtém contexto de conhecimento
+        print(f"\n[0/3] Carregando conhecimento do domínio '{self.domain}'...")
+        knowledge_context = self._get_knowledge_context(task)
+        knowledge_used = {
+            "knowledge_base": bool(knowledge_context and "CONHECIMENTO BASE" in knowledge_context),
+            "rag_engine": bool(knowledge_context and "CONHECIMENTO DINÂMICO" in knowledge_context),
+            "project_memory": bool(knowledge_context and "CONTEXTO DO PROJETO" in knowledge_context)
+        }
+        
+        if knowledge_context:
+            print(f"  ✓ Conhecimento carregado: KB={knowledge_used['knowledge_base']}, RAG={knowledge_used['rag_engine']}, Memory={knowledge_used['project_memory']}")
+        else:
+            print(f"  ⚠ Nenhum conhecimento adicional disponível")
+        
+        print(f"\n[1/3] Coletando respostas dos {len(self.operational_agents)} agentes operacionais...")
         
         # Coleta respostas operacionais
-        operational_responses = self._collect_operational_responses(task)
+        operational_responses = self._collect_operational_responses(task, knowledge_context)
         
         for resp in operational_responses:
             print(f"  ✓ {resp.agent_name} ({resp.model_used}) respondeu")
         
-        print(f"\n[2/2] Agente Mestre validando e consolidando...")
+        print(f"\n[2/3] Agente Mestre validando e consolidando...")
         
         # Valida e consolida
-        validation_result = self._validate_and_consolidate(task, operational_responses)
+        validation_result = self._validate_and_consolidate(
+            task,
+            operational_responses,
+            knowledge_context
+        )
         
         print(f"  ✓ Status: {validation_result.status.value}")
         
         execution_time = time.time() - start_time
         
-        return TeamOutput(
+        output = TeamOutput(
             team_name=self.team_name,
             task=task,
             operational_responses=operational_responses,
             validation_result=validation_result,
             final_output=validation_result.consolidated_response,
-            execution_time_seconds=execution_time
+            execution_time_seconds=execution_time,
+            knowledge_used=knowledge_used
         )
+        
+        # Armazena na memória do projeto
+        print(f"\n[3/3] Armazenando execução na memória do projeto...")
+        self._store_execution_in_memory(task, output)
+        print(f"  ✓ Execução armazenada")
+        
+        return output
+    
+    def ask_clarification(self, question: str) -> str:
+        """
+        Método para solicitar esclarecimento ao cliente.
+        Deve ser sobrescrito ou usado com interface de usuário.
+        
+        Args:
+            question: Pergunta a ser feita
+            
+        Returns:
+            Resposta do cliente
+        """
+        print(f"\n[{self.team_name}] PERGUNTA PARA O CLIENTE:")
+        print(f"  {question}")
+        # Em produção, isso seria integrado com uma interface
+        return input("  Resposta: ")
     
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} '{self.team_name}' ({self.num_operational_agents} operacionais)>"
+        return f"<{self.__class__.__name__} '{self.team_name}' ({self.num_operational_agents} operacionais, domain='{self.domain}')>"
