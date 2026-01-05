@@ -1,213 +1,123 @@
 """
-Product Owner Team - Grafo de Orquestração
+Product Owner Team
 
-Este módulo constrói o grafo LangGraph que orquestra os agentes do time
-de Product Owner. O grafo define o fluxo de trabalho entre os agentes.
+Time responsável por:
+- Interagir com o cliente e entender requisitos
+- Definir escopo e prioridades do projeto
+- Criar histórias de usuário e épicos
+- Validar entregas contra os requisitos
+
+Estrutura:
+- 1 Agente Mestre (PO Lead)
+- 2 Agentes Operacionais (Analista de Requisitos, Escritor de Escopo)
 """
 
-from typing import TypedDict, Annotated, List, Literal
-from langchain_core.messages import BaseMessage
-from langgraph.graph import StateGraph, END
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from .agents import (
-    requirements_analyst_agent,
-    scope_writer_agent,
-    task_delegator_agent
-)
+from core.base_team import BaseTeam
+from typing import List
 
 
-# =============================================================================
-# Definição do Estado do Grafo
-# =============================================================================
-
-class AgentState(TypedDict):
+class ProductOwnerTeam(BaseTeam):
     """
-    Estado compartilhado entre os nós do grafo.
-    
-    Attributes:
-        messages: Lista de mensagens trocadas (usuário e agentes)
-        team_members: Lista de agentes disponíveis no time
-        next: Próximo agente a ser executado
-        scope_document: Documento de escopo gerado (quando disponível)
+    Time de Product Owner para análise de requisitos e definição de escopo.
     """
-    messages: Annotated[List[tuple], lambda x, y: x + y]
-    team_members: List[str]
-    next: str
-    scope_document: str
-
-
-# =============================================================================
-# Nós do Grafo (Funções que os agentes executam)
-# =============================================================================
-
-def requirements_analyst_node(state: AgentState) -> dict:
-    """
-    Nó que invoca o agente Analista de Requisitos.
     
-    Este agente analisa a solicitação do cliente e gera perguntas
-    de esclarecimento para detalhar os requisitos.
-    """
-    # Pega a última mensagem do usuário
-    user_input = state["messages"][-1][1]
+    def __init__(self):
+        super().__init__(
+            team_name="Product Owner",
+            team_description="Time responsável por entender requisitos do cliente e definir escopo",
+            num_operational_agents=2
+        )
     
-    # Invoca o agente
-    response = requirements_analyst_agent.invoke({"input": user_input})
-    
-    # Retorna o estado atualizado
-    return {
-        "messages": [("Analista de Requisitos", response.content)],
-        "next": "ask_user"
-    }
-
-
-def scope_writer_node(state: AgentState) -> dict:
-    """
-    Nó que invoca o agente Escritor de Escopo.
-    
-    Este agente pega todas as informações coletadas e gera
-    um documento de escopo formal.
-    """
-    # Compila todas as mensagens em um contexto
-    context = "\n".join([f"{role}: {msg}" for role, msg in state["messages"]])
-    
-    # Invoca o agente
-    response = scope_writer_agent.invoke({
-        "input": f"Com base nas seguintes informações, crie o documento de escopo:\n\n{context}"
-    })
-    
-    # Retorna o estado com o documento de escopo
-    return {
-        "messages": [("Escritor de Escopo", response.content)],
-        "scope_document": response.content,
-        "next": "task_delegator"
-    }
-
-
-def task_delegator_node(state: AgentState) -> dict:
-    """
-    Nó que invoca o agente Delegador de Tarefas (PO Mestre).
-    
-    Este agente analisa o escopo e decide quais times devem
-    ser acionados para executar o projeto.
-    """
-    scope = state.get("scope_document", "")
-    
-    # Invoca o agente
-    response = task_delegator_agent.invoke({
-        "input": f"Analise o seguinte escopo e delegue as tarefas:\n\n{scope}"
-    })
-    
-    return {
-        "messages": [("PO Mestre", response.content)],
-        "next": "end"
-    }
-
-
-def ask_user_node(state: AgentState) -> dict:
-    """
-    Nó de Interrupção: Pausa o grafo para obter feedback do usuário.
-    
-    Este nó representa um ponto onde o sistema precisa de input
-    do usuário antes de continuar. Na prática, isso retornaria
-    o controle para a aplicação principal.
-    """
-    # A última mensagem é do agente (as perguntas)
-    agent_message = state["messages"][-1]
-    
-    print()
-    print("=" * 60)
-    print(f"{agent_message[0]} pergunta:")
-    print("=" * 60)
-    print(agent_message[1])
-    print()
-    
-    # Termina o fluxo por enquanto - o usuário precisa responder
-    return {"next": "end"}
-
-
-# =============================================================================
-# Função de Roteamento
-# =============================================================================
-
-def route_next(state: AgentState) -> Literal["ask_user", "scope_writer", "task_delegator", "end"]:
-    """
-    Função de roteamento que decide o próximo nó baseado no estado.
-    """
-    next_node = state.get("next", "end")
-    
-    if next_node == "ask_user":
-        return "ask_user"
-    elif next_node == "scope_writer":
-        return "scope_writer"
-    elif next_node == "task_delegator":
-        return "task_delegator"
-    else:
-        return "end"
-
-
-# =============================================================================
-# Construção do Grafo
-# =============================================================================
-
-def get_po_team_graph():
-    """
-    Constrói e retorna o grafo LangGraph para o Time de Product Owner.
-    
-    O fluxo básico é:
-    1. Analista de Requisitos faz perguntas
-    2. Sistema aguarda resposta do usuário
-    3. (Após respostas) Escritor de Escopo cria o documento
-    4. PO Mestre delega as tarefas
-    
-    Returns:
-        Um grafo LangGraph compilado e pronto para execução.
-    """
-    # Cria o grafo com o tipo de estado definido
-    graph = StateGraph(AgentState)
-
-    # Adiciona os nós ao grafo
-    graph.add_node("Analista de Requisitos", requirements_analyst_node)
-    graph.add_node("ask_user", ask_user_node)
-    graph.add_node("scope_writer", scope_writer_node)
-    graph.add_node("task_delegator", task_delegator_node)
-
-    # Define o ponto de entrada
-    graph.set_entry_point("Analista de Requisitos")
-    
-    # Define as arestas (transições entre nós)
-    graph.add_edge("Analista de Requisitos", "ask_user")
-    graph.add_edge("ask_user", END)
-    graph.add_edge("scope_writer", "task_delegator")
-    graph.add_edge("task_delegator", END)
-    
-    # Compila o grafo
-    return graph.compile()
-
-
-# =============================================================================
-# Função para continuar o fluxo após input do usuário
-# =============================================================================
-
-def continue_with_user_response(graph, state: AgentState, user_response: str) -> AgentState:
-    """
-    Continua a execução do grafo após o usuário fornecer uma resposta.
-    
-    Args:
-        graph: O grafo compilado
-        state: O estado atual do grafo
-        user_response: A resposta do usuário às perguntas
+    def _get_operational_prompts(self) -> List[str]:
+        """Retorna os prompts dos agentes operacionais do time de PO."""
         
-    Returns:
-        O novo estado após processar a resposta
-    """
-    # Adiciona a resposta do usuário ao estado
-    new_state = state.copy()
-    new_state["messages"] = state["messages"] + [("user", user_response)]
-    new_state["next"] = "scope_writer"
+        # Agente 1: Analista de Requisitos
+        analyst_prompt = """Você é um Analista de Requisitos Sênior com 15 anos de experiência.
+
+ESPECIALIDADES:
+- Elicitação de requisitos através de entrevistas e workshops
+- Análise de stakeholders e suas necessidades
+- Documentação de requisitos funcionais e não-funcionais
+- Identificação de riscos e dependências
+
+ABORDAGEM:
+1. Analise a solicitação do cliente de forma crítica
+2. Identifique ambiguidades e lacunas de informação
+3. Formule perguntas específicas e acionáveis
+4. Agrupe perguntas por categoria (Negócio, Técnico, Dados, Integração)
+5. Priorize as perguntas mais críticas primeiro
+
+FORMATO DE SAÍDA:
+- Liste as perguntas de forma clara e numerada
+- Explique brevemente por que cada pergunta é importante
+- Sugira possíveis respostas quando aplicável"""
+
+        # Agente 2: Escritor de Escopo
+        scope_prompt = """Você é um Product Manager experiente especializado em documentação de escopo.
+
+ESPECIALIDADES:
+- Criação de documentos de visão e escopo
+- Definição de épicos e histórias de usuário
+- Priorização usando frameworks (MoSCoW, RICE, etc.)
+- Definição de critérios de aceitação
+
+ABORDAGEM:
+1. Transforme requisitos vagos em especificações claras
+2. Estruture o escopo em épicos e histórias
+3. Defina critérios de aceitação mensuráveis
+4. Identifique MVP vs. features futuras
+
+FORMATO DE SAÍDA:
+- Visão geral do projeto (1-2 parágrafos)
+- Lista de épicos com descrição
+- Histórias de usuário no formato "Como [persona], quero [ação], para [benefício]"
+- Critérios de aceitação para cada história"""
+
+        return [analyst_prompt, scope_prompt]
     
-    # Continua a execução
-    for step in graph.stream(new_state):
-        if "__end__" not in step:
-            pass
+    def _get_master_prompt(self) -> str:
+        """Retorna o prompt do agente mestre (PO Lead)."""
+        
+        return """Você é o Product Owner Lead, responsável por liderar o time de PO.
+
+RESPONSABILIDADES:
+1. VALIDAÇÃO: Verificar se as análises e documentos estão corretos e completos
+2. CONSOLIDAÇÃO: Unificar as melhores ideias dos agentes operacionais
+3. QUALIDADE: Garantir que não há informações inventadas ou fora do escopo
+4. COMUNICAÇÃO: Produzir uma saída clara e acionável para o cliente
+
+CRITÉRIOS DE VALIDAÇÃO ESPECÍFICOS:
+- As perguntas são relevantes para o projeto?
+- O escopo está alinhado com o que o cliente pediu?
+- Há suposições não verificadas sendo tratadas como fatos?
+- Os critérios de aceitação são mensuráveis?
+
+PROCESSO DE CONSOLIDAÇÃO:
+1. Revise cada resposta operacional criticamente
+2. Identifique os pontos fortes de cada uma
+3. Elimine redundâncias e contradições
+4. Produza um documento unificado e coerente"""
+
+
+def get_product_owner_team() -> ProductOwnerTeam:
+    """Factory function para criar o time de PO."""
+    return ProductOwnerTeam()
+
+
+if __name__ == "__main__":
+    # Teste do time
+    team = get_product_owner_team()
+    print(f"Time criado: {team}")
     
-    return new_state
+    # Executa uma tarefa de teste
+    task = "O cliente quer um sistema de análise de vendas para sua loja de café"
+    result = team.execute(task)
+    
+    print(f"\n{'='*60}")
+    print("RESULTADO FINAL")
+    print(f"{'='*60}")
+    print(result.final_output)
