@@ -24,7 +24,7 @@ import re
 import json
 import statistics
 from typing import Dict, List, Any, Optional, Callable, Union
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field as dataclass_field
 from datetime import datetime, timedelta
 from enum import Enum
 from collections import defaultdict
@@ -72,7 +72,7 @@ class QualityRule:
     dimension: QualityDimension
     severity: RuleSeverity
     field: Optional[str] = None
-    parameters: Dict[str, Any] = field(default_factory=dict)
+    parameters: Dict[str, Any] = dataclass_field(default_factory=dict)
     enabled: bool = True
     
     def to_dict(self) -> Dict[str, Any]:
@@ -99,8 +99,8 @@ class RuleViolation:
     field: Optional[str]
     message: str
     affected_records: int
-    sample_values: List[Any] = field(default_factory=list)
-    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
+    sample_values: List[Any] = dataclass_field(default_factory=list)
+    timestamp: str = dataclass_field(default_factory=lambda: datetime.now().isoformat())
 
 
 @dataclass
@@ -111,7 +111,7 @@ class QualityScore:
     total_checks: int
     passed_checks: int
     failed_checks: int
-    violations: List[RuleViolation] = field(default_factory=list)
+    violations: List[RuleViolation] = dataclass_field(default_factory=list)
 
 
 @dataclass

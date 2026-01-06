@@ -1,5 +1,5 @@
 """
-Core Package - Autonomous Data Agency v5.0
+Core Package - Autonomous Data Agency v6.0
 
 Este pacote contém as classes e utilitários fundamentais do framework:
 - BaseTeam: Classe base para todos os times de agentes
@@ -11,10 +11,16 @@ Este pacote contém as classes e utilitários fundamentais do framework:
 - TaskOrchestrator: Orquestrador de tarefas e dependências
 - PMOrchestrator: Project Manager como orquestrador central
 - ValidationWorkflow: Fluxo de validação QA + PO
-- GovernanceTeam: Time de Governança e LGPD (NEW v5.0)
-- DataQuality: Validação de qualidade de dados (NEW v5.0)
-- ObservabilityTeam: Observabilidade e FinOps (NEW v5.0)
-- IntegratedWorkflow: Workflow integrado com governança (NEW v5.0)
+- GovernanceTeam: Time de Governança e LGPD
+- DataQuality: Validação de qualidade de dados
+- ObservabilityTeam: Observabilidade e FinOps
+- IntegratedWorkflow: Workflow integrado com governança
+- QuarantineManager: Gestão de dados inválidos (NEW v6.0)
+- ProcessControl: Rastreabilidade de execuções (NEW v6.0)
+- GovernancePolicies: Políticas de governança em YAML (NEW v6.0)
+- DataCatalog: Catálogo de dados com OpenMetadata (NEW v6.0)
+- LineageTracker: Rastreamento de linhagem de dados (NEW v6.0)
+- BusinessGlossary: Glossário de negócio padronizado (NEW v6.0)
 """
 
 from .base_team import (
@@ -123,41 +129,42 @@ from .validation_workflow import (
     get_po_validator
 )
 
-# Governance Team (NEW in v5.0)
+# Governance Team
 from .governance_team import (
     GovernanceTeam,
     DataClassification,
     LegalBasis,
-    ComplianceStatus,
     DataSubjectRight,
-    LGPDChecklist,
-    GovernanceReview,
+    PIIType,
+    LGPDValidator,
+    GovernanceValidation,
     get_governance_team
 )
 
-# Data Quality (NEW in v5.0)
+# Data Quality
 from .data_quality import (
     DataQualityValidator,
     QualityDimension,
     QualityRule,
-    QualityViolation,
+    RuleViolation,
     QualityReport,
+    RuleSeverity,
     get_data_quality_validator
 )
 
-# Observability Team (NEW in v5.0)
+# Observability Team
 from .observability_team import (
     ObservabilityTeam,
     StructuredLogger,
     MetricsCollector,
     AlertManager,
     CostTracker,
-    LogLevel,
     AlertSeverity,
+    MetricType,
     get_observability_team
 )
 
-# Integrated Workflow (NEW in v5.0)
+# Integrated Workflow
 from .integrated_workflow import (
     IntegratedWorkflow,
     WorkflowPhase,
@@ -165,6 +172,68 @@ from .integrated_workflow import (
     WorkflowCheckpoint,
     IntegratedProject,
     get_integrated_workflow
+)
+
+# Quarantine Manager (NEW in v6.0)
+from .quarantine_manager import (
+    QuarantineManager,
+    QuarantineRecord,
+    QuarantineReason,
+    QuarantineStatus,
+    QuarantineStats,
+    get_quarantine_manager
+)
+
+# Process Control (NEW in v6.0)
+from .process_control import (
+    ProcessControl,
+    ProcessExecution,
+    ExecutionStatus,
+    ExecutionStep,
+    StepStatus,
+    ExecutionMetrics,
+    get_process_control
+)
+
+# Governance Policies (NEW in v6.0)
+from .governance_policies import (
+    GovernancePolicies,
+    AccessPolicy,
+    RetentionPolicy,
+    DataClassificationLevel,
+    QualityThreshold,
+    LGPDConfig,
+    AuditConfig,
+    get_governance_policies
+)
+
+# Data Catalog (NEW in v6.0)
+from .data_catalog import (
+    DataCatalog,
+    TableMetadata,
+    ColumnMetadata,
+    DataAsset,
+    AssetType,
+    get_data_catalog
+)
+
+# Lineage Tracker (NEW in v6.0)
+from .lineage_tracker import (
+    LineageTracker,
+    LineageNode,
+    LineageEdge,
+    TransformationType,
+    ImpactAnalysis,
+    get_lineage_tracker
+)
+
+# Business Glossary (NEW in v6.0)
+from .business_glossary import (
+    BusinessGlossary,
+    GlossaryTerm,
+    TermRelationship,
+    TermStatus,
+    get_business_glossary
 )
 
 __all__ = [
@@ -264,41 +333,92 @@ __all__ = [
     "get_qa_validator",
     "get_po_validator",
     
-    # Governance Team (NEW in v5.0)
+    # Governance Team
     "GovernanceTeam",
     "DataClassification",
     "LegalBasis",
-    "ComplianceStatus",
     "DataSubjectRight",
-    "LGPDChecklist",
-    "GovernanceReview",
+    "PIIType",
+    "LGPDValidator",
+    "GovernanceValidation",
     "get_governance_team",
     
-    # Data Quality (NEW in v5.0)
+    # Data Quality
     "DataQualityValidator",
     "QualityDimension",
     "QualityRule",
-    "QualityViolation",
+    "RuleViolation",
     "QualityReport",
+    "RuleSeverity",
     "get_data_quality_validator",
     
-    # Observability Team (NEW in v5.0)
+    # Observability Team
     "ObservabilityTeam",
     "StructuredLogger",
     "MetricsCollector",
     "AlertManager",
     "CostTracker",
-    "LogLevel",
+    "MetricType",
     "AlertSeverity",
     "get_observability_team",
     
-    # Integrated Workflow (NEW in v5.0)
+    # Integrated Workflow
     "IntegratedWorkflow",
     "WorkflowPhase",
     "WorkflowStatus",
     "WorkflowCheckpoint",
     "IntegratedProject",
     "get_integrated_workflow",
+    
+    # Quarantine Manager (NEW in v6.0)
+    "QuarantineManager",
+    "QuarantineRecord",
+    "QuarantineReason",
+    "QuarantineStatus",
+    "QuarantineStats",
+    "get_quarantine_manager",
+    
+    # Process Control (NEW in v6.0)
+    "ProcessControl",
+    "ProcessExecution",
+    "ExecutionStatus",
+    "ExecutionStep",
+    "StepStatus",
+    "ExecutionMetrics",
+    "get_process_control",
+    
+    # Governance Policies (NEW in v6.0)
+    "GovernancePolicies",
+    "AccessPolicy",
+    "RetentionPolicy",
+    "DataClassificationLevel",
+    "QualityThreshold",
+    "LGPDConfig",
+    "AuditConfig",
+    "get_governance_policies",
+    
+    # Data Catalog (NEW in v6.0)
+    "DataCatalog",
+    "TableMetadata",
+    "ColumnMetadata",
+    "DataAsset",
+    "AssetType",
+    "get_data_catalog",
+    
+    # Lineage Tracker (NEW in v6.0)
+    "LineageTracker",
+    "LineageNode",
+    "LineageEdge",
+    "TransformationType",
+    "ImpactAnalysis",
+    "get_lineage_tracker",
+    
+    # Business Glossary (NEW in v6.0)
+    "BusinessGlossary",
+    "GlossaryTerm",
+    "TermRelationship",
+    "TermStatus",
+    "get_business_glossary",
 ]
 
-__version__ = "5.0.0"
+__version__ = "6.0.0"

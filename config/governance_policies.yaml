@@ -1,0 +1,371 @@
+# =============================================================================
+# GOVERNANCE POLICIES CONFIGURATION
+# =============================================================================
+# Este arquivo define as políticas de governança de dados para o framework.
+# Todas as políticas são versionáveis e auditáveis via Git.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# POLÍTICAS DE ACESSO POR CAMADA
+# -----------------------------------------------------------------------------
+access_policies:
+  landing:
+    description: "Arquivos brutos - Acesso restrito a engenheiros"
+    read:
+      - role: data_engineer
+      - role: admin
+    write:
+      - role: data_engineer
+      - role: admin
+  
+  bronze:
+    description: "Dados brutos em formato estruturado - Acesso restrito"
+    read:
+      - role: data_engineer
+      - role: data_scientist
+      - role: admin
+    write:
+      - role: data_engineer
+      - role: admin
+  
+  silver:
+    description: "Dados limpos e validados - Acesso para analistas"
+    read:
+      - role: data_engineer
+      - role: data_scientist
+      - role: data_analyst
+      - role: admin
+    write:
+      - role: data_engineer
+      - role: admin
+  
+  gold:
+    description: "Dados de negócio agregados - Acesso amplo"
+    read:
+      - role: data_engineer
+      - role: data_scientist
+      - role: data_analyst
+      - role: business_user
+      - role: admin
+    write:
+      - role: data_engineer
+      - role: admin
+  
+  consumption:
+    description: "Modelo dimensional para BI - Acesso para todos"
+    read:
+      - role: data_engineer
+      - role: data_scientist
+      - role: data_analyst
+      - role: business_user
+      - role: bi_developer
+      - role: admin
+    write:
+      - role: data_engineer
+      - role: admin
+
+# -----------------------------------------------------------------------------
+# POLÍTICAS DE RETENÇÃO DE DADOS
+# -----------------------------------------------------------------------------
+retention_policies:
+  landing:
+    retention_days: 90
+    archive_after_days: 30
+    description: "Arquivos brutos mantidos por 90 dias"
+  
+  bronze:
+    retention_days: 365
+    archive_after_days: 180
+    description: "Dados históricos mantidos por 1 ano"
+  
+  silver:
+    retention_days: 730
+    archive_after_days: 365
+    description: "Dados limpos mantidos por 2 anos"
+  
+  gold:
+    retention_days: 1095
+    archive_after_days: 730
+    description: "Dados de negócio mantidos por 3 anos"
+  
+  consumption:
+    retention_days: 1095
+    archive_after_days: 730
+    description: "Modelo dimensional mantido por 3 anos"
+  
+  control:
+    retention_days: 365
+    archive_after_days: 180
+    description: "Logs de controle mantidos por 1 ano"
+
+# -----------------------------------------------------------------------------
+# CLASSIFICAÇÃO DE DADOS
+# -----------------------------------------------------------------------------
+data_classification:
+  levels:
+    - name: PUBLIC
+      description: "Dados públicos sem restrição de acesso"
+      handling: "Sem restrições especiais"
+    
+    - name: INTERNAL
+      description: "Dados internos da organização"
+      handling: "Acesso limitado a funcionários"
+    
+    - name: CONFIDENTIAL
+      description: "Dados confidenciais de negócio"
+      handling: "Acesso restrito por necessidade"
+    
+    - name: RESTRICTED
+      description: "Dados altamente restritos"
+      handling: "Aprovação explícita necessária"
+    
+    - name: PII
+      description: "Dados pessoais identificáveis (LGPD)"
+      handling: "Criptografia obrigatória, consentimento necessário"
+    
+    - name: SENSITIVE
+      description: "Dados sensíveis (financeiros, saúde)"
+      handling: "Máxima proteção, auditoria completa"
+  
+  # Classificação por tabela
+  table_classifications:
+    bronze_clientes: PII
+    silver_clientes: PII
+    gold_clientes: CONFIDENTIAL
+    bronze_vendas: INTERNAL
+    silver_vendas: INTERNAL
+    gold_vendas: CONFIDENTIAL
+    dim_cliente: CONFIDENTIAL
+    fato_vendas: INTERNAL
+
+# -----------------------------------------------------------------------------
+# POLÍTICAS DE QUALIDADE DE DADOS
+# -----------------------------------------------------------------------------
+data_quality_policies:
+  thresholds:
+    completeness:
+      min: 0.95
+      description: "Mínimo de 95% de campos preenchidos"
+    
+    uniqueness:
+      min: 1.0
+      description: "100% de unicidade para chaves primárias"
+    
+    validity:
+      min: 0.98
+      description: "Mínimo de 98% de valores válidos"
+    
+    freshness:
+      max_hours: 24
+      description: "Dados devem ter no máximo 24h de atraso"
+    
+    accuracy:
+      min: 0.99
+      description: "Mínimo de 99% de precisão"
+  
+  # Regras por camada
+  layer_rules:
+    bronze:
+      - rule: "schema_validation"
+        severity: "error"
+      - rule: "null_check_pk"
+        severity: "error"
+    
+    silver:
+      - rule: "completeness_check"
+        severity: "error"
+      - rule: "uniqueness_check"
+        severity: "error"
+      - rule: "validity_check"
+        severity: "warning"
+    
+    gold:
+      - rule: "business_rule_validation"
+        severity: "error"
+      - rule: "referential_integrity"
+        severity: "error"
+  
+  # Configuração de alertas
+  alerting:
+    channels:
+      - type: email
+        recipients:
+          - data-team@company.com
+        severity_filter: ["error", "critical"]
+      
+      - type: slack
+        webhook_url: "${SLACK_WEBHOOK_URL}"
+        channel: "#data-alerts"
+        severity_filter: ["warning", "error", "critical"]
+    
+    escalation:
+      warning:
+        notify_after_minutes: 30
+        auto_resolve_after_hours: 24
+      
+      error:
+        notify_after_minutes: 5
+        escalate_after_hours: 2
+        escalate_to:
+          - data-leads@company.com
+      
+      critical:
+        notify_immediately: true
+        escalate_after_minutes: 30
+        escalate_to:
+          - data-leads@company.com
+          - cto@company.com
+
+# -----------------------------------------------------------------------------
+# GLOSSÁRIO DE NEGÓCIO
+# -----------------------------------------------------------------------------
+business_glossary:
+  terms:
+    - term: "Cliente"
+      definition: "Pessoa física ou jurídica que realiza compras"
+      synonyms: ["Consumidor", "Comprador", "Customer"]
+      related_columns: ["cliente_id", "customer_id", "cod_cliente"]
+    
+    - term: "Venda"
+      definition: "Transação comercial de produtos ou serviços"
+      synonyms: ["Pedido", "Transação", "Order", "Sale"]
+      related_columns: ["venda_id", "pedido_id", "order_id"]
+    
+    - term: "Produto"
+      definition: "Item comercializado pela empresa"
+      synonyms: ["Item", "SKU", "Mercadoria"]
+      related_columns: ["produto_id", "sku", "item_id"]
+    
+    - term: "Receita"
+      definition: "Valor total de vendas antes de descontos"
+      synonyms: ["Faturamento", "Revenue", "Gross Sales"]
+      related_columns: ["receita", "revenue", "valor_bruto"]
+    
+    - term: "Margem"
+      definition: "Diferença entre receita e custo"
+      synonyms: ["Lucro Bruto", "Gross Margin"]
+      related_columns: ["margem", "margin", "lucro_bruto"]
+      values:
+        calculation: "receita - custo"
+        unit: "BRL"
+
+# -----------------------------------------------------------------------------
+# PROPRIEDADE DE DADOS (DATA OWNERSHIP)
+# -----------------------------------------------------------------------------
+data_ownership:
+  stewards:
+    landing:
+      team: "Data Engineering"
+      contact: "data-eng@company.com"
+      business_owner: "CTO"
+    
+    bronze:
+      team: "Data Engineering"
+      contact: "data-eng@company.com"
+      business_owner: "CTO"
+    
+    silver:
+      team: "Data Engineering"
+      contact: "data-eng@company.com"
+      business_owner: "CDO"
+    
+    gold:
+      team: "Data Analytics"
+      contact: "analytics@company.com"
+      business_owner: "CDO"
+    
+    consumption:
+      team: "Business Intelligence"
+      contact: "bi@company.com"
+      business_owner: "CFO"
+
+# -----------------------------------------------------------------------------
+# LGPD / COMPLIANCE
+# -----------------------------------------------------------------------------
+lgpd_compliance:
+  # Bases legais para tratamento de dados
+  legal_bases:
+    - name: "consent"
+      description: "Consentimento do titular"
+      requires_opt_in: true
+    
+    - name: "contract"
+      description: "Execução de contrato"
+      requires_opt_in: false
+    
+    - name: "legal_obligation"
+      description: "Cumprimento de obrigação legal"
+      requires_opt_in: false
+    
+    - name: "legitimate_interest"
+      description: "Interesse legítimo do controlador"
+      requires_opt_in: false
+      requires_lia: true  # Legitimate Interest Assessment
+  
+  # Direitos do titular
+  data_subject_rights:
+    - right: "access"
+      description: "Direito de acesso aos dados"
+      sla_days: 15
+    
+    - right: "correction"
+      description: "Direito de correção"
+      sla_days: 15
+    
+    - right: "deletion"
+      description: "Direito de exclusão"
+      sla_days: 15
+    
+    - right: "portability"
+      description: "Direito de portabilidade"
+      sla_days: 15
+    
+    - right: "objection"
+      description: "Direito de oposição"
+      sla_days: 15
+  
+  # Campos que requerem consentimento
+  consent_required_fields:
+    - "email_marketing"
+    - "phone_marketing"
+    - "data_sharing"
+    - "profiling"
+  
+  # Período de retenção para dados pessoais
+  pii_retention:
+    active_customer: 
+      years: 5
+      justification: "Necessário para execução do contrato"
+    
+    inactive_customer:
+      years: 2
+      justification: "Obrigação legal fiscal"
+    
+    prospect:
+      months: 6
+      justification: "Interesse legítimo limitado"
+
+# -----------------------------------------------------------------------------
+# AUDITORIA
+# -----------------------------------------------------------------------------
+audit_config:
+  enabled: true
+  
+  # Eventos a serem auditados
+  events:
+    - "data_access"
+    - "data_modification"
+    - "data_deletion"
+    - "schema_change"
+    - "permission_change"
+    - "export"
+  
+  # Retenção de logs de auditoria
+  retention_days: 365
+  
+  # Campos sensíveis a mascarar nos logs
+  mask_fields:
+    - "cpf"
+    - "password"
+    - "credit_card"
+    - "cvv"

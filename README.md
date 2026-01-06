@@ -1,24 +1,25 @@
-# Autonomous Data Agency Framework v5.0
+# Autonomous Data Agency Framework v6.0
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Um framework avançado para criar agências autônomas de dados usando múltiplos times de agentes de IA com LLMs diversos, **governança e LGPD integrados**, sistema de conhecimento em 3 camadas, validação anti-alucinação robusta, **data quality**, **observabilidade e FinOps**.
+Um framework avançado para criar agências autônomas de dados usando múltiplos times de agentes de IA com LLMs diversos, **governança e LGPD integrados**, sistema de conhecimento em 3 camadas, validação anti-alucinação robusta, **data quality**, **observabilidade e FinOps**, **data catalog**, **lineage tracking** e **business glossary**.
 
-## 🌟 Novidades da v5.0
+## 🌟 Novidades da v6.0
 
-- **Time de Governança e LGPD**: Classificação de dados, base legal, consentimento, auditoria
-- **Data Quality**: 6 dimensões de qualidade, validação automática, relatórios
-- **Observabilidade e FinOps**: Logging estruturado, métricas, alertas, estimativa de custos
-- **Workflow Integrado**: Governança em cada etapa, validação contínua
-- **Knowledge Base Expandida**: Governança e Observabilidade
+- **QuarantineManager**: Gestão de dados inválidos com isolamento e reprocessamento
+- **ProcessControl**: Rastreabilidade completa de execuções com checkpoints
+- **GovernancePolicies**: Políticas de governança versionáveis em YAML
+- **DataCatalog**: Catálogo de dados com integração OpenMetadata
+- **LineageTracker**: Rastreamento de linhagem de dados com análise de impacto
+- **BusinessGlossary**: Glossário de negócio padronizado com termos e relacionamentos
 
 ## 📁 Arquitetura Completa
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           AUTONOMOUS DATA AGENCY                             │
-│                              Framework v5.0                                  │
+│                              Framework v6.0                                  │
 └─────────────────────────────────────────────────────────────────────────────┘
                                      │
         ┌────────────────────────────┼────────────────────────────┐
@@ -30,6 +31,24 @@ Um framework avançado para criar agências autônomas de dados usando múltiplo
 └───────────────┘          └───────────────┘          └───────────────┘
         │                            │                            │
         └────────────────────────────┼────────────────────────────┘
+                                     │
+        ┌────────────────────────────┼────────────────────────────┐
+        │                            │                            │
+        ▼                            ▼                            ▼
+┌───────────────┐          ┌───────────────┐          ┌───────────────┐
+│ DATA CATALOG  │          │   LINEAGE     │          │   BUSINESS    │
+│     📚        │          │   TRACKER 🔗  │          │   GLOSSARY 📖 │
+└───────────────┘          └───────────────┘          └───────────────┘
+        │                            │                            │
+        └────────────────────────────┼────────────────────────────┘
+                                     │
+        ┌────────────────────────────┼────────────────────────────┐
+        │                            │                            │
+        ▼                            ▼                            ▼
+┌───────────────┐          ┌───────────────┐          ┌───────────────┐
+│  QUARANTINE   │          │   PROCESS     │          │  GOVERNANCE   │
+│  MANAGER 🔒   │          │   CONTROL ⚙️  │          │  POLICIES 📋  │
+└───────────────┘          └───────────────┘          └───────────────┘
                                      │
                     ┌────────────────┼────────────────┐
                     │                │                │
@@ -46,19 +65,452 @@ Um framework avançado para criar agências autônomas de dados usando múltiplo
              │ Data Eng  │    │  DevOps   │   │Data Science│   │    QA     │
              │   Team    │    │   Team    │   │   Team    │   │   Team    │
              └───────────┘    └───────────┘   └───────────┘   └───────────┘
-                    │                │               │               │
-                    └────────────────┴───────────────┴───────────────┘
-                                            │
-                                            ▼
-                                    ┌───────────────┐
-                                    │ DATA QUALITY  │
-                                    │   Validator   │
-                                    └───────────────┘
+```
+
+## 🔒 QuarantineManager (NEW v6.0)
+
+Sistema de gestão de dados inválidos inspirado no projeto ABInBev:
+
+### Funcionalidades
+
+| Funcionalidade | Descrição |
+|----------------|-----------|
+| **Isolamento** | Separa registros problemáticos sem bloquear o pipeline |
+| **Classificação** | Categoriza erros (validação, schema, duplicata, etc.) |
+| **Reprocessamento** | Permite reprocessar registros após correção |
+| **Alertas** | Notifica sobre novos tipos de erros |
+| **Estatísticas** | Dashboard de quarentena por período |
+
+### Uso
+
+```python
+from core import get_quarantine_manager, QuarantineReason
+
+quarantine = get_quarantine_manager(project_id="meu_projeto")
+
+# Envia registro para quarentena
+quarantine.quarantine_record(
+    record_id="rec_001",
+    source_table="bronze_vendas",
+    target_table="silver_vendas",
+    record_data={"id": 1, "valor": -100, "data": "2024-01-01"},
+    reason=QuarantineReason.VALIDATION_FAILED,
+    error_details="Valor não pode ser negativo",
+    pipeline_name="vendas_pipeline",
+    step_name="validacao_valores"
+)
+
+# Obtém estatísticas
+stats = quarantine.get_stats()
+print(f"Total em quarentena: {stats.total_quarantined}")
+print(f"Pendentes: {stats.pending}")
+print(f"Reprocessados: {stats.reprocessed}")
+
+# Lista registros por razão
+records = quarantine.get_records_by_reason(QuarantineReason.VALIDATION_FAILED)
+
+# Marca para reprocessamento
+quarantine.mark_for_reprocessing("rec_001", notes="Valor corrigido")
+
+# Reprocessa registros pendentes
+reprocessed = quarantine.reprocess_pending(
+    callback=lambda record: process_record(record)
+)
+```
+
+## ⚙️ ProcessControl (NEW v6.0)
+
+Rastreabilidade completa de execuções:
+
+### Funcionalidades
+
+| Funcionalidade | Descrição |
+|----------------|-----------|
+| **Execuções** | Registro de início, fim e status de cada execução |
+| **Steps** | Checkpoints dentro de cada execução |
+| **Métricas** | Duração, registros processados, erros |
+| **Histórico** | Auditoria completa de todas as execuções |
+| **Retry** | Suporte a reexecução de steps falhos |
+
+### Uso
+
+```python
+from core import get_process_control, ExecutionStatus
+
+pc = get_process_control(project_id="meu_projeto")
+
+# Inicia execução
+execution_id = pc.start_execution(
+    pipeline_name="vendas_pipeline",
+    triggered_by="scheduler",
+    parameters={"date": "2024-01-01"}
+)
+
+# Registra steps
+pc.start_step(execution_id, "extract", {"source": "sql_server"})
+pc.complete_step(execution_id, "extract", records_processed=10000)
+
+pc.start_step(execution_id, "transform", {"rules": 15})
+pc.complete_step(execution_id, "transform", records_processed=9500)
+
+pc.start_step(execution_id, "load", {"target": "silver"})
+pc.complete_step(execution_id, "load", records_processed=9500)
+
+# Finaliza execução
+pc.complete_execution(execution_id)
+
+# Obtém métricas
+metrics = pc.get_execution_metrics(execution_id)
+print(f"Duração total: {metrics.total_duration_seconds}s")
+print(f"Registros processados: {metrics.total_records_processed}")
+
+# Histórico de execuções
+history = pc.get_execution_history(
+    pipeline_name="vendas_pipeline",
+    limit=10
+)
+```
+
+## 📋 GovernancePolicies (NEW v6.0)
+
+Políticas de governança versionáveis em YAML:
+
+### Estrutura do YAML
+
+```yaml
+# config/governance_policies.yaml
+version: "1.0"
+last_updated: "2024-01-01"
+
+data_classification:
+  levels:
+    - name: public
+      description: Dados públicos
+      encryption_required: false
+      access_logging: false
+    - name: internal
+      description: Dados internos
+      encryption_required: false
+      access_logging: true
+    - name: confidential
+      description: Dados confidenciais
+      encryption_required: true
+      access_logging: true
+    - name: restricted
+      description: Dados restritos (PII)
+      encryption_required: true
+      access_logging: true
+      requires_approval: true
+
+access_policies:
+  bronze:
+    read: [data_engineer, data_scientist]
+    write: [data_engineer]
+    delete: []
+  silver:
+    read: [data_engineer, data_scientist, analyst]
+    write: [data_engineer]
+    delete: []
+  gold:
+    read: [analyst, business_user, data_scientist]
+    write: [data_engineer]
+    delete: []
+
+retention_policies:
+  bronze:
+    retention_days: 90
+    archive_after_days: 30
+  silver:
+    retention_days: 365
+    archive_after_days: 180
+  gold:
+    retention_days: 730
+    archive_after_days: 365
+
+lgpd:
+  enabled: true
+  dpo_email: "dpo@empresa.com"
+  consent_required_for:
+    - marketing
+    - profiling
+    - third_party_sharing
+  retention_limits:
+    pii: 365
+    sensitive: 180
+    financial: 1825
+```
+
+### Uso
+
+```python
+from core import get_governance_policies
+
+policies = get_governance_policies("config/governance_policies.yaml")
+
+# Verifica acesso
+can_access = policies.check_access(
+    user_role="analyst",
+    layer="gold",
+    operation="read"
+)
+
+# Obtém política de retenção
+retention = policies.get_retention_policy("silver")
+print(f"Retenção: {retention.retention_days} dias")
+
+# Verifica classificação
+classification = policies.get_classification_requirements("restricted")
+print(f"Criptografia: {classification.encryption_required}")
+
+# Valida compliance LGPD
+lgpd_check = policies.validate_lgpd_compliance(
+    data_types=["pii"],
+    has_consent=True,
+    retention_days=300
+)
+```
+
+## 📚 DataCatalog (NEW v6.0)
+
+Catálogo de dados com suporte a OpenMetadata:
+
+### Funcionalidades
+
+| Funcionalidade | Descrição |
+|----------------|-----------|
+| **Registro** | Cadastro de tabelas, colunas e metadados |
+| **Classificação** | Classificação automática de PII |
+| **Busca** | Busca por nome, descrição, tags |
+| **Lineage** | Integração com LineageTracker |
+| **OpenMetadata** | Sincronização com OpenMetadata |
+
+### Uso
+
+```python
+from core import get_data_catalog, ColumnMetadata
+
+catalog = get_data_catalog(project_id="meu_projeto")
+
+# Registra tabela
+catalog.register_table(
+    name="silver_clientes",
+    schema_name="silver",
+    database="lakehouse",
+    layer="silver",
+    columns=[
+        ColumnMetadata(
+            name="id",
+            data_type="bigint",
+            is_primary_key=True,
+            description="ID único do cliente"
+        ),
+        ColumnMetadata(
+            name="nome",
+            data_type="string",
+            classification="pii",
+            description="Nome completo"
+        ),
+        ColumnMetadata(
+            name="email",
+            data_type="string",
+            classification="pii",
+            description="Email de contato"
+        ),
+        ColumnMetadata(
+            name="cpf",
+            data_type="string",
+            classification="pii",
+            is_encrypted=True,
+            description="CPF (criptografado)"
+        )
+    ],
+    description="Tabela de clientes limpa e validada",
+    owner="data_engineering",
+    tags=["cliente", "pii", "silver"]
+)
+
+# Busca tabelas
+results = catalog.search_tables(
+    query="cliente",
+    layer="silver",
+    has_pii=True
+)
+
+# Obtém metadados
+table = catalog.get_table("silver_clientes")
+print(f"Colunas PII: {table.pii_columns}")
+
+# Exporta para OpenMetadata
+catalog.sync_to_openmetadata(
+    server_url="http://openmetadata:8585",
+    api_key="..."
+)
+```
+
+## 🔗 LineageTracker (NEW v6.0)
+
+Rastreamento de linhagem de dados:
+
+### Funcionalidades
+
+| Funcionalidade | Descrição |
+|----------------|-----------|
+| **Grafo** | Grafo de dependências entre tabelas |
+| **Transformações** | Registro de transformações aplicadas |
+| **Impacto** | Análise de impacto de mudanças |
+| **Visualização** | Exportação para Mermaid/GraphViz |
+| **Column Lineage** | Lineage em nível de coluna |
+
+### Uso
+
+```python
+from core import get_lineage_tracker, TransformationType, NodeType
+
+tracker = get_lineage_tracker(project_id="meu_projeto")
+
+# Registra nós
+tracker.register_node(
+    node_id="landing_vendas",
+    node_type=NodeType.FILE,
+    layer="landing",
+    metadata={"format": "csv", "source": "sftp"}
+)
+
+tracker.register_node(
+    node_id="bronze_vendas",
+    node_type=NodeType.TABLE,
+    layer="bronze",
+    metadata={"database": "lakehouse"}
+)
+
+tracker.register_node(
+    node_id="silver_vendas",
+    node_type=NodeType.TABLE,
+    layer="silver"
+)
+
+tracker.register_node(
+    node_id="gold_vendas_diarias",
+    node_type=NodeType.TABLE,
+    layer="gold"
+)
+
+# Registra transformações
+tracker.add_transformation(
+    source="landing_vendas",
+    target="bronze_vendas",
+    transformation_type=TransformationType.INGESTION,
+    transformation_logic="Leitura de CSV e gravação em Delta"
+)
+
+tracker.add_transformation(
+    source="bronze_vendas",
+    target="silver_vendas",
+    transformation_type=TransformationType.CLEANING,
+    transformation_logic="Remove duplicatas, valida campos, padroniza formatos"
+)
+
+tracker.add_transformation(
+    source="silver_vendas",
+    target="gold_vendas_diarias",
+    transformation_type=TransformationType.AGGREGATION,
+    transformation_logic="Agregação por dia com métricas de vendas"
+)
+
+# Análise de impacto
+impact = tracker.analyze_impact("bronze_vendas")
+print(f"Nós afetados: {impact.affected_nodes}")
+print(f"Nível de risco: {impact.risk_level}")
+print(f"Recomendações: {impact.recommendations}")
+
+# Obtém ancestrais e descendentes
+ancestors = tracker.get_ancestors("gold_vendas_diarias")
+descendants = tracker.get_descendants("bronze_vendas")
+
+# Exporta para Mermaid
+mermaid = tracker.export_to_mermaid()
+print(mermaid)
+# graph TD
+#   landing_vendas --> bronze_vendas
+#   bronze_vendas --> silver_vendas
+#   silver_vendas --> gold_vendas_diarias
+```
+
+## 📖 BusinessGlossary (NEW v6.0)
+
+Glossário de negócio padronizado:
+
+### Funcionalidades
+
+| Funcionalidade | Descrição |
+|----------------|-----------|
+| **Termos** | Cadastro de termos de negócio |
+| **Sinônimos** | Mapeamento de sinônimos |
+| **Relacionamentos** | Hierarquia e relacionamentos |
+| **Mapeamento** | Ligação com colunas do catálogo |
+| **Importação** | Import/export YAML |
+
+### Uso
+
+```python
+from core import get_business_glossary, TermStatus
+
+glossary = get_business_glossary(project_id="meu_projeto")
+
+# Adiciona termos
+glossary.add_term(
+    name="Cliente",
+    definition="Pessoa física ou jurídica que adquire produtos ou serviços",
+    domain="Comercial",
+    owner="time_comercial",
+    synonyms=["Consumidor", "Comprador"],
+    related_terms=["Prospect", "Lead"],
+    examples=["Cliente PF", "Cliente PJ"],
+    status=TermStatus.APPROVED
+)
+
+glossary.add_term(
+    name="Ticket Médio",
+    definition="Valor médio das compras por cliente em um período",
+    domain="Financeiro",
+    formula="SUM(valor_venda) / COUNT(DISTINCT cliente_id)",
+    unit="BRL",
+    owner="time_financeiro"
+)
+
+glossary.add_term(
+    name="Churn",
+    definition="Taxa de cancelamento ou abandono de clientes",
+    domain="Comercial",
+    formula="Clientes perdidos / Total de clientes * 100",
+    unit="%"
+)
+
+# Mapeia para colunas
+glossary.map_to_column(
+    term_name="Cliente",
+    table_name="silver_clientes",
+    column_name="id"
+)
+
+# Busca termos
+results = glossary.search_terms("cliente")
+
+# Obtém termo
+term = glossary.get_term("Ticket Médio")
+print(f"Definição: {term.definition}")
+print(f"Fórmula: {term.formula}")
+
+# Exporta para YAML
+glossary.export_to_yaml("glossary.yaml")
+
+# Importa de YAML
+glossary.import_from_yaml("glossary.yaml")
 ```
 
 ## 🛡️ Governança e LGPD
 
-O framework agora inclui um **Time de Governança** completo para garantir conformidade:
+O framework inclui um **Time de Governança** completo:
 
 ### Funcionalidades
 
@@ -71,79 +523,6 @@ O framework agora inclui um **Time de Governança** completo para garantir confo
 | **Retenção** | Valida políticas de retenção e exclusão |
 | **Auditoria** | Registra todas as operações para compliance |
 | **DPIA** | Suporte a Data Protection Impact Assessment |
-
-### Uso
-
-```python
-from core.governance_team import get_governance_team
-
-governance = get_governance_team()
-
-# Classifica dados automaticamente
-classification = governance.classify_data({
-    "nome": "string",
-    "cpf": "string",
-    "historico_saude": "string"
-})
-# Resultado: {"nome": "PII", "cpf": "PII", "historico_saude": "SENSITIVE"}
-
-# Verifica base legal
-legal_check = governance.check_legal_basis(
-    data_types=["PII", "SENSITIVE"],
-    declared_basis="consent",
-    has_consent_mechanism=True
-)
-
-# Gera checklist LGPD
-checklist = governance.generate_lgpd_checklist(project_type="customer_analytics")
-
-# Revisão completa de arquitetura
-review = governance.review_architecture({
-    "database": "PostgreSQL",
-    "encryption": True,
-    "access_control": True
-})
-```
-
-### Knowledge Base de Governança
-
-```yaml
-# knowledge/governance/best_practices.yaml
-lgpd:
-  principles:
-    - Finalidade
-    - Adequação
-    - Necessidade
-    - Livre acesso
-    - Qualidade dos dados
-    - Transparência
-    - Segurança
-    - Prevenção
-    - Não discriminação
-    - Responsabilização
-
-  legal_bases:
-    - Consentimento
-    - Obrigação legal
-    - Execução de políticas públicas
-    - Estudos por órgão de pesquisa
-    - Execução de contrato
-    - Exercício regular de direitos
-    - Proteção da vida
-    - Tutela da saúde
-    - Legítimo interesse
-    - Proteção do crédito
-
-  data_subject_rights:
-    - Confirmação de tratamento
-    - Acesso aos dados
-    - Correção
-    - Anonimização/bloqueio/eliminação
-    - Portabilidade
-    - Eliminação com consentimento
-    - Informação sobre compartilhamento
-    - Revogação do consentimento
-```
 
 ## 📊 Data Quality
 
@@ -160,47 +539,6 @@ Sistema completo de validação de qualidade de dados:
 | **Atualidade** | Dados recentes | Última atualização < 30 dias |
 | **Validade** | Valores permitidos | Status in ['ativo', 'inativo'] |
 
-### Uso
-
-```python
-from core.data_quality import get_data_quality_validator
-
-validator = get_data_quality_validator()
-
-# Define schema
-schema = {
-    "email": {"type": "string", "nullable": False},
-    "idade": {"type": "integer", "nullable": True},
-    "cpf": {"type": "string", "nullable": False}
-}
-
-# Adiciona regras padrão baseadas no schema
-validator.add_standard_rules("clientes", schema)
-
-# Adiciona regra customizada
-validator.add_rule(
-    dataset="clientes",
-    rule_name="idade_valida",
-    dimension="accuracy",
-    check_function=lambda row: 0 <= row.get("idade", 0) <= 150,
-    severity="error"
-)
-
-# Valida dados
-data = [
-    {"email": "joao@email.com", "idade": 30, "cpf": "123.456.789-00"},
-    {"email": "invalid-email", "idade": 200, "cpf": ""},
-]
-
-report = validator.validate("clientes", data)
-
-print(f"Score: {report.overall_score:.2%}")
-print(f"Passou: {report.passed}")
-print(f"Violações: {len(report.violations)}")
-for v in report.violations:
-    print(f"  - {v['rule']}: {v['message']}")
-```
-
 ## 📈 Observabilidade e FinOps
 
 Sistema completo de monitoramento e gestão de custos:
@@ -213,179 +551,6 @@ Sistema completo de monitoramento e gestão de custos:
 | **Metrics** | Métricas (4 Golden Signals) |
 | **Alerts** | Alertas configuráveis com thresholds |
 | **Costs** | Estimativa e tracking de custos |
-
-### Uso
-
-```python
-from core.observability_team import get_observability_team
-
-obs = get_observability_team()
-
-# Registra ação de agente
-obs.record_agent_action(
-    agent_name="data_engineer",
-    action="create_pipeline",
-    duration_ms=1500,
-    success=True,
-    tokens_used=2000,
-    model="gpt-4.1-mini"
-)
-
-# Estima custos do projeto
-estimate = obs.costs.estimate_project_cost({
-    "duration_days": 30,
-    "llm_calls_per_day": 100,
-    "avg_tokens_per_call": 2000,
-    "storage_gb": 50,
-    "compute_hours_per_day": 8
-})
-
-print(f"Custo estimado: ${estimate['total_estimated']:.2f}")
-print(f"  - LLM: ${estimate['breakdown']['llm_costs']:.2f}")
-print(f"  - Storage: ${estimate['breakdown']['storage_costs']:.2f}")
-print(f"  - Compute: ${estimate['breakdown']['compute_costs']:.2f}")
-
-# Configura alerta
-obs.alerts.add_alert(
-    name="high_error_rate",
-    metric="error_rate",
-    threshold=0.1,
-    operator="greater_than",
-    severity="critical"
-)
-
-# Dashboard de observabilidade
-dashboard = obs.get_dashboard_data()
-```
-
-### Knowledge Base de Observabilidade
-
-```yaml
-# knowledge/observability/best_practices.yaml
-golden_signals:
-  - Latency (tempo de resposta)
-  - Traffic (volume de requisições)
-  - Errors (taxa de erros)
-  - Saturation (utilização de recursos)
-
-cost_optimization:
-  strategies:
-    - Usar modelos menores para tarefas simples
-    - Cache de respostas frequentes
-    - Batch processing quando possível
-    - Auto-scaling baseado em demanda
-```
-
-## 🔄 Workflow Integrado
-
-O novo workflow integra governança em cada etapa:
-
-```
-┌─────────┐     ┌─────────┐     ┌─────────┐     ┌─────────┐
-│ Cliente │────▶│   PO    │────▶│   PM    │────▶│  ARCH   │
-└─────────┘     └─────────┘     └─────────┘     └─────────┘
-                     │                               │
-                     ▼                               ▼
-              ┌─────────────┐                 ┌─────────────┐
-              │ GOVERNANÇA  │                 │ GOVERNANÇA  │
-              │ (Requisitos)│                 │(Arquitetura)│
-              └─────────────┘                 └─────────────┘
-                                                     │
-                    ┌────────────────────────────────┼────────────────────────────────┐
-                    │                                │                                │
-                    ▼                                ▼                                ▼
-             ┌───────────┐                    ┌───────────┐                    ┌───────────┐
-             │ Data Eng  │                    │  DevOps   │                    │Data Science│
-             └───────────┘                    └───────────┘                    └───────────┘
-                    │                                │                                │
-                    ▼                                ▼                                ▼
-             ┌─────────────┐                 ┌─────────────┐                 ┌─────────────┐
-             │DATA QUALITY │                 │DATA QUALITY │                 │DATA QUALITY │
-             └─────────────┘                 └─────────────┘                 └─────────────┘
-                    │                                │                                │
-                    └────────────────────────────────┼────────────────────────────────┘
-                                                     │
-                                                     ▼
-                                              ┌─────────────┐
-                                              │     QA      │
-                                              │ + Governança│
-                                              └─────────────┘
-                                                     │
-                                                     ▼
-                                              ┌─────────────┐
-                                              │     PO      │
-                                              │ (Validação) │
-                                              └─────────────┘
-```
-
-### Uso do Workflow Integrado
-
-```python
-from core.integrated_workflow import get_integrated_workflow
-
-workflow = get_integrated_workflow()
-
-# Cria projeto
-project = workflow.create_project(
-    name="Bot de Análise de Clientes",
-    description="Sistema de análise e recomendação",
-    client="Empresa XYZ",
-    initial_requirements={
-        "data_fields": ["nome", "email", "cpf", "historico_compras"],
-        "legal_basis": "contract",
-        "retention_period": "5 years"
-    }
-)
-
-# Submete requisitos (validação de governança automática)
-result = workflow.submit_requirements(
-    project_id=project.id,
-    requirements={
-        "functional": ["Análise de perfil", "Recomendações"],
-        "non_functional": ["LGPD compliant", "99.9% uptime"],
-        "data_fields": ["nome", "email", "cpf"],
-        "legal_basis": "contract"
-    }
-)
-
-if result["blocked"]:
-    print("Bloqueado por governança:")
-    for issue in result["governance_issues"]:
-        print(f"  - {issue['message']}")
-
-# Submete arquitetura (inclui estimativa de custos)
-result = workflow.submit_architecture(
-    project_id=project.id,
-    architecture={
-        "database": "PostgreSQL",
-        "orchestration": "Apache Airflow",
-        "ml_platform": "MLflow",
-        "cloud": "AWS",
-        "timeline_days": 30
-    }
-)
-
-print(f"Custo estimado: ${result['cost_estimate']['total_estimated']:.2f}")
-
-# Completa revisão de governança
-result = workflow.complete_governance_review(
-    project_id=project.id,
-    dpia_required=True,
-    dpia_result={"risk_level": "medium", "mitigations": ["Criptografia", "Anonimização"]}
-)
-
-# Submete entregas com validação de qualidade
-result = workflow.submit_deliverable(
-    project_id=project.id,
-    deliverable_name="pipeline_ingestao",
-    deliverable_type="pipeline",
-    data_sample=[{"nome": "João", "email": "joao@email.com", "cpf": "123.456.789-00"}],
-    schema={"nome": {"type": "string", "nullable": False}}
-)
-
-# Gera relatório final
-report = workflow.generate_project_report(project.id)
-```
 
 ## 📊 Times Disponíveis
 
@@ -442,7 +607,8 @@ python test_knowledge_system.py
 ```
 autonomous-data-agency/
 ├── config/
-│   └── llm_config.py              # Configuração de LLMs
+│   ├── llm_config.py              # Configuração de LLMs
+│   └── governance_policies.yaml   # Políticas de governança
 ├── core/
 │   ├── base_team.py               # Classe base para times
 │   ├── agency_orchestrator.py     # Orquestrador principal
@@ -452,10 +618,16 @@ autonomous-data-agency/
 │   ├── validation_workflow.py     # Fluxo QA + PO
 │   ├── hallucination_detector.py  # Detecção de alucinações
 │   ├── team_communication.py      # Comunicação entre times
-│   ├── governance_team.py         # 🆕 Time de Governança/LGPD
-│   ├── data_quality.py            # 🆕 Validação de qualidade
-│   ├── observability_team.py      # 🆕 Observabilidade/FinOps
-│   ├── integrated_workflow.py     # 🆕 Workflow integrado
+│   ├── governance_team.py         # Time de Governança/LGPD
+│   ├── data_quality.py            # Validação de qualidade
+│   ├── observability_team.py      # Observabilidade/FinOps
+│   ├── integrated_workflow.py     # Workflow integrado
+│   ├── quarantine_manager.py      # 🆕 Gestão de quarentena
+│   ├── process_control.py         # 🆕 Controle de processos
+│   ├── governance_policies.py     # 🆕 Políticas YAML
+│   ├── data_catalog.py            # 🆕 Catálogo de dados
+│   ├── lineage_tracker.py         # 🆕 Rastreamento de linhagem
+│   ├── business_glossary.py       # 🆕 Glossário de negócio
 │   └── knowledge/
 │       ├── knowledge_base.py      # Camada 1: YAML
 │       ├── rag_engine.py          # Camada 2: ChromaDB
@@ -465,40 +637,63 @@ autonomous-data-agency/
 │   ├── data_engineering/
 │   ├── data_science/
 │   ├── devops/
-│   ├── governance/                # 🆕 KB de Governança
-│   ├── observability/             # 🆕 KB de Observabilidade
+│   ├── governance/
+│   ├── observability/
 │   ├── product_owner/
 │   ├── qa/
 │   └── shared/
 ├── teams/
-│   └── [times especializados]
+│   ├── product_owner/
+│   ├── project_manager/
+│   ├── data_engineering/
+│   ├── data_science/
+│   ├── data_analytics/
+│   ├── devops/
+│   └── qa/
 ├── demo_complete_workflow.py
-├── demo_multi_team.py
 ├── demo_full_system.py
+├── demo_integrated_v5.py
+├── demo_multi_team.py
 ├── test_knowledge_system.py
 ├── main.py
 ├── requirements.txt
 └── README.md
 ```
 
-## 📈 Roadmap
+## 🔄 Changelog
 
-- [x] Time de Arquitetura expandido
-- [x] PM como orquestrador central
-- [x] Workflow de validação QA + PO
-- [x] Sistema de dependências e paralelização
-- [x] **Time de Governança e LGPD**
-- [x] **Data Quality com 6 dimensões**
-- [x] **Observabilidade e FinOps**
-- [x] **Workflow integrado com governança**
-- [ ] Interface web para visualização
-- [ ] API REST para integração externa
-- [ ] Execução real de código pelos agentes
-- [ ] Integração com cloud providers
+### v6.0.0 (2024-01)
+- ✨ QuarantineManager para gestão de dados inválidos
+- ✨ ProcessControl para rastreabilidade de execuções
+- ✨ GovernancePolicies com suporte a YAML
+- ✨ DataCatalog com integração OpenMetadata
+- ✨ LineageTracker para rastreamento de linhagem
+- ✨ BusinessGlossary para termos padronizados
 
-## 🤝 Contribuindo
+### v5.0.0 (2024-01)
+- ✨ Time de Governança e LGPD
+- ✨ Data Quality com 6 dimensões
+- ✨ Observabilidade e FinOps
+- ✨ Workflow Integrado
 
-Contribuições são bem-vindas! Por favor, abra uma issue ou pull request.
+### v4.0.0 (2024-01)
+- ✨ Time de Arquitetura expandido
+- ✨ PM como orquestrador central
+- ✨ Sistema de dependências e paralelização
+- ✨ Validação QA + PO
+
+### v3.0.0 (2024-01)
+- ✨ Sistema de conhecimento em 3 camadas
+- ✨ RAG com ChromaDB
+- ✨ Project Memory com SQLite
+
+### v2.0.0 (2024-01)
+- ✨ Multi-agent com diversidade de LLMs
+- ✨ Validação anti-alucinação
+- ✨ Comunicação entre times
+
+### v1.0.0 (2024-01)
+- 🎉 Versão inicial
 
 ## 📄 Licença
 
@@ -506,8 +701,4 @@ MIT License
 
 ## 👨‍💻 Autor
 
-Desenvolvido por [Michael](https://github.com/michael-eng-ai)
-
----
-
-**Autonomous Data Agency v5.0** - Agora com Governança, LGPD, Data Quality e Observabilidade integrados.
+Desenvolvido com ❤️ para automação de projetos de dados.

@@ -31,8 +31,7 @@ from enum import Enum
 # Imports dos módulos internos
 from .governance_team import (
     GovernanceTeam,
-    get_governance_team,
-    ComplianceStatus
+    get_governance_team
 )
 from .data_quality import (
     DataQualityValidator,
