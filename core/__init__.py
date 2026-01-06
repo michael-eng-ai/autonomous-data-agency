@@ -1,5 +1,5 @@
 """
-Core Package
+Core Package - Autonomous Data Agency v4.0
 
 Este pacote contém as classes e utilitários fundamentais do framework:
 - BaseTeam: Classe base para todos os times de agentes
@@ -8,6 +8,9 @@ Este pacote contém as classes e utilitários fundamentais do framework:
 - TeamsFactory: Fábrica de times pré-configurados
 - HallucinationDetector: Detector de alucinações
 - TeamCommunication: Sistema de comunicação entre times
+- TaskOrchestrator: Orquestrador de tarefas e dependências
+- PMOrchestrator: Project Manager como orquestrador central
+- ValidationWorkflow: Fluxo de validação QA + PO
 """
 
 from .base_team import (
@@ -79,6 +82,43 @@ from .team_communication import (
     get_communication_hub
 )
 
+# Task Orchestrator
+from .task_orchestrator import (
+    TaskOrchestrator,
+    Task,
+    TaskStatus,
+    TaskPriority,
+    TaskType,
+    TaskDependency,
+    ProjectSchedule,
+    get_task_orchestrator
+)
+
+# PM Orchestrator
+from .pm_orchestrator import (
+    PMOrchestrator,
+    ProjectPhase as PMProjectPhase,
+    RiskLevel,
+    Risk,
+    Milestone,
+    TeamAssignment,
+    get_pm_orchestrator
+)
+
+# Validation Workflow
+from .validation_workflow import (
+    ValidationWorkflow,
+    QAValidator,
+    POValidator,
+    ValidationStatus as WorkflowValidationStatus,
+    ValidationCategory,
+    QAValidationReport,
+    POValidationReport,
+    get_validation_workflow,
+    get_qa_validator,
+    get_po_validator
+)
+
 __all__ = [
     # Base Team
     "BaseTeam",
@@ -87,31 +127,37 @@ __all__ = [
     "AgentResponse",
     "ValidationResult",
     "TeamOutput",
+    
     # Orchestrator
     "AgencyOrchestrator",
     "ProjectPhase",
     "ProjectState",
     "GlobalValidationResult",
     "get_agency_orchestrator",
+    
     # Knowledge Base
     "KnowledgeBase",
     "KnowledgeItem",
     "KnowledgeQuery",
     "get_knowledge_base",
+    
     # RAG Engine
     "RAGEngine",
     "Document",
     "SearchResult",
     "get_rag_engine",
+    
     # Project Memory
     "ProjectMemory",
     "MemoryType",
     "MemoryEntry",
     "ProjectContext",
     "get_project_memory",
+    
     # Knowledge Manager
     "KnowledgeManager",
     "get_knowledge_manager",
+    
     # Teams Factory
     "TeamsFactory",
     "TeamType",
@@ -119,6 +165,7 @@ __all__ = [
     "FactoryAgentConfig",
     "get_teams_factory",
     "TEAM_CONFIGS",
+    
     # Hallucination Detector
     "HallucinationDetector",
     "HallucinationSeverity",
@@ -126,6 +173,7 @@ __all__ = [
     "HallucinationIssue",
     "HallucinationValidationResult",
     "get_hallucination_detector",
+    
     # Team Communication
     "TeamCommunicationHub",
     "MessageBus",
@@ -136,4 +184,35 @@ __all__ = [
     "CollaborationRequest",
     "TeamContext",
     "get_communication_hub",
+    
+    # Task Orchestrator
+    "TaskOrchestrator",
+    "Task",
+    "TaskStatus",
+    "TaskPriority",
+    "TaskType",
+    "TaskDependency",
+    "ProjectSchedule",
+    "get_task_orchestrator",
+    
+    # PM Orchestrator
+    "PMOrchestrator",
+    "PMProjectPhase",
+    "RiskLevel",
+    "Risk",
+    "Milestone",
+    "TeamAssignment",
+    "get_pm_orchestrator",
+    
+    # Validation Workflow
+    "ValidationWorkflow",
+    "QAValidator",
+    "POValidator",
+    "WorkflowValidationStatus",
+    "ValidationCategory",
+    "QAValidationReport",
+    "POValidationReport",
+    "get_validation_workflow",
+    "get_qa_validator",
+    "get_po_validator",
 ]
