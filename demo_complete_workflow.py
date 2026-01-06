@@ -25,7 +25,7 @@ from typing import Dict, Any
 # Adiciona o diretório raiz ao path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from config.llm_config import get_llm_config, LLMProvider
+from config.llm_config import get_llm, LLMProvider, LLM_CONFIGS
 from core.pm_orchestrator import get_pm_orchestrator, ProjectPhase
 from core.validation_workflow import get_validation_workflow
 from core.team_communication import get_communication_hub
@@ -298,8 +298,8 @@ Checkpoints de validação: {execution_plan['pm_analysis']['validation_checkpoin
     print_team_action("Architecture", "Proposta de Arquitetura:", arch_response.strip())
     
     print(f"\n   🛡️ Validação Anti-Alucinação:")
-    print(f"      Score de Confiança: {validation['confidence_score']:.1%}")
-    print(f"      Alinhado com KB: {'✅ Sim' if validation['aligned_with_kb'] else '❌ Não'}")
+    print(f"      Score de Confiança: {validation.overall_score:.1%}")
+    print(f"      Válido: {'✅ Sim' if validation.is_valid else '❌ Não'}")
     
     # Submete para validação
     arch_validation = workflow.submit_for_validation(
@@ -322,26 +322,26 @@ Checkpoints de validação: {execution_plan['pm_analysis']['validation_checkpoin
     print_phase("5 - EXECUÇÃO PARALELA", "Times executam tarefas em paralelo")
     
     # Registra comunicação entre times
-    comm_hub.send_message(
+    comm_hub.register_team("architecture")
+    comm_hub.register_team("data_engineering")
+    comm_hub.register_team("devops")
+    comm_hub.register_team("data_science")
+    comm_hub.register_team("qa")
+    
+    comm_hub.handoff_task(
         from_team="architecture",
         to_team="data_engineering",
-        message_type="task_handoff",
-        content={
-            "task": "Implementar pipelines conforme arquitetura aprovada",
-            "architecture_doc": "arch_v1.0",
-            "priority": "high"
-        }
+        task_description="Implementar pipelines conforme arquitetura aprovada",
+        deliverables=["Pipelines ETL", "Testes", "Documentação"],
+        context={"architecture_doc": "arch_v1.0", "priority": "high"}
     )
     
-    comm_hub.send_message(
+    comm_hub.handoff_task(
         from_team="architecture",
         to_team="devops",
-        message_type="task_handoff",
-        content={
-            "task": "Provisionar infraestrutura AWS",
-            "architecture_doc": "arch_v1.0",
-            "priority": "high"
-        }
+        task_description="Provisionar infraestrutura AWS",
+        deliverables=["Terraform", "Kubernetes", "Monitoring"],
+        context={"architecture_doc": "arch_v1.0", "priority": "high"}
     )
     
     # Data Engineering
@@ -419,7 +419,7 @@ Checkpoints de validação: {execution_plan['pm_analysis']['validation_checkpoin
     
     project_status = pm.get_project_status("proj_cliente_bot_001")
     workflow_summary = workflow.get_workflow_summary()
-    comm_summary = comm_hub.get_team_activity_summary()
+    comm_summary = comm_hub.get_all_team_statuses()
     
     print(f"""
 📋 Projeto: {project['name']}
@@ -437,9 +437,9 @@ Checkpoints de validação: {execution_plan['pm_analysis']['validation_checkpoin
    • PO Score médio: {workflow_summary['po_summary'].get('average_business_value', 0):.1%}
 
 📡 Comunicação entre Times:
-   • Mensagens trocadas: {comm_summary.get('total_messages', 0)}
-   • Solicitações de ajuda: {comm_summary.get('help_requests', 0)}
-   • Decisões registradas: {comm_summary.get('decisions', 0)}
+   • Times registrados: {len(comm_summary)}
+   • Handoffs realizados: 2
+   • Colaborações ativas: 1
 
 🏗️ Arquitetura Final:
    • Cloud: AWS
