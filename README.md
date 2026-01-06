@@ -1,52 +1,57 @@
 # Autonomous Data Agency Framework
 
-Um framework Python para criar e orquestrar times de agentes de IA autônomos para projetos de dados. Cada time é composto por múltiplos agentes usando diferentes LLMs para garantir diversidade de pensamento e validação contra alucinações.
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Novidades da v2.0
+Um framework avançado para criar agências autônomas de dados usando múltiplos times de agentes de IA com LLMs diversos, sistema de conhecimento em 3 camadas, validação anti-alucinação robusta e comunicação entre times.
 
-- **Sistema de Conhecimento em 3 Camadas**: Knowledge Base (YAML), RAG Engine (ChromaDB), Project Memory (SQLite)
-- **Fundamentação de Respostas**: Agentes agora têm acesso a best practices, checklists e anti-patterns
-- **Memória Persistente**: Decisões e preferências são armazenadas por projeto
-- **Busca Semântica**: RAG para conhecimento dinâmico e contextual
+## 🌟 Novidades da v3.0
 
-## Arquitetura
+- **9 Times Especializados**: PO, PM, Data Engineering, Data Science, Analytics, DevOps, QA, Security, Architecture
+- **Sistema Anti-Alucinação Robusto**: Validação multi-camada com detecção de fabricações
+- **Comunicação Entre Times**: Message Bus, colaborações, handoffs e escalações
+- **Fábrica de Times**: Criação simplificada de times pré-configurados
+
+## 📁 Arquitetura
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    AGENCY ORCHESTRATOR                          │
-│                  (Agente Mestre Global)                         │
-│         Valida, consolida e previne alucinações                 │
+│                  (Coordenador Global)                           │
 └─────────────────────────────────────────────────────────────────┘
                               │
         ┌─────────────────────┼─────────────────────┐
         │                     │                     │
         ▼                     ▼                     ▼
-┌───────────────┐    ┌───────────────┐    ┌───────────────┐
-│  Product      │    │  Data         │    │  DevOps       │
-│  Owner Team   │    │  Engineering  │    │  Team         │
-├───────────────┤    ├───────────────┤    ├───────────────┤
-│ ┌───────────┐ │    │ ┌───────────┐ │    │ ┌───────────┐ │
-│ │  Master   │ │    │ │  Master   │ │    │ │  Master   │ │
-│ │  Agent    │ │    │ │  Agent    │ │    │ │  Agent    │ │
-│ └───────────┘ │    │ └───────────┘ │    │ └───────────┘ │
-│       │       │    │       │       │    │       │       │
-│   ┌───┴───┐   │    │   ┌───┴───┐   │    │   ┌───┴───┐   │
-│   ▼       ▼   │    │   ▼       ▼   │    │   ▼       ▼   │
-│ ┌───┐   ┌───┐ │    │ ┌───┐   ┌───┐ │    │ ┌───┐   ┌───┐ │
-│ │Op1│   │Op2│ │    │ │Op1│   │Op2│ │    │ │Op1│   │Op2│ │
-│ │GPT│   │Gem│ │    │ │GPT│   │Gem│ │    │ │GPT│   │Gem│ │
-│ └───┘   └───┘ │    │ └───┘   └───┘ │    │ └───┘   └───┘ │
-└───────────────┘    └───────────────┘    └───────────────┘
+┌───────────────┐     ┌───────────────┐     ┌───────────────┐
+│  TEAM: PO     │     │ TEAM: DATA    │     │ TEAM: DEVOPS  │
+│               │     │ ENGINEERING   │     │               │
+│ ┌───────────┐ │     │ ┌───────────┐ │     │ ┌───────────┐ │
+│ │  MASTER   │ │     │ │  MASTER   │ │     │ │  MASTER   │ │
+│ │ (gpt-4.1) │ │     │ │ (gpt-4.1) │ │     │ │ (gpt-4.1) │ │
+│ └───────────┘ │     │ └───────────┘ │     │ └───────────┘ │
+│       │       │     │       │       │     │       │       │
+│   ┌───┴───┐   │     │   ┌───┴───┐   │     │   ┌───┴───┐   │
+│   ▼       ▼   │     │   ▼       ▼   │     │   ▼       ▼   │
+│ ┌───┐   ┌───┐ │     │ ┌───┐   ┌───┐ │     │ ┌───┐   ┌───┐ │
+│ │Op1│   │Op2│ │     │ │Op1│   │Op2│ │     │ │Op1│   │Op2│ │
+│ │4.1│   │gem│ │     │ │nan│   │gem│ │     │ │nan│   │gem│ │
+│ └───┘   └───┘ │     │ └───┘   └───┘ │     │ └───┘   └───┘ │
+└───────────────┘     └───────────────┘     └───────────────┘
+        │                     │                     │
+        └─────────────────────┼─────────────────────┘
+                              │
+                    ┌─────────────────┐
+                    │ COMMUNICATION   │
+                    │     HUB         │
+                    └─────────────────┘
 ```
 
-## Sistema de Conhecimento (3 Camadas)
-
-O framework inclui um sistema de conhecimento híbrido que fundamenta as respostas dos agentes:
+## 🧠 Sistema de Conhecimento (3 Camadas)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    KNOWLEDGE MANAGER                             │
-│              (Gerenciador Unificado de Conhecimento)             │
 └─────────────────────────────────────────────────────────────────┘
         │                     │                     │
         ▼                     ▼                     ▼
@@ -61,46 +66,106 @@ O framework inclui um sistema de conhecimento híbrido que fundamenta as respost
 └─────────────────┘ └─────────────────┘ └─────────────────┘
 ```
 
-### Camada 1: Knowledge Base (YAML)
-- **Propósito**: Best practices, checklists, anti-patterns
-- **Características**: Rápido, determinístico, versionável no Git
-- **Localização**: `knowledge/*/best_practices.yaml`
+## 🛡️ Sistema Anti-Alucinação
 
-### Camada 2: RAG Engine (ChromaDB)
-- **Propósito**: Conhecimento dinâmico e busca semântica
-- **Características**: Flexível, extensível, contextual
-- **Tecnologia**: ChromaDB para armazenamento vetorial
+O framework inclui um detector de alucinações robusto que:
 
-### Camada 3: Project Memory (SQLite)
-- **Propósito**: Memória de longo prazo por projeto
-- **Características**: Decisões, preferências, histórico
-- **Persistência**: Banco SQLite local
+- **Verifica contra Knowledge Base**: Valida afirmações contra best practices
+- **Detecta fabricações**: Identifica informações inventadas
+- **Analisa consistência**: Compara respostas de múltiplos agentes
+- **Valida termos técnicos**: Verifica se tecnologias mencionadas existem
+- **Detecta excesso de confiança**: Identifica afirmações absolutas sem fundamentação
 
-## Princípios de Design
+```python
+from core import get_hallucination_detector
 
-1. **Diversidade de LLMs**: Cada agente operacional usa um modelo diferente (GPT-4.1-mini, GPT-4.1-nano, Gemini-2.5-flash) para evitar vieses e aumentar a qualidade das soluções.
+detector = get_hallucination_detector()
+result = detector.validate_response(
+    response="Recomendo usar Apache Airflow...",
+    domain="data_engineering"
+)
+print(f"Válido: {result.is_valid}, Score: {result.overall_score}")
+```
 
-2. **Validação Hierárquica**: Agentes Mestres validam e consolidam as respostas dos operacionais, detectando alucinações e inconsistências.
+## 📡 Sistema de Comunicação Entre Times
 
-3. **Fundamentação em Conhecimento**: Respostas são validadas contra best practices e anti-patterns da Knowledge Base.
+```python
+from core import get_communication_hub, MessagePriority
 
-4. **Prevenção de Alucinações**: Sistema de múltiplas camadas de validação para garantir que as respostas são factualmente corretas.
+hub = get_communication_hub()
 
-5. **Modularidade**: Cada time é independente e pode ser usado isoladamente ou em conjunto.
+# Registra times
+hub.register_team("data_engineering")
+hub.register_team("devops")
 
-## Times Disponíveis
+# Solicita ajuda
+collab_id = hub.request_help(
+    from_team="data_engineering",
+    topic="Infraestrutura Kafka",
+    description="Precisamos configurar Kafka em produção",
+    required_expertise=["kafka", "kubernetes"],
+    priority=MessagePriority.HIGH
+)
 
-| Time | Domínio | Agentes Operacionais |
-|------|---------|---------------------|
-| **Product Owner** | `product_owner` | Analista de Requisitos, Escritor de Escopo |
-| **Project Manager** | `project_manager` | Planejador de Projeto, Gestor de Riscos |
-| **Data Engineering** | `data_engineering` | Arquiteto de Dados, Dev de Pipeline |
-| **Data Science** | `data_science` | Cientista de Dados, Engenheiro de ML |
-| **Data Analytics** | `data_analytics` | Analista de Dados, Especialista em Viz |
-| **DevOps** | `devops` | Eng. de Infraestrutura, Especialista CI/CD |
-| **QA** | `qa` | Eng. de Testes, Especialista em Data Quality |
+# Handoff de tarefa
+hub.handoff_task(
+    from_team="data_engineering",
+    to_team="data_science",
+    task_description="Pipeline pronto. Criar modelos de ML.",
+    deliverables=["Modelo de previsão", "API de inferência"],
+    context={"data_format": "parquet"}
+)
 
-## Instalação
+# Escalação de decisão
+hub.escalate_decision(
+    from_team="data_engineering",
+    decision_topic="Escolha de Data Warehouse",
+    options=[
+        {"name": "Snowflake", "pros": ["Escalável"], "cons": ["Custo"]},
+        {"name": "BigQuery", "pros": ["Integração GCP"], "cons": ["Vendor lock-in"]}
+    ],
+    context="Precisamos de um DW para 10TB de dados"
+)
+```
+
+## 🏭 Fábrica de Times
+
+```python
+from core import get_teams_factory, TeamType
+
+factory = get_teams_factory()
+
+# Lista times disponíveis
+teams = factory.list_available_teams()
+for team in teams:
+    print(f"{team['name']}: {team['description']}")
+
+# Obtém configuração de um time
+config = factory.get_team_config(TeamType.DATA_ENGINEERING)
+print(f"Time: {config.name}")
+print(f"Master: {config.master_config.name}")
+print(f"Operacionais: {[a.name for a in config.operational_agents]}")
+
+# Encontra times por tópico
+teams = factory.get_teams_for_topic("machine learning")
+# Retorna: [TeamType.DATA_SCIENCE, TeamType.DATA_ENGINEERING]
+```
+
+## 📊 Times Disponíveis
+
+| Time | Domínio | Agentes | Especialização |
+|------|---------|---------|----------------|
+| **Product Owner** | `product_owner` | 4 | Requisitos, user stories, priorização |
+| **Project Manager** | `project_manager` | 4 | Planejamento, riscos, cronograma |
+| **Data Engineering** | `data_engineering` | 4 | Pipelines, ETL, arquitetura de dados |
+| **Data Science** | `data_science` | 4 | ML, modelos preditivos, MLOps |
+| **Data Analytics** | `data_analytics` | 4 | Dashboards, métricas, insights |
+| **DevOps** | `devops` | 4 | Infraestrutura, CI/CD, monitoramento |
+| **QA** | `qa` | 4 | Testes, qualidade de dados, validação |
+| **Security** | `security` | 4 | Segurança, LGPD, compliance |
+| **Architecture** | `architecture` | 4 | Decisões arquiteturais, padrões |
+
+## 🚀 Instalação
 
 ```bash
 # Clone o repositório
@@ -120,16 +185,16 @@ cp .env.example .env
 # Edite o arquivo .env com sua OPENAI_API_KEY
 ```
 
-## Uso Rápido
+## 📖 Uso
 
-### Modo Demo
+### Demo Básica (Um Time)
 ```bash
-python main.py --mode demo
+python demo_full_system.py
 ```
 
-### Modo Workflow Completo
+### Demo Multi-Time Completa
 ```bash
-python main.py --mode workflow
+python demo_multi_team.py
 ```
 
 ### Modo Interativo
@@ -140,15 +205,18 @@ python main.py --mode interactive
 ### Uso Programático
 
 ```python
-from core import get_agency_orchestrator, get_knowledge_manager
+from core import (
+    get_agency_orchestrator,
+    get_knowledge_manager,
+    get_hallucination_detector,
+    get_communication_hub
+)
 
-# Inicializa o orquestrador
+# Inicializa componentes
 orchestrator = get_agency_orchestrator()
-
-# Opcional: Indexa conhecimento no RAG
 km = get_knowledge_manager()
-if km.rag_engine.is_available():
-    km.rag_engine.index_knowledge_base(km.knowledge_base)
+detector = get_hallucination_detector()
+hub = get_communication_hub()
 
 # Inicia um projeto
 project = orchestrator.start_project(
@@ -156,12 +224,9 @@ project = orchestrator.start_project(
     client_request="Preciso de um sistema de análise de vendas"
 )
 
-# Executa um time específico
-po_output = orchestrator.execute_team("product_owner", project.client_request)
-
-# Ou executa um workflow completo
+# Executa workflow completo
 outputs = orchestrator.execute_workflow(
-    teams_sequence=["product_owner", "project_manager", "data_engineering"],
+    teams_sequence=["product_owner", "data_engineering", "devops"],
     initial_task=project.client_request
 )
 
@@ -170,83 +235,32 @@ validation = orchestrator.global_validation(outputs)
 print(f"Qualidade: {validation.overall_quality_score * 100}%")
 ```
 
-### Usando o Sistema de Conhecimento
-
-```python
-from core.knowledge import (
-    get_knowledge_base,
-    get_rag_engine,
-    get_project_memory,
-    MemoryType
-)
-
-# Knowledge Base (YAML)
-kb = get_knowledge_base()
-de_practices = kb.get_best_practices("data_engineering")
-checklists = kb.get_checklists("qa")
-
-# RAG Engine (ChromaDB)
-rag = get_rag_engine()
-if rag.is_available():
-    results = rag.search("como orquestrar pipelines de dados", n_results=3)
-    for r in results:
-        print(f"Score: {r.relevance_score:.2%} - {r.content[:100]}...")
-
-# Project Memory (SQLite)
-memory = get_project_memory()
-memory.create_project("proj_001", "Meu Projeto", "Cliente XYZ")
-memory.store_decision(
-    project_id="proj_001",
-    decision_key="database_choice",
-    decision="PostgreSQL",
-    rationale="Melhor suporte a JSON e extensibilidade",
-    alternatives=["MySQL", "MongoDB"]
-)
-
-# Recupera contexto do projeto
-context = memory.format_context_for_prompt("proj_001")
-print(context)
-```
-
-## Estrutura do Projeto
+## 📁 Estrutura do Projeto
 
 ```
 autonomous-data-agency/
-├── main.py                 # Ponto de entrada principal
-├── requirements.txt        # Dependências
-├── .env.example           # Exemplo de configuração
-├── README.md              # Este arquivo
-│
-├── config/                # Configurações
+├── config/
 │   ├── __init__.py
-│   └── llm_config.py      # Configuração de múltiplos LLMs
-│
-├── core/                  # Núcleo do framework
+│   └── llm_config.py           # Configuração de LLMs
+├── core/
 │   ├── __init__.py
-│   ├── base_team.py       # Classe base para times
+│   ├── base_team.py            # Classe base para times
 │   ├── agency_orchestrator.py  # Orquestrador principal
-│   └── knowledge/         # Sistema de conhecimento
-│       ├── __init__.py
+│   ├── teams_factory.py        # Fábrica de times
+│   ├── hallucination_detector.py # Detector de alucinações
+│   ├── team_communication.py   # Sistema de comunicação
+│   └── knowledge/
 │       ├── knowledge_base.py   # Camada 1: YAML
 │       ├── rag_engine.py       # Camada 2: ChromaDB
 │       └── project_memory.py   # Camada 3: SQLite
-│
-├── knowledge/             # Arquivos de conhecimento (YAML)
-│   ├── product_owner/
-│   │   └── best_practices.yaml
+├── knowledge/
 │   ├── data_engineering/
-│   │   └── best_practices.yaml
 │   ├── data_science/
-│   │   └── best_practices.yaml
 │   ├── devops/
-│   │   └── best_practices.yaml
+│   ├── product_owner/
 │   ├── qa/
-│   │   └── best_practices.yaml
 │   └── shared/
-│       └── general_standards.yaml
-│
-├── teams/                 # Times de agentes
-│   ├── __init__.py
+├── teams/
 │   ├── product_owner/
 │   ├── project_manager/
 │   ├── data_engineering/
@@ -254,93 +268,46 @@ autonomous-data-agency/
 │   ├── data_analytics/
 │   ├── devops/
 │   └── qa/
-│
-└── data/                  # Dados persistentes (gerado automaticamente)
-    ├── vectordb/          # ChromaDB
-    └── memory/            # SQLite
+├── data/
+│   ├── chroma/                 # Banco vetorial
+│   └── memory/                 # Memória de projetos
+├── main.py
+├── demo_full_system.py
+├── demo_multi_team.py
+├── test_knowledge_system.py
+├── requirements.txt
+└── README.md
 ```
 
-## Fluxo de Trabalho
+## 🧪 Testes
 
-1. **Recebimento da Solicitação**: O cliente faz uma solicitação de projeto.
+```bash
+# Testa o sistema de conhecimento
+python test_knowledge_system.py
 
-2. **Carregamento de Conhecimento**: O sistema carrega best practices, histórico do projeto e conhecimento relevante.
-
-3. **Análise de Requisitos**: O time de PO analisa a solicitação com múltiplos agentes, cada um oferecendo uma perspectiva diferente, fundamentada no conhecimento base.
-
-4. **Validação do Mestre**: O Agente Mestre do time consolida as respostas, detecta alucinações e valida contra anti-patterns.
-
-5. **Armazenamento de Decisões**: Decisões importantes são armazenadas na Project Memory.
-
-6. **Delegação**: O orquestrador delega tarefas para outros times conforme necessário.
-
-7. **Validação Global**: O Agente Mestre Global revisa todas as saídas, garantindo consistência e qualidade.
-
-8. **Entrega**: O resultado final é entregue ao cliente.
-
-## Criando um Novo Time
-
-```python
-from core.base_team import BaseTeam
-from typing import List
-
-class MeuNovoTime(BaseTeam):
-    def __init__(self):
-        super().__init__(
-            team_name="Meu Novo Time",
-            team_description="Descrição do time",
-            domain="meu_dominio",  # Deve corresponder a uma pasta em knowledge/
-            num_operational_agents=2
-        )
-    
-    def _get_operational_prompts(self) -> List[str]:
-        return [
-            "Prompt do primeiro agente operacional...",
-            "Prompt do segundo agente operacional..."
-        ]
-    
-    def _get_master_prompt(self) -> str:
-        return "Prompt do agente mestre..."
+# Testa os módulos individuais
+python -m core.hallucination_detector
+python -m core.team_communication
+python -m core.teams_factory
 ```
 
-## Adicionando Conhecimento
+## 📈 Roadmap
 
-### Criar arquivo YAML para um novo domínio:
+- [ ] Interface web para visualização
+- [ ] Integração com mais provedores de LLM
+- [ ] Suporte a execução de código pelos agentes
+- [ ] Métricas e dashboards de performance
+- [ ] API REST para integração externa
+- [ ] Suporte a plugins customizados
 
-```yaml
-# knowledge/meu_dominio/best_practices.yaml
-metadata:
-  version: "1.0.0"
-  last_updated: "2026-01-05"
-  domain: "meu_dominio"
-  type: "best_practices"
-
-principles:
-  - name: "Princípio 1"
-    description: "Descrição do princípio"
-    guidelines:
-      - "Diretriz 1"
-      - "Diretriz 2"
-
-checklists:
-  review_checklist:
-    - "Item 1"
-    - "Item 2"
-
-anti_patterns:
-  - name: "Anti-pattern 1"
-    description: "O que evitar"
-    solution: "Como resolver"
-```
-
-## Contribuindo
+## 🤝 Contribuindo
 
 Contribuições são bem-vindas! Por favor, abra uma issue ou pull request.
 
-## Licença
+## 📄 Licença
 
 MIT License
 
-## Autor
+## 👨‍💻 Autor
 
 Desenvolvido por [Michael](https://github.com/michael-eng-ai)

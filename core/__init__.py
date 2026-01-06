@@ -5,8 +5,9 @@ Este pacote contém as classes e utilitários fundamentais do framework:
 - BaseTeam: Classe base para todos os times de agentes
 - AgencyOrchestrator: Orquestrador principal da agência
 - Knowledge: Sistema de conhecimento em 3 camadas
-- Tipos de dados compartilhados
-- Utilitários de validação
+- TeamsFactory: Fábrica de times pré-configurados
+- HallucinationDetector: Detector de alucinações
+- TeamCommunication: Sistema de comunicação entre times
 """
 
 from .base_team import (
@@ -45,6 +46,39 @@ from .knowledge import (
     get_knowledge_manager
 )
 
+# Teams Factory
+from .teams_factory import (
+    TeamsFactory,
+    TeamType,
+    TeamConfig,
+    AgentConfig as FactoryAgentConfig,
+    get_teams_factory,
+    TEAM_CONFIGS
+)
+
+# Hallucination Detector
+from .hallucination_detector import (
+    HallucinationDetector,
+    HallucinationSeverity,
+    HallucinationType,
+    HallucinationIssue,
+    ValidationResult as HallucinationValidationResult,
+    get_hallucination_detector
+)
+
+# Team Communication
+from .team_communication import (
+    TeamCommunicationHub,
+    MessageBus,
+    TeamMessage,
+    MessageType,
+    MessagePriority,
+    MessageStatus,
+    CollaborationRequest,
+    TeamContext,
+    get_communication_hub
+)
+
 __all__ = [
     # Base Team
     "BaseTeam",
@@ -78,4 +112,28 @@ __all__ = [
     # Knowledge Manager
     "KnowledgeManager",
     "get_knowledge_manager",
+    # Teams Factory
+    "TeamsFactory",
+    "TeamType",
+    "TeamConfig",
+    "FactoryAgentConfig",
+    "get_teams_factory",
+    "TEAM_CONFIGS",
+    # Hallucination Detector
+    "HallucinationDetector",
+    "HallucinationSeverity",
+    "HallucinationType",
+    "HallucinationIssue",
+    "HallucinationValidationResult",
+    "get_hallucination_detector",
+    # Team Communication
+    "TeamCommunicationHub",
+    "MessageBus",
+    "TeamMessage",
+    "MessageType",
+    "MessagePriority",
+    "MessageStatus",
+    "CollaborationRequest",
+    "TeamContext",
+    "get_communication_hub",
 ]
