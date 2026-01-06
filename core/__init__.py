@@ -178,20 +178,17 @@ from .integrated_workflow import (
 from .quarantine_manager import (
     QuarantineManager,
     QuarantineRecord,
-    QuarantineReason,
+    ErrorType,
     QuarantineStatus,
-    QuarantineStats,
     get_quarantine_manager
 )
 
 # Process Control (NEW in v6.0)
 from .process_control import (
     ProcessControl,
-    ProcessExecution,
-    ExecutionStatus,
-    ExecutionStep,
-    StepStatus,
-    ExecutionMetrics,
+    ProcessRecord,
+    ProcessStatus,
+    ProcessLayer,
     get_process_control
 )
 
@@ -201,9 +198,8 @@ from .governance_policies import (
     AccessPolicy,
     RetentionPolicy,
     DataClassificationLevel,
-    QualityThreshold,
-    LGPDConfig,
-    AuditConfig,
+    DataOwnership,
+    PolicyValidationResult,
     get_governance_policies
 )
 
