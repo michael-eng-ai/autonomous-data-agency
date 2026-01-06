@@ -1,5 +1,5 @@
 """
-Core Package - Autonomous Data Agency v4.0
+Core Package - Autonomous Data Agency v5.0
 
 Este pacote contém as classes e utilitários fundamentais do framework:
 - BaseTeam: Classe base para todos os times de agentes
@@ -11,6 +11,10 @@ Este pacote contém as classes e utilitários fundamentais do framework:
 - TaskOrchestrator: Orquestrador de tarefas e dependências
 - PMOrchestrator: Project Manager como orquestrador central
 - ValidationWorkflow: Fluxo de validação QA + PO
+- GovernanceTeam: Time de Governança e LGPD (NEW v5.0)
+- DataQuality: Validação de qualidade de dados (NEW v5.0)
+- ObservabilityTeam: Observabilidade e FinOps (NEW v5.0)
+- IntegratedWorkflow: Workflow integrado com governança (NEW v5.0)
 """
 
 from .base_team import (
@@ -119,6 +123,50 @@ from .validation_workflow import (
     get_po_validator
 )
 
+# Governance Team (NEW in v5.0)
+from .governance_team import (
+    GovernanceTeam,
+    DataClassification,
+    LegalBasis,
+    ComplianceStatus,
+    DataSubjectRight,
+    LGPDChecklist,
+    GovernanceReview,
+    get_governance_team
+)
+
+# Data Quality (NEW in v5.0)
+from .data_quality import (
+    DataQualityValidator,
+    QualityDimension,
+    QualityRule,
+    QualityViolation,
+    QualityReport,
+    get_data_quality_validator
+)
+
+# Observability Team (NEW in v5.0)
+from .observability_team import (
+    ObservabilityTeam,
+    StructuredLogger,
+    MetricsCollector,
+    AlertManager,
+    CostTracker,
+    LogLevel,
+    AlertSeverity,
+    get_observability_team
+)
+
+# Integrated Workflow (NEW in v5.0)
+from .integrated_workflow import (
+    IntegratedWorkflow,
+    WorkflowPhase,
+    WorkflowStatus,
+    WorkflowCheckpoint,
+    IntegratedProject,
+    get_integrated_workflow
+)
+
 __all__ = [
     # Base Team
     "BaseTeam",
@@ -215,4 +263,42 @@ __all__ = [
     "get_validation_workflow",
     "get_qa_validator",
     "get_po_validator",
+    
+    # Governance Team (NEW in v5.0)
+    "GovernanceTeam",
+    "DataClassification",
+    "LegalBasis",
+    "ComplianceStatus",
+    "DataSubjectRight",
+    "LGPDChecklist",
+    "GovernanceReview",
+    "get_governance_team",
+    
+    # Data Quality (NEW in v5.0)
+    "DataQualityValidator",
+    "QualityDimension",
+    "QualityRule",
+    "QualityViolation",
+    "QualityReport",
+    "get_data_quality_validator",
+    
+    # Observability Team (NEW in v5.0)
+    "ObservabilityTeam",
+    "StructuredLogger",
+    "MetricsCollector",
+    "AlertManager",
+    "CostTracker",
+    "LogLevel",
+    "AlertSeverity",
+    "get_observability_team",
+    
+    # Integrated Workflow (NEW in v5.0)
+    "IntegratedWorkflow",
+    "WorkflowPhase",
+    "WorkflowStatus",
+    "WorkflowCheckpoint",
+    "IntegratedProject",
+    "get_integrated_workflow",
 ]
+
+__version__ = "5.0.0"

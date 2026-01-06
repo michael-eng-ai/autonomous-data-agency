@@ -1,0 +1,425 @@
+# Knowledge Base: Governança de Dados e LGPD
+# Autonomous Data Agency Framework
+# Versão: 1.0
+
+metadata:
+  domain: governance
+  version: "1.0"
+  last_updated: "2026-01-06"
+  description: "Base de conhecimento para governança de dados, LGPD e compliance"
+
+# =============================================================================
+# PRINCÍPIOS DE GOVERNANÇA
+# =============================================================================
+principles:
+  - name: "Privacy by Design"
+    description: "Privacidade deve ser considerada desde o início do projeto"
+    implementation:
+      - "Minimização de dados: coletar apenas o necessário"
+      - "Limitação de finalidade: usar dados apenas para o propósito declarado"
+      - "Retenção limitada: definir período de retenção antes de coletar"
+      - "Segurança por padrão: criptografia e controle de acesso desde o início"
+
+  - name: "Accountability"
+    description: "Responsabilização e prestação de contas"
+    implementation:
+      - "Documentar todas as decisões de tratamento de dados"
+      - "Manter registros de operações (ROPA)"
+      - "Designar responsáveis por cada ativo de dados"
+      - "Realizar auditorias periódicas"
+
+  - name: "Transparency"
+    description: "Transparência no tratamento de dados"
+    implementation:
+      - "Política de privacidade clara e acessível"
+      - "Informar o titular sobre coleta e uso"
+      - "Disponibilizar canal para exercício de direitos"
+      - "Comunicar incidentes de segurança"
+
+  - name: "Data Quality"
+    description: "Qualidade dos dados em todo o ciclo de vida"
+    implementation:
+      - "Validação na entrada"
+      - "Monitoramento contínuo"
+      - "Correção proativa de inconsistências"
+      - "Métricas de qualidade por ativo"
+
+# =============================================================================
+# LGPD - LEI GERAL DE PROTEÇÃO DE DADOS
+# =============================================================================
+lgpd:
+  overview:
+    lei: "Lei nº 13.709/2018"
+    vigencia: "Setembro de 2020"
+    autoridade: "ANPD - Autoridade Nacional de Proteção de Dados"
+    multa_maxima: "2% do faturamento, limitado a R$ 50 milhões por infração"
+
+  bases_legais:
+    - code: "CONSENT"
+      name: "Consentimento"
+      article: "Art. 7º, I"
+      description: "Consentimento livre, informado, inequívoco e específico"
+      requirements:
+        - "Deve ser por escrito ou outro meio que demonstre manifestação de vontade"
+        - "Deve ser destacado das demais cláusulas contratuais"
+        - "Pode ser revogado a qualquer momento"
+        - "Ônus da prova é do controlador"
+      use_cases:
+        - "Marketing e comunicações promocionais"
+        - "Compartilhamento com terceiros para fins comerciais"
+        - "Coleta de dados sensíveis (em geral)"
+
+    - code: "LEGAL_OBLIGATION"
+      name: "Cumprimento de Obrigação Legal"
+      article: "Art. 7º, II"
+      description: "Tratamento necessário para cumprir obrigação legal ou regulatória"
+      requirements:
+        - "Deve haver lei ou regulamento específico"
+        - "Tratamento deve ser estritamente necessário"
+      use_cases:
+        - "Retenção de dados fiscais (5 anos)"
+        - "Registros trabalhistas"
+        - "Obrigações do setor financeiro"
+
+    - code: "CONTRACT"
+      name: "Execução de Contrato"
+      article: "Art. 7º, V"
+      description: "Tratamento necessário para execução de contrato"
+      requirements:
+        - "Contrato deve existir ou estar em fase de formação"
+        - "Tratamento deve ser necessário para o contrato"
+      use_cases:
+        - "Processamento de pedidos"
+        - "Entrega de produtos/serviços"
+        - "Suporte ao cliente"
+
+    - code: "LEGITIMATE_INTEREST"
+      name: "Interesse Legítimo"
+      article: "Art. 7º, IX"
+      description: "Tratamento para atender interesses legítimos do controlador"
+      requirements:
+        - "Realizar teste de balanceamento (LIA)"
+        - "Documentar a necessidade"
+        - "Não pode prevalecer sobre direitos do titular"
+        - "Titular pode se opor"
+      use_cases:
+        - "Prevenção à fraude"
+        - "Segurança da informação"
+        - "Analytics interno (com cuidados)"
+      caution: "Base legal mais contestável - usar com cautela"
+
+  direitos_titular:
+    - code: "ACCESS"
+      name: "Confirmação e Acesso"
+      article: "Art. 18, I e II"
+      prazo: "15 dias"
+      description: "Confirmar existência e acessar dados"
+      implementation:
+        - "Criar endpoint/formulário para solicitação"
+        - "Gerar relatório em formato legível"
+        - "Incluir finalidades e período de retenção"
+
+    - code: "CORRECTION"
+      name: "Correção"
+      article: "Art. 18, III"
+      prazo: "15 dias"
+      description: "Corrigir dados incompletos, inexatos ou desatualizados"
+      implementation:
+        - "Permitir atualização via portal"
+        - "Propagar correção para todos os sistemas"
+        - "Notificar terceiros que receberam os dados"
+
+    - code: "DELETION"
+      name: "Eliminação"
+      article: "Art. 18, VI"
+      prazo: "15 dias"
+      description: "Eliminar dados tratados com consentimento"
+      implementation:
+        - "Verificar se não há obrigação legal de retenção"
+        - "Executar exclusão ou anonimização"
+        - "Manter log da exclusão"
+        - "Notificar terceiros"
+
+    - code: "PORTABILITY"
+      name: "Portabilidade"
+      article: "Art. 18, V"
+      prazo: "15 dias"
+      description: "Receber dados em formato estruturado"
+      implementation:
+        - "Exportar em JSON ou CSV"
+        - "Incluir apenas dados fornecidos pelo titular"
+        - "Não incluir dados inferidos"
+
+  dados_sensiveis:
+    definition: "Art. 5º, II - Dados sobre origem racial, convicção religiosa, opinião política, filiação sindical, dados de saúde, vida sexual, dados genéticos ou biométricos"
+    tratamento:
+      - "Requer consentimento específico e destacado"
+      - "Ou uma das hipóteses do Art. 11"
+      - "Vedado compartilhamento para vantagem econômica (exceto saúde)"
+    bases_permitidas:
+      - "Consentimento específico"
+      - "Obrigação legal"
+      - "Políticas públicas"
+      - "Estudos por órgão de pesquisa"
+      - "Exercício regular de direitos"
+      - "Proteção da vida"
+      - "Tutela da saúde"
+      - "Prevenção à fraude"
+
+  incidentes:
+    comunicacao_anpd:
+      prazo: "Prazo razoável (recomendado 72h)"
+      conteudo:
+        - "Natureza dos dados afetados"
+        - "Informações sobre os titulares"
+        - "Medidas técnicas de segurança"
+        - "Riscos relacionados"
+        - "Medidas adotadas para reverter ou mitigar"
+    comunicacao_titular:
+      quando: "Quando puder acarretar risco ou dano relevante"
+      conteudo:
+        - "Natureza dos dados"
+        - "Medidas adotadas"
+        - "Recomendações ao titular"
+
+# =============================================================================
+# CLASSIFICAÇÃO DE DADOS
+# =============================================================================
+data_classification:
+  levels:
+    - level: "PUBLIC"
+      description: "Dados públicos, sem restrição"
+      examples:
+        - "Informações de produtos"
+        - "Conteúdo de marketing"
+      controls: "Nenhum controle especial"
+
+    - level: "INTERNAL"
+      description: "Uso interno da organização"
+      examples:
+        - "Processos internos"
+        - "Métricas agregadas"
+      controls: "Acesso restrito a funcionários"
+
+    - level: "CONFIDENTIAL"
+      description: "Dados confidenciais de negócio"
+      examples:
+        - "Estratégias comerciais"
+        - "Dados financeiros agregados"
+      controls:
+        - "Acesso baseado em necessidade"
+        - "Criptografia em trânsito"
+
+    - level: "RESTRICTED"
+      description: "Dados pessoais (PII)"
+      examples:
+        - "Nome, email, telefone"
+        - "CPF, endereço"
+      controls:
+        - "Criptografia em repouso e trânsito"
+        - "Acesso auditado"
+        - "Mascaramento em logs"
+
+    - level: "HIGHLY_RESTRICTED"
+      description: "Dados sensíveis LGPD"
+      examples:
+        - "Dados de saúde"
+        - "Dados biométricos"
+        - "Dados financeiros detalhados"
+      controls:
+        - "Criptografia forte (AES-256)"
+        - "Acesso com aprovação"
+        - "Auditoria completa"
+        - "Segregação de ambiente"
+
+# =============================================================================
+# TÉCNICAS DE PROTEÇÃO
+# =============================================================================
+protection_techniques:
+  anonymization:
+    description: "Remoção irreversível de identificadores"
+    techniques:
+      - name: "Supressão"
+        description: "Remoção completa do campo"
+        use_case: "Quando dado não é necessário"
+      - name: "Generalização"
+        description: "Substituir por categoria mais ampla"
+        example: "Idade 25 → Faixa 20-30"
+      - name: "Ruído"
+        description: "Adicionar variação aleatória"
+        use_case: "Dados numéricos para analytics"
+    note: "Dados anonimizados não são mais dados pessoais"
+
+  pseudonymization:
+    description: "Substituição de identificadores por pseudônimos"
+    techniques:
+      - name: "Tokenização"
+        description: "Substituir por token único"
+        reversible: true
+      - name: "Hash"
+        description: "Aplicar função hash"
+        reversible: false
+        note: "Usar salt para evitar rainbow tables"
+      - name: "Criptografia"
+        description: "Criptografar o identificador"
+        reversible: true
+    note: "Dados pseudonimizados ainda são dados pessoais"
+
+  encryption:
+    at_rest:
+      recommended: "AES-256"
+      key_management: "AWS KMS, Azure Key Vault, ou HashiCorp Vault"
+    in_transit:
+      recommended: "TLS 1.3"
+      minimum: "TLS 1.2"
+    application_level:
+      use_case: "Campos específicos sensíveis"
+      technique: "Criptografia de campo"
+
+  masking:
+    description: "Ocultar parte dos dados"
+    examples:
+      - field: "CPF"
+        original: "123.456.789-00"
+        masked: "***.***.789-00"
+      - field: "Email"
+        original: "usuario@email.com"
+        masked: "u***o@email.com"
+      - field: "Cartão"
+        original: "1234 5678 9012 3456"
+        masked: "**** **** **** 3456"
+
+# =============================================================================
+# RETENÇÃO DE DADOS
+# =============================================================================
+retention_policies:
+  principles:
+    - "Manter apenas pelo tempo necessário"
+    - "Definir período antes da coleta"
+    - "Documentar justificativa"
+    - "Automatizar exclusão/anonimização"
+
+  common_periods:
+    - category: "Dados fiscais"
+      period: "5 anos"
+      basis: "Código Tributário Nacional"
+    - category: "Dados trabalhistas"
+      period: "5 anos após término"
+      basis: "CLT"
+    - category: "Dados de saúde"
+      period: "20 anos"
+      basis: "CFM"
+    - category: "Logs de acesso"
+      period: "6 meses"
+      basis: "Marco Civil da Internet"
+    - category: "Dados de marketing"
+      period: "Enquanto houver consentimento"
+      basis: "LGPD"
+    - category: "Dados de transação"
+      period: "5 anos"
+      basis: "Código Civil"
+
+# =============================================================================
+# CHECKLIST DE CONFORMIDADE
+# =============================================================================
+checklists:
+  new_project:
+    name: "Checklist para Novo Projeto"
+    items:
+      - "[ ] Identificar dados pessoais coletados"
+      - "[ ] Classificar sensibilidade dos dados"
+      - "[ ] Definir base legal para cada tratamento"
+      - "[ ] Documentar finalidade específica"
+      - "[ ] Definir período de retenção"
+      - "[ ] Implementar medidas de segurança"
+      - "[ ] Criar mecanismo de consentimento (se aplicável)"
+      - "[ ] Disponibilizar canal para direitos do titular"
+      - "[ ] Realizar DPIA (se dados sensíveis)"
+      - "[ ] Treinar equipe sobre LGPD"
+
+  data_collection:
+    name: "Checklist para Coleta de Dados"
+    items:
+      - "[ ] Coletar apenas dados necessários (minimização)"
+      - "[ ] Informar titular sobre coleta e finalidade"
+      - "[ ] Obter consentimento quando necessário"
+      - "[ ] Registrar consentimento com timestamp"
+      - "[ ] Validar dados na entrada"
+      - "[ ] Criptografar dados sensíveis"
+      - "[ ] Registrar origem dos dados (lineage)"
+
+  data_sharing:
+    name: "Checklist para Compartilhamento"
+    items:
+      - "[ ] Verificar base legal para compartilhamento"
+      - "[ ] Verificar consentimento do titular (se aplicável)"
+      - "[ ] Formalizar contrato com operador"
+      - "[ ] Definir responsabilidades"
+      - "[ ] Garantir segurança na transferência"
+      - "[ ] Registrar compartilhamento para auditoria"
+      - "[ ] Informar titular sobre compartilhamento"
+
+# =============================================================================
+# ANTI-PATTERNS
+# =============================================================================
+anti_patterns:
+  - name: "Coleta Excessiva"
+    description: "Coletar mais dados do que o necessário"
+    problem: "Viola princípio da minimização"
+    solution: "Revisar cada campo e justificar necessidade"
+
+  - name: "Consentimento Genérico"
+    description: "Obter consentimento amplo para múltiplas finalidades"
+    problem: "Consentimento deve ser específico"
+    solution: "Separar consentimentos por finalidade"
+
+  - name: "Retenção Indefinida"
+    description: "Manter dados sem prazo definido"
+    problem: "Viola princípio da limitação de retenção"
+    solution: "Definir e automatizar período de retenção"
+
+  - name: "Segurança Negligenciada"
+    description: "Não implementar medidas de segurança adequadas"
+    problem: "Risco de vazamento e multas"
+    solution: "Criptografia, controle de acesso, auditoria"
+
+  - name: "Falta de Rastreabilidade"
+    description: "Não saber onde os dados estão e como são usados"
+    problem: "Impossibilita atender direitos do titular"
+    solution: "Implementar data lineage e catálogo"
+
+# =============================================================================
+# TEMPLATES
+# =============================================================================
+templates:
+  privacy_notice:
+    sections:
+      - "Quem somos (controlador)"
+      - "Dados coletados"
+      - "Finalidades do tratamento"
+      - "Base legal"
+      - "Compartilhamento"
+      - "Transferência internacional"
+      - "Período de retenção"
+      - "Direitos do titular"
+      - "Contato do DPO"
+      - "Atualizações da política"
+
+  consent_form:
+    elements:
+      - "Identificação do controlador"
+      - "Descrição clara da finalidade"
+      - "Tipos de dados coletados"
+      - "Período de tratamento"
+      - "Checkbox não pré-marcado"
+      - "Link para política de privacidade"
+      - "Informação sobre revogação"
+
+  dsar_response:
+    sections:
+      - "Confirmação de recebimento"
+      - "Prazo para resposta (15 dias)"
+      - "Dados encontrados (se acesso)"
+      - "Ações tomadas (se correção/exclusão)"
+      - "Justificativa (se negativa)"
+      - "Canal para recurso"

@@ -1,247 +1,390 @@
-# Autonomous Data Agency Framework v4.0
+# Autonomous Data Agency Framework v5.0
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Um framework avançado para criar agências autônomas de dados usando múltiplos times de agentes de IA com LLMs diversos, sistema de conhecimento em 3 camadas, validação anti-alucinação robusta, comunicação entre times e workflow completo de validação.
+Um framework avançado para criar agências autônomas de dados usando múltiplos times de agentes de IA com LLMs diversos, **governança e LGPD integrados**, sistema de conhecimento em 3 camadas, validação anti-alucinação robusta, **data quality**, **observabilidade e FinOps**.
 
-## 🌟 Novidades da v4.0
+## 🌟 Novidades da v5.0
 
-- **Time de Arquitetura Expandido**: Agentes especializados em Cloud, Custos, Segurança e Migração
-- **PM como Orquestrador Central**: Gerencia cronograma, dependências e paralelização
-- **Workflow de Validação QA + PO**: Cada entrega passa por validação técnica e de negócio
-- **Knowledge Base de Arquitetura**: Padrões, comparativos de cloud, estimativas de custo
-- **Sistema de Dependências**: Tarefas executam na ordem correta, com paralelização quando possível
+- **Time de Governança e LGPD**: Classificação de dados, base legal, consentimento, auditoria
+- **Data Quality**: 6 dimensões de qualidade, validação automática, relatórios
+- **Observabilidade e FinOps**: Logging estruturado, métricas, alertas, estimativa de custos
+- **Workflow Integrado**: Governança em cada etapa, validação contínua
+- **Knowledge Base Expandida**: Governança e Observabilidade
 
-## 📁 Arquitetura
-
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                         AGENCY ORCHESTRATOR                              │
-│                    (Coordenador Global da Agência)                       │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-        ┌───────────────────────────┼───────────────────────────┐
-        │                           │                           │
-        ▼                           ▼                           ▼
-┌───────────────┐           ┌───────────────┐           ┌───────────────┐
-│  PO TEAM      │           │  PM TEAM      │           │ ARCHITECTURE  │
-│  (Requisitos) │           │ (Cronograma)  │           │  (Decisões)   │
-└───────────────┘           └───────────────┘           └───────────────┘
-        │                           │                           │
-        │                           ▼                           │
-        │                   ┌───────────────┐                   │
-        │                   │ Task Schedule │                   │
-        │                   │ Dependencies  │                   │
-        │                   └───────────────┘                   │
-        │                           │                           │
-        └───────────────────────────┼───────────────────────────┘
-                                    │
-        ┌─────────────┬─────────────┼─────────────┬─────────────┐
-        │             │             │             │             │
-        ▼             ▼             ▼             ▼             ▼
-┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-│ Data Eng    │ │ DevOps      │ │ Data Science│ │ Analytics   │ │ Security    │
-│ Team        │ │ Team        │ │ Team        │ │ Team        │ │ Team        │
-└─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘
-        │             │             │             │             │
-        └─────────────┴─────────────┼─────────────┴─────────────┘
-                                    │
-                                    ▼
-                            ┌───────────────┐
-                            │   QA TEAM     │
-                            │  (Validação   │
-                            │   Técnica)    │
-                            └───────────────┘
-                                    │
-                                    ▼
-                            ┌───────────────┐
-                            │   PO TEAM     │
-                            │  (Validação   │
-                            │   Negócio)    │
-                            └───────────────┘
-```
-
-## 🔄 Fluxo de Trabalho
-
-O framework implementa um fluxo de trabalho profissional:
+## 📁 Arquitetura Completa
 
 ```
-Cliente → PO (requisitos) → PM (cronograma) → ARQUITETURA (decisões)
-                                    ↓
-                    ┌───────────────┼───────────────┐
-                    ↓               ↓               ↓
-              Data Eng         DevOps         Data Science
-                    ↓               ↓               ↓
-                    └───────────────┼───────────────┘
-                                    ↓
-                              QA (testes)
-                                    ↓
-                         PO (validação final)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           AUTONOMOUS DATA AGENCY                             │
+│                              Framework v5.0                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                     │
+        ┌────────────────────────────┼────────────────────────────┐
+        │                            │                            │
+        ▼                            ▼                            ▼
+┌───────────────┐          ┌───────────────┐          ┌───────────────┐
+│  GOVERNANÇA   │          │ OBSERVABILITY │          │   WORKFLOW    │
+│  & LGPD 🛡️   │          │  & FINOPS 📊  │          │  INTEGRADO    │
+└───────────────┘          └───────────────┘          └───────────────┘
+        │                            │                            │
+        └────────────────────────────┼────────────────────────────┘
+                                     │
+                    ┌────────────────┼────────────────┐
+                    │                │                │
+                    ▼                ▼                ▼
+             ┌───────────┐    ┌───────────┐    ┌───────────┐
+             │    PO     │    │    PM     │    │   ARCH    │
+             │   Team    │───▶│   Team    │───▶│   Team    │
+             └───────────┘    └───────────┘    └───────────┘
+                                                     │
+                    ┌────────────────┬───────────────┼───────────────┐
+                    │                │               │               │
+                    ▼                ▼               ▼               ▼
+             ┌───────────┐    ┌───────────┐   ┌───────────┐   ┌───────────┐
+             │ Data Eng  │    │  DevOps   │   │Data Science│   │    QA     │
+             │   Team    │    │   Team    │   │   Team    │   │   Team    │
+             └───────────┘    └───────────┘   └───────────┘   └───────────┘
+                    │                │               │               │
+                    └────────────────┴───────────────┴───────────────┘
+                                            │
+                                            ▼
+                                    ┌───────────────┐
+                                    │ DATA QUALITY  │
+                                    │   Validator   │
+                                    └───────────────┘
 ```
 
-**Princípios:**
-1. **Arquitetura sempre primeiro** - Decisões de custo, escalabilidade e portabilidade
-2. **Paralelização** - Tarefas independentes executam em paralelo
-3. **Validação dupla** - QA (técnico) + PO (negócio) para cada entrega
-4. **Comunicação estruturada** - Times se comunicam via message bus
+## 🛡️ Governança e LGPD
 
-## 🧠 Sistema de Conhecimento (3 Camadas)
+O framework agora inclui um **Time de Governança** completo para garantir conformidade:
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    KNOWLEDGE MANAGER                             │
-└─────────────────────────────────────────────────────────────────┘
-        │                     │                     │
-        ▼                     ▼                     ▼
-┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
-│  KNOWLEDGE BASE │ │   RAG ENGINE    │ │ PROJECT MEMORY  │
-│     (YAML)      │ │   (ChromaDB)    │ │    (SQLite)     │
-├─────────────────┤ ├─────────────────┤ ├─────────────────┤
-│ • Best practices│ │ • Docs técnicos │ │ • Decisões      │
-│ • Templates     │ │ • Papers        │ │ • Preferências  │
-│ • Anti-patterns │ │ • Casos de uso  │ │ • Histórico     │
-│ • Checklists    │ │ • Stack Overflow│ │ • Contexto      │
-└─────────────────┘ └─────────────────┘ └─────────────────┘
-```
+### Funcionalidades
 
-## 📊 PM como Orquestrador
+| Funcionalidade | Descrição |
+|----------------|-----------|
+| **Classificação de Dados** | Identifica automaticamente PII, dados sensíveis e públicos |
+| **Base Legal** | Valida se há base legal adequada (consentimento, contrato, etc.) |
+| **Consentimento** | Verifica mecanismos de consentimento para dados sensíveis |
+| **Direitos do Titular** | Garante canais para acesso, correção, exclusão, portabilidade |
+| **Retenção** | Valida políticas de retenção e exclusão |
+| **Auditoria** | Registra todas as operações para compliance |
+| **DPIA** | Suporte a Data Protection Impact Assessment |
 
-O Project Manager gerencia todo o ciclo de vida do projeto:
+### Uso
 
 ```python
-from core import get_pm_orchestrator
+from core.governance_team import get_governance_team
 
-pm = get_pm_orchestrator()
+governance = get_governance_team()
 
-# Cria projeto
-project = pm.create_project(
-    project_id="meu_projeto",
-    project_name="Sistema de Análise",
-    description="Bot de análise de clientes",
-    client_requirements="Requisitos..."
+# Classifica dados automaticamente
+classification = governance.classify_data({
+    "nome": "string",
+    "cpf": "string",
+    "historico_saude": "string"
+})
+# Resultado: {"nome": "PII", "cpf": "PII", "historico_saude": "SENSITIVE"}
+
+# Verifica base legal
+legal_check = governance.check_legal_basis(
+    data_types=["PII", "SENSITIVE"],
+    declared_basis="consent",
+    has_consent_mechanism=True
 )
 
-# Gera cronograma com dependências
-plan = pm.analyze_requirements_and_create_schedule(
-    project_id="meu_projeto",
-    requirements={
-        "has_ml": True,
-        "has_analytics": True,
-        "data_volume": "medium",
-        "team_size": 3
-    }
-)
+# Gera checklist LGPD
+checklist = governance.generate_lgpd_checklist(project_type="customer_analytics")
 
-# Visualiza ordem de execução
-for level in plan["execution_levels"]:
-    print(f"Nível {level['level']}:")
-    for task in level["tasks"]:
-        print(f"  [{task['assigned_team']}] {task['name']}")
+# Revisão completa de arquitetura
+review = governance.review_architecture({
+    "database": "PostgreSQL",
+    "encryption": True,
+    "access_control": True
+})
 ```
 
-## ✅ Workflow de Validação (QA + PO)
-
-Cada entrega passa por validação dupla:
-
-```python
-from core import get_validation_workflow
-
-workflow = get_validation_workflow()
-
-result = workflow.submit_for_validation(
-    task_id="task_001",
-    task_name="Pipeline de Dados",
-    task_type="data_pipeline",
-    assigned_team="data_engineering",
-    deliverables=["Pipeline ETL", "Testes", "Docs"],
-    original_requirements=["Ingerir dados", "Transformar"],
-    test_results={
-        "all_tests_passed": True,
-        "data_quality_score": 0.95,
-        "documentation_complete": True
-    }
-)
-
-if result["can_proceed"]:
-    print("✅ Aprovado por QA e PO!")
-else:
-    print(f"❌ Rejeitado: {result['feedback']}")
-```
-
-## 🏗️ Time de Arquitetura Expandido
-
-O time de Arquitetura agora inclui especialistas em:
-
-| Agente | Foco | Responsabilidades |
-|--------|------|-------------------|
-| **Arquiteto Mestre** | Consolidação | Trade-offs, decisões finais |
-| **Arquiteto de Soluções** | Integrações | Padrões, APIs, microservices |
-| **Arquiteto de Dados** | Data Architecture | Data mesh, lakehouse, governança |
-| **Arquiteto Cloud** | Infraestrutura | Custos, escalabilidade, migração |
-| **Arquiteto de Segurança** | Compliance | LGPD, criptografia, IAM |
-
-### Knowledge Base de Arquitetura
+### Knowledge Base de Governança
 
 ```yaml
-# knowledge/architecture/best_practices.yaml
-patterns:
-  - Data Lakehouse
-  - Data Mesh
-  - Lambda Architecture
-  - Kappa Architecture
-  - Event-Driven Architecture
+# knowledge/governance/best_practices.yaml
+lgpd:
+  principles:
+    - Finalidade
+    - Adequação
+    - Necessidade
+    - Livre acesso
+    - Qualidade dos dados
+    - Transparência
+    - Segurança
+    - Prevenção
+    - Não discriminação
+    - Responsabilização
 
-cloud_comparison:
-  aws: {strengths, weaknesses, services}
-  gcp: {strengths, weaknesses, services}
-  azure: {strengths, weaknesses, services}
-  open_source: {strengths, weaknesses, services}
+  legal_bases:
+    - Consentimento
+    - Obrigação legal
+    - Execução de políticas públicas
+    - Estudos por órgão de pesquisa
+    - Execução de contrato
+    - Exercício regular de direitos
+    - Proteção da vida
+    - Tutela da saúde
+    - Legítimo interesse
+    - Proteção do crédito
 
-cost_estimation:
-  small_project: "$100-500/mês"
-  medium_project: "$500-2000/mês"
-  large_project: "$2000-10000+/mês"
+  data_subject_rights:
+    - Confirmação de tratamento
+    - Acesso aos dados
+    - Correção
+    - Anonimização/bloqueio/eliminação
+    - Portabilidade
+    - Eliminação com consentimento
+    - Informação sobre compartilhamento
+    - Revogação do consentimento
 ```
 
-## 🛡️ Sistema Anti-Alucinação
+## 📊 Data Quality
+
+Sistema completo de validação de qualidade de dados:
+
+### 6 Dimensões de Qualidade
+
+| Dimensão | Descrição | Exemplo |
+|----------|-----------|---------|
+| **Completude** | Campos não nulos | Email obrigatório |
+| **Consistência** | Formato correto | Email válido |
+| **Precisão** | Valores corretos | Idade entre 0-150 |
+| **Unicidade** | Sem duplicatas | CPF único |
+| **Atualidade** | Dados recentes | Última atualização < 30 dias |
+| **Validade** | Valores permitidos | Status in ['ativo', 'inativo'] |
+
+### Uso
 
 ```python
-from core import get_hallucination_detector
+from core.data_quality import get_data_quality_validator
 
-detector = get_hallucination_detector()
-result = detector.validate_response(
-    response="Recomendo usar Apache Airflow...",
-    domain="data_engineering"
+validator = get_data_quality_validator()
+
+# Define schema
+schema = {
+    "email": {"type": "string", "nullable": False},
+    "idade": {"type": "integer", "nullable": True},
+    "cpf": {"type": "string", "nullable": False}
+}
+
+# Adiciona regras padrão baseadas no schema
+validator.add_standard_rules("clientes", schema)
+
+# Adiciona regra customizada
+validator.add_rule(
+    dataset="clientes",
+    rule_name="idade_valida",
+    dimension="accuracy",
+    check_function=lambda row: 0 <= row.get("idade", 0) <= 150,
+    severity="error"
 )
 
-print(f"Válido: {result.is_valid}")
-print(f"Score: {result.overall_score}")
-print(f"Issues: {result.issues}")
+# Valida dados
+data = [
+    {"email": "joao@email.com", "idade": 30, "cpf": "123.456.789-00"},
+    {"email": "invalid-email", "idade": 200, "cpf": ""},
+]
+
+report = validator.validate("clientes", data)
+
+print(f"Score: {report.overall_score:.2%}")
+print(f"Passou: {report.passed}")
+print(f"Violações: {len(report.violations)}")
+for v in report.violations:
+    print(f"  - {v['rule']}: {v['message']}")
 ```
 
-## 📡 Comunicação Entre Times
+## 📈 Observabilidade e FinOps
+
+Sistema completo de monitoramento e gestão de custos:
+
+### Componentes
+
+| Componente | Funcionalidade |
+|------------|----------------|
+| **Logger** | Logging estruturado com níveis e contexto |
+| **Metrics** | Métricas (4 Golden Signals) |
+| **Alerts** | Alertas configuráveis com thresholds |
+| **Costs** | Estimativa e tracking de custos |
+
+### Uso
 
 ```python
-from core import get_communication_hub
+from core.observability_team import get_observability_team
 
-hub = get_communication_hub()
+obs = get_observability_team()
 
-# Handoff de tarefa
-hub.send_message(
-    from_team="architecture",
-    to_team="data_engineering",
-    message_type="task_handoff",
-    content={"task": "Implementar pipeline", "priority": "high"}
+# Registra ação de agente
+obs.record_agent_action(
+    agent_name="data_engineer",
+    action="create_pipeline",
+    duration_ms=1500,
+    success=True,
+    tokens_used=2000,
+    model="gpt-4.1-mini"
 )
 
-# Solicita ajuda
-hub.request_help(
-    from_team="data_science",
-    topic="Feature Engineering",
-    description="Preciso de features agregadas",
-    required_expertise=["sql", "spark"]
+# Estima custos do projeto
+estimate = obs.costs.estimate_project_cost({
+    "duration_days": 30,
+    "llm_calls_per_day": 100,
+    "avg_tokens_per_call": 2000,
+    "storage_gb": 50,
+    "compute_hours_per_day": 8
+})
+
+print(f"Custo estimado: ${estimate['total_estimated']:.2f}")
+print(f"  - LLM: ${estimate['breakdown']['llm_costs']:.2f}")
+print(f"  - Storage: ${estimate['breakdown']['storage_costs']:.2f}")
+print(f"  - Compute: ${estimate['breakdown']['compute_costs']:.2f}")
+
+# Configura alerta
+obs.alerts.add_alert(
+    name="high_error_rate",
+    metric="error_rate",
+    threshold=0.1,
+    operator="greater_than",
+    severity="critical"
 )
+
+# Dashboard de observabilidade
+dashboard = obs.get_dashboard_data()
+```
+
+### Knowledge Base de Observabilidade
+
+```yaml
+# knowledge/observability/best_practices.yaml
+golden_signals:
+  - Latency (tempo de resposta)
+  - Traffic (volume de requisições)
+  - Errors (taxa de erros)
+  - Saturation (utilização de recursos)
+
+cost_optimization:
+  strategies:
+    - Usar modelos menores para tarefas simples
+    - Cache de respostas frequentes
+    - Batch processing quando possível
+    - Auto-scaling baseado em demanda
+```
+
+## 🔄 Workflow Integrado
+
+O novo workflow integra governança em cada etapa:
+
+```
+┌─────────┐     ┌─────────┐     ┌─────────┐     ┌─────────┐
+│ Cliente │────▶│   PO    │────▶│   PM    │────▶│  ARCH   │
+└─────────┘     └─────────┘     └─────────┘     └─────────┘
+                     │                               │
+                     ▼                               ▼
+              ┌─────────────┐                 ┌─────────────┐
+              │ GOVERNANÇA  │                 │ GOVERNANÇA  │
+              │ (Requisitos)│                 │(Arquitetura)│
+              └─────────────┘                 └─────────────┘
+                                                     │
+                    ┌────────────────────────────────┼────────────────────────────────┐
+                    │                                │                                │
+                    ▼                                ▼                                ▼
+             ┌───────────┐                    ┌───────────┐                    ┌───────────┐
+             │ Data Eng  │                    │  DevOps   │                    │Data Science│
+             └───────────┘                    └───────────┘                    └───────────┘
+                    │                                │                                │
+                    ▼                                ▼                                ▼
+             ┌─────────────┐                 ┌─────────────┐                 ┌─────────────┐
+             │DATA QUALITY │                 │DATA QUALITY │                 │DATA QUALITY │
+             └─────────────┘                 └─────────────┘                 └─────────────┘
+                    │                                │                                │
+                    └────────────────────────────────┼────────────────────────────────┘
+                                                     │
+                                                     ▼
+                                              ┌─────────────┐
+                                              │     QA      │
+                                              │ + Governança│
+                                              └─────────────┘
+                                                     │
+                                                     ▼
+                                              ┌─────────────┐
+                                              │     PO      │
+                                              │ (Validação) │
+                                              └─────────────┘
+```
+
+### Uso do Workflow Integrado
+
+```python
+from core.integrated_workflow import get_integrated_workflow
+
+workflow = get_integrated_workflow()
+
+# Cria projeto
+project = workflow.create_project(
+    name="Bot de Análise de Clientes",
+    description="Sistema de análise e recomendação",
+    client="Empresa XYZ",
+    initial_requirements={
+        "data_fields": ["nome", "email", "cpf", "historico_compras"],
+        "legal_basis": "contract",
+        "retention_period": "5 years"
+    }
+)
+
+# Submete requisitos (validação de governança automática)
+result = workflow.submit_requirements(
+    project_id=project.id,
+    requirements={
+        "functional": ["Análise de perfil", "Recomendações"],
+        "non_functional": ["LGPD compliant", "99.9% uptime"],
+        "data_fields": ["nome", "email", "cpf"],
+        "legal_basis": "contract"
+    }
+)
+
+if result["blocked"]:
+    print("Bloqueado por governança:")
+    for issue in result["governance_issues"]:
+        print(f"  - {issue['message']}")
+
+# Submete arquitetura (inclui estimativa de custos)
+result = workflow.submit_architecture(
+    project_id=project.id,
+    architecture={
+        "database": "PostgreSQL",
+        "orchestration": "Apache Airflow",
+        "ml_platform": "MLflow",
+        "cloud": "AWS",
+        "timeline_days": 30
+    }
+)
+
+print(f"Custo estimado: ${result['cost_estimate']['total_estimated']:.2f}")
+
+# Completa revisão de governança
+result = workflow.complete_governance_review(
+    project_id=project.id,
+    dpia_required=True,
+    dpia_result={"risk_level": "medium", "mitigations": ["Criptografia", "Anonimização"]}
+)
+
+# Submete entregas com validação de qualidade
+result = workflow.submit_deliverable(
+    project_id=project.id,
+    deliverable_name="pipeline_ingestao",
+    deliverable_type="pipeline",
+    data_sample=[{"nome": "João", "email": "joao@email.com", "cpf": "123.456.789-00"}],
+    schema={"nome": {"type": "string", "nullable": False}}
+)
+
+# Gera relatório final
+report = workflow.generate_project_report(project.id)
 ```
 
 ## 📊 Times Disponíveis
@@ -257,6 +400,7 @@ hub.request_help(
 | **DevOps** | 4 | Infraestrutura, CI/CD, monitoramento |
 | **QA** | 4 | Testes, validação, qualidade |
 | **Security** | 4 | Segurança, LGPD, compliance |
+| **Governance** | 4 | LGPD, auditoria, conformidade |
 
 ## 🚀 Instalação
 
@@ -277,25 +421,19 @@ cp .env.example .env
 # Edite .env com sua OPENAI_API_KEY
 ```
 
-## 📖 Uso
+## 📖 Demos
 
-### Demo do Workflow Completo (Recomendado)
 ```bash
+# Demo do workflow completo com governança
 python demo_complete_workflow.py
-```
 
-### Demo Multi-Time
-```bash
+# Demo multi-time com comunicação
 python demo_multi_team.py
-```
 
-### Demo de Um Time
-```bash
+# Demo de um time
 python demo_full_system.py
-```
 
-### Teste do Sistema de Conhecimento
-```bash
+# Teste do sistema de conhecimento
 python test_knowledge_system.py
 ```
 
@@ -304,31 +442,37 @@ python test_knowledge_system.py
 ```
 autonomous-data-agency/
 ├── config/
-│   └── llm_config.py           # Configuração de LLMs
+│   └── llm_config.py              # Configuração de LLMs
 ├── core/
-│   ├── base_team.py            # Classe base para times
-│   ├── agency_orchestrator.py  # Orquestrador principal
-│   ├── teams_factory.py        # Fábrica de times
-│   ├── task_orchestrator.py    # Orquestrador de tarefas
-│   ├── pm_orchestrator.py      # PM como coordenador
-│   ├── validation_workflow.py  # Fluxo QA + PO
-│   ├── hallucination_detector.py
-│   ├── team_communication.py
+│   ├── base_team.py               # Classe base para times
+│   ├── agency_orchestrator.py     # Orquestrador principal
+│   ├── teams_factory.py           # Fábrica de times
+│   ├── task_orchestrator.py       # Orquestrador de tarefas
+│   ├── pm_orchestrator.py         # PM como coordenador
+│   ├── validation_workflow.py     # Fluxo QA + PO
+│   ├── hallucination_detector.py  # Detecção de alucinações
+│   ├── team_communication.py      # Comunicação entre times
+│   ├── governance_team.py         # 🆕 Time de Governança/LGPD
+│   ├── data_quality.py            # 🆕 Validação de qualidade
+│   ├── observability_team.py      # 🆕 Observabilidade/FinOps
+│   ├── integrated_workflow.py     # 🆕 Workflow integrado
 │   └── knowledge/
-│       ├── knowledge_base.py   # Camada 1: YAML
-│       ├── rag_engine.py       # Camada 2: ChromaDB
-│       └── project_memory.py   # Camada 3: SQLite
+│       ├── knowledge_base.py      # Camada 1: YAML
+│       ├── rag_engine.py          # Camada 2: ChromaDB
+│       └── project_memory.py      # Camada 3: SQLite
 ├── knowledge/
-│   ├── architecture/           # NEW: KB de Arquitetura
+│   ├── architecture/
 │   ├── data_engineering/
 │   ├── data_science/
 │   ├── devops/
+│   ├── governance/                # 🆕 KB de Governança
+│   ├── observability/             # 🆕 KB de Observabilidade
 │   ├── product_owner/
 │   ├── qa/
 │   └── shared/
 ├── teams/
 │   └── [times especializados]
-├── demo_complete_workflow.py   # NEW: Demo completa
+├── demo_complete_workflow.py
 ├── demo_multi_team.py
 ├── demo_full_system.py
 ├── test_knowledge_system.py
@@ -337,28 +481,20 @@ autonomous-data-agency/
 └── README.md
 ```
 
-## 🧪 Testes
-
-```bash
-# Testa o sistema de conhecimento
-python test_knowledge_system.py
-
-# Testa módulos individuais
-python -m core.pm_orchestrator
-python -m core.validation_workflow
-python -m core.hallucination_detector
-```
-
 ## 📈 Roadmap
 
 - [x] Time de Arquitetura expandido
 - [x] PM como orquestrador central
 - [x] Workflow de validação QA + PO
 - [x] Sistema de dependências e paralelização
+- [x] **Time de Governança e LGPD**
+- [x] **Data Quality com 6 dimensões**
+- [x] **Observabilidade e FinOps**
+- [x] **Workflow integrado com governança**
 - [ ] Interface web para visualização
 - [ ] API REST para integração externa
 - [ ] Execução real de código pelos agentes
-- [ ] Métricas e dashboards de performance
+- [ ] Integração com cloud providers
 
 ## 🤝 Contribuindo
 
@@ -371,3 +507,7 @@ MIT License
 ## 👨‍💻 Autor
 
 Desenvolvido por [Michael](https://github.com/michael-eng-ai)
+
+---
+
+**Autonomous Data Agency v5.0** - Agora com Governança, LGPD, Data Quality e Observabilidade integrados.
