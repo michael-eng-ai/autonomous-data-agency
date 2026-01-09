@@ -29,6 +29,7 @@ class DataScienceTeam(BaseTeam):
         super().__init__(
             team_name="Data Science",
             team_description="Time responsável por modelagem de ML e operações de ML (MLOps)",
+            domain="data_science",
             num_operational_agents=2
         )
     

@@ -29,6 +29,7 @@ class ProductOwnerTeam(BaseTeam):
         super().__init__(
             team_name="Product Owner",
             team_description="Time responsável por entender requisitos do cliente e definir escopo",
+            domain="product_owner",
             num_operational_agents=2
         )
     

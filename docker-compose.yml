@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  agency:
+    build: .
+    volumes:
+      - .:/app
+      - ./data:/app/data
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    command: ["interactive"]

@@ -17,12 +17,13 @@ from dataclasses import dataclass
 from enum import Enum
 
 from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 
 class LLMProvider(Enum):
     """Provedores de LLM disponíveis."""
-    OPENAI_MINI = "gpt-4.1-mini"
-    OPENAI_NANO = "gpt-4.1-nano"
+    OPENAI_MINI = "gpt-4o-mini"
+    OPENAI = "gpt-3.5-turbo"
     GEMINI_FLASH = "gemini-2.5-flash"
 
 
@@ -39,26 +40,26 @@ class LLMConfig:
 LLM_CONFIGS: Dict[str, LLMConfig] = {
     # Agentes Mestres - usam modelo mais capaz para validação
     "master": LLMConfig(
-        model_name="gpt-4.1-mini",
-        temperature=0.3,  # Mais determinístico para validação
-        description="Modelo principal para agentes mestres (validação e consolidação)"
+        model_name="gemini-2.5-flash", # Updated to available model
+        temperature=0.3,
+        description="Modelo principal para agentes mestres (validação e consolidação) - Google"
     ),
     
     # Agentes Operacionais - usam modelos diferentes para diversidade
     "operational_1": LLMConfig(
-        model_name="gpt-4.1-mini",
+        model_name="gemini-2.5-flash", # Updated to available model
         temperature=0.7,
-        description="Primeiro modelo operacional (criativo)"
+        description="Primeiro modelo operacional (criativo) - Google"
     ),
     "operational_2": LLMConfig(
-        model_name="gpt-4.1-nano",
-        temperature=0.8,
-        description="Segundo modelo operacional (rápido e diverso)"
-    ),
-    "operational_3": LLMConfig(
         model_name="gemini-2.5-flash",
         temperature=0.7,
-        description="Terceiro modelo operacional (perspectiva Google)"
+        description="Segundo modelo operacional (rápido e diverso) - Google"
+    ),
+    "operational_3": LLMConfig(
+        model_name="gpt-3.5-turbo",
+        temperature=0.8,
+        description="Terceiro modelo operacional (backup)"
     ),
 }
 
@@ -66,7 +67,7 @@ LLM_CONFIGS: Dict[str, LLMConfig] = {
 def get_llm(
     agent_type: Literal["master", "operational_1", "operational_2", "operational_3"],
     temperature_override: Optional[float] = None
-) -> ChatOpenAI:
+) -> ChatOpenAI | ChatGoogleGenerativeAI:
     """
     Retorna uma instância de LLM configurada para o tipo de agente.
     
@@ -75,11 +76,28 @@ def get_llm(
         temperature_override: Sobrescreve a temperatura padrão se fornecido
         
     Returns:
-        Instância de ChatOpenAI configurada
+        Instância de ChatOpenAI ou ChatGoogleGenerativeAI configurada
     """
     config = LLM_CONFIGS.get(agent_type, LLM_CONFIGS["operational_1"])
     
     temperature = temperature_override if temperature_override is not None else config.temperature
+    
+    if "gemini" in config.model_name:
+        if not os.getenv("GOOGLE_API_KEY"):
+            # Fallback para OpenAI se chave do Google não existir
+            print(f"Aviso: GOOGLE_API_KEY não encontrada. Usando fallback para OpenAI para {agent_type}.")
+            return ChatOpenAI(
+                model="gpt-3.5-turbo",
+                temperature=temperature,
+                max_tokens=config.max_tokens
+            )
+            
+        return ChatGoogleGenerativeAI(
+            model=config.model_name,
+            temperature=temperature,
+            max_output_tokens=config.max_tokens,
+            google_api_key=os.getenv("GOOGLE_API_KEY")
+        )
     
     return ChatOpenAI(
         model=config.model_name,
@@ -103,9 +121,10 @@ def get_diverse_llms(n: int = 2) -> list:
 
 
 # Mapeamento de modelos para descrições amigáveis
+# Mapeamento de modelos para descrições amigáveis
 MODEL_DESCRIPTIONS = {
-    "gpt-4.1-mini": "GPT-4.1 Mini (OpenAI) - Equilibrado e versátil",
-    "gpt-4.1-nano": "GPT-4.1 Nano (OpenAI) - Rápido e eficiente",
+    "gpt-4o-mini": "GPT-4o Mini (OpenAI) - Equilibrado e versátil",
+    "gpt-3.5-turbo": "GPT-3.5 Turbo (OpenAI) - Rápido e eficiente",
     "gemini-2.5-flash": "Gemini 2.5 Flash (Google) - Perspectiva alternativa",
 }
 

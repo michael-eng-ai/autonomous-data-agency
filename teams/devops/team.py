@@ -29,6 +29,7 @@ class DevOpsTeam(BaseTeam):
         super().__init__(
             team_name="DevOps",
             team_description="Time responsável por infraestrutura, CI/CD e operações",
+            domain="devops",
             num_operational_agents=2
         )
     

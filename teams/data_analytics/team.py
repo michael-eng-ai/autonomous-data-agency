@@ -29,6 +29,7 @@ class DataAnalyticsTeam(BaseTeam):
         super().__init__(
             team_name="Data Analytics",
             team_description="Time responsável por análises de dados, KPIs e dashboards",
+            domain="data_analytics",
             num_operational_agents=2
         )
     

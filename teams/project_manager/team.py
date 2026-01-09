@@ -29,6 +29,7 @@ class ProjectManagerTeam(BaseTeam):
         super().__init__(
             team_name="Project Manager",
             team_description="Time responsável por planejamento, cronograma e gestão de riscos",
+            domain="project_manager",
             num_operational_agents=2
         )
     

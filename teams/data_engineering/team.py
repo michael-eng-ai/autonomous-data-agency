@@ -29,6 +29,7 @@ class DataEngineeringTeam(BaseTeam):
         super().__init__(
             team_name="Data Engineering",
             team_description="Time responsável por arquitetura de dados e pipelines ETL/ELT",
+            domain="data_engineering",
             num_operational_agents=2
         )
     

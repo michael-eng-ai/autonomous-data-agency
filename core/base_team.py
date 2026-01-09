@@ -321,8 +321,12 @@ DIRETRIZES DE QUALIDADE:
                 ("human", "{input}")
             ])
             
+
+            # Helper to get model name safely (handles OpenAI and Gemini)
+            model_name = getattr(llm, "model_name", getattr(llm, "model", "unknown_model"))
+            
             agent = prompt_template | llm
-            agents.append((agent_id, agent_name, llm.model_name, agent))
+            agents.append((agent_id, agent_name, model_name, agent))
         
         return agents
     

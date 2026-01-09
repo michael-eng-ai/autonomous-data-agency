@@ -29,6 +29,7 @@ class QATeam(BaseTeam):
         super().__init__(
             team_name="Quality Assurance",
             team_description="Time responsável por testes, qualidade de código e dados",
+            domain="qa",
             num_operational_agents=2
         )
     
