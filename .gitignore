@@ -140,3 +140,14 @@ logs/
 temp/
 tmp/
 chroma_db/
+
+# Data and Vector DB (runtime generated)
+data/
+*.sqlite3
+chroma.sqlite3
+chroma_db/
+
+# Node modules (web)
+web/node_modules/
+node_modules/
+
