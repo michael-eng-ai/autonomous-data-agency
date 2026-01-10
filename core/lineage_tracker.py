@@ -665,8 +665,8 @@ class LineageTracker:
             "view": "{{{}}}",
             "pipeline": "([{}])",
             "model": ">{}]",
-            "dashboard": "[/{}\\]",
-            "report": "[\\{}\/]"
+            "dashboard": r"[/{}\\]",
+            "report": r"[\\{}/]"
         }
         
         for node in graph["nodes"]:

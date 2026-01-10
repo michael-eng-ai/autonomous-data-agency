@@ -1,280 +1,255 @@
-# Getting Started with Autonomous Data Agency
+# Getting Started with Autonomous Data Agency v7.0
 
-This guide will help you get started with the Autonomous Data Agency framework.
+Este guia vai ajudá-lo a começar a usar o framework Autonomous Data Agency rapidamente.
 
-## Installation
+## 🚀 Quick Start (Docker - Recomendado)
 
-1. **Clone the repository:**
+A maneira mais rápida de testar é usando Docker:
+
 ```bash
+# Clone o repositório
 git clone https://github.com/michael-eng-ai/autonomous-data-agency.git
 cd autonomous-data-agency
+
+# Configure a chave do Gemini
+export GOOGLE_API_KEY=sua_chave_aqui
+
+# Execute
+docker-compose up --build
 ```
 
-2. **Install the package:**
-```bash
-pip install -e .
-```
+Acesse:
+- **Interface Web**: http://localhost:5173
+- **API**: http://localhost:8000
+- **Swagger Docs**: http://localhost:8000/docs
 
-Or install dependencies separately:
+## 📦 Instalação Local
+
+### 1. Requisitos
+
+- Python 3.11+
+- Node.js 18+
+- Google API Key (Gemini)
+
+### 2. Backend (API)
+
 ```bash
+# Clone e acesse o diretório
+git clone https://github.com/michael-eng-ai/autonomous-data-agency.git
+cd autonomous-data-agency
+
+# Ambiente virtual
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+
+# Dependências
 pip install -r requirements.txt
+
+# Configure o .env
+echo "GOOGLE_API_KEY=sua_chave_aqui" > .env
+
+# Execute a API
+uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-## Quick Start
+### 3. Frontend (Web)
 
-### 1. Basic Usage (No LLM Required)
+```bash
+# Em outro terminal
+cd web
+npm install
+npm run dev
+```
 
-The simplest way to get started is without an LLM. This is perfect for testing and understanding the framework:
+## 🎯 Como Usar
+
+### Via Interface Web
+
+1. Acesse http://localhost:5173
+2. Digite sua solicitação no chat, por exemplo:
+   - "Quero criar um sistema de e-commerce com React e Python"
+   - "Preciso de uma API de autenticação com FastAPI"
+   - "Quero um dashboard de analytics com dados de vendas"
+
+3. Acompanhe o progresso:
+   - **Painel Central**: Status do processamento
+   - **Painel Direita**: Log de eventos em tempo real
+
+4. Quando finalizado, baixe o projeto gerado!
+
+### Via API REST
+
+```bash
+# Iniciar um projeto via chat
+curl -X POST http://localhost:8000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Criar uma API REST para gestão de tarefas"}'
+
+# Ver status do projeto
+curl http://localhost:8000/api/project/status
+
+# Listar arquivos gerados
+curl http://localhost:8000/api/project/files
+
+# Finalizar e gerar pacote
+curl -X POST "http://localhost:8000/api/project/finalize?format=zip"
+
+# Baixar o pacote
+curl -O http://localhost:8000/api/project/download?path=<caminho_do_zip>
+```
+
+### Via Código Python
 
 ```python
-import asyncio
-from autonomous_data_agency import Agency, MasterAgent, TeamAgent
-from autonomous_data_agency.agents.base_agent import AgentCapability
+from core.agency_orchestrator import get_agency_orchestrator
 
-async def main():
-    # Create a specialized team
-    analyst_team = TeamAgent(
-        name="DataAnalyst",
-        role="Data Analyst",
-        description="Analyzes data and provides insights",
-        capabilities=[
-            AgentCapability(
-                name="data_analysis",
-                description="Analyze datasets",
-            )
-        ]
+# Inicializa o orquestrador
+orchestrator = get_agency_orchestrator()
+
+# Inicia um projeto
+orchestrator.start_project(
+    project_name="Minha API",
+    client_request="Criar uma API REST para gestão de usuários",
+    project_type="api_only"
+)
+
+# Executa times
+po_output = orchestrator.execute_team("product_owner", "Analisar requisitos")
+pm_output = orchestrator.execute_team("project_manager", f"Planejar: {po_output.final_output}")
+
+# Finaliza e gera pacote
+package_path = orchestrator.finalize_project("zip")
+print(f"Projeto disponível em: {package_path}")
+```
+
+## 👥 Times Disponíveis
+
+O framework possui **15 times especializados** com **60+ agentes**:
+
+| Time | Descrição | Quando Usar |
+|------|-----------|-------------|
+| `product_owner` | Análise de requisitos e escopo | Sempre (1º time) |
+| `project_manager` | Planejamento e gestão | Sempre (2º time) |
+| `architecture` | Decisões técnicas | Projetos complexos |
+| `frontend` | Interface web | Apps web |
+| `backend` | Lógica de servidor | APIs, microservices |
+| `mobile` | Apps mobile | iOS/Android |
+| `fullstack` | Full-stack development | Projetos integrados |
+| `database` | Modelagem de dados | Sistemas com DB |
+| `data_engineering` | Pipelines de dados | Data projects |
+| `data_science` | Machine Learning | ML projects |
+| `data_analytics` | BI e Analytics | Dashboards |
+| `devops` | Infraestrutura | Deploy, CI/CD |
+| `qa` | Qualidade | Todos os projetos |
+| `security` | Segurança | APIs expostas |
+| `ux_ui` | Design | Apps com UI |
+
+## 📁 Tipos de Projeto
+
+```python
+from core.project_generator import ProjectType
+
+# Tipos disponíveis
+ProjectType.WEB_APP        # Frontend + Backend
+ProjectType.API_ONLY       # Apenas API REST
+ProjectType.DATA_PIPELINE  # ETL/ELT
+ProjectType.ML_PROJECT     # Machine Learning
+ProjectType.MOBILE_APP     # Apps mobile
+ProjectType.FULLSTACK      # Projeto completo
+ProjectType.MICROSERVICES  # Arquitetura distribuída
+```
+
+## 📂 Estrutura de Projeto Gerado
+
+Quando você finaliza um projeto, ele é salvo em `projects/`:
+
+```
+projects/proj_20260110_123456_meu_projeto/
+├── docs/
+│   ├── requisitos.md           # Análise do PO
+│   ├── plano_projeto.md        # Plano do PM
+│   ├── arquitetura.md          # Decisões técnicas
+│   └── especificacoes/
+├── src/
+│   ├── frontend/               # Código frontend
+│   ├── backend/                # Código backend
+│   └── ...
+├── tests/
+│   └── test_plan.md            # Plano de testes
+├── infra/
+│   └── docker/                 # Configurações Docker
+├── .agency/
+│   └── project_state.json      # Estado do projeto
+├── README.md
+└── .gitignore
+```
+
+## 🔧 Configuração do LLM
+
+Por padrão, usamos **Gemini 2.5 Flash**. Para configurar:
+
+```python
+# config/llm_config.py
+import os
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+def get_llm(role: str = "default", temperature_override: float = None):
+    return ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash",
+        temperature=temperature_override or 0.7,
+        google_api_key=os.getenv("GOOGLE_API_KEY")
     )
-    
-    # Create the agency
-    agency = Agency(team_agents=[analyst_team])
-    
-    # Execute a task
-    result = await agency.execute("Analyze sales data for Q4")
-    print(result)
-
-asyncio.run(main())
 ```
 
-### 2. Using with an LLM
+## 🐛 Troubleshooting
 
-To use the framework with actual AI capabilities:
-
-1. **Set up your API key:**
-Create a `.env` file:
-```bash
-OPENAI_API_KEY=your_api_key_here
-LLM_MODEL=gpt-4
-```
-
-2. **Use the LLM in your agents:**
-```python
-import asyncio
-from langchain_openai import ChatOpenAI
-from autonomous_data_agency import Agency, MasterAgent, TeamAgent
-
-async def main():
-    # Initialize LLM
-    llm = ChatOpenAI(model="gpt-4", temperature=0.7)
-    
-    # Create team with LLM
-    analyst_team = TeamAgent(
-        name="DataAnalyst",
-        role="Data Analyst",
-        description="Analyzes data",
-        llm=llm,
-        system_prompt="You are an expert data analyst..."
-    )
-    
-    # Create master with LLM
-    master = MasterAgent(llm=llm)
-    
-    # Create agency
-    agency = Agency(master_agent=master, team_agents=[analyst_team])
-    
-    # Execute task
-    result = await agency.execute("Analyze customer churn patterns")
-    print(result)
-
-asyncio.run(main())
-```
-
-### 3. Run the Examples
-
-Try the included examples:
+### API não inicia
 
 ```bash
-# Basic example (no API key needed)
-python examples/basic_example.py
+# Verifique se o ambiente virtual está ativo
+source venv/bin/activate
 
-# LLM example (requires OpenAI API key)
-python examples/llm_example.py
+# Verifique a chave do Gemini
+echo $GOOGLE_API_KEY
+
+# Reinstale dependências
+pip install -r requirements.txt --force-reinstall
 ```
 
-## Key Concepts
-
-### Agents
-
-- **BaseAgent**: Base class for all agents
-- **MasterAgent**: Coordinates and delegates tasks to teams
-- **TeamAgent**: Specialized agents that execute tasks
-
-### Agency
-
-The Agency class orchestrates the entire workflow using LangGraph:
-
-```python
-agency = Agency(
-    master_agent=master,
-    team_agents=[team1, team2, team3],
-    max_iterations=10
-)
-```
-
-### Capabilities
-
-Define what each team can do:
-
-```python
-capability = AgentCapability(
-    name="data_visualization",
-    description="Create charts and graphs",
-    parameters={"chart_type": "string", "data": "array"}
-)
-```
-
-### State Management
-
-The framework automatically manages state throughout task execution:
-- Task tracking
-- Agent outputs
-- Message history
-- Error handling
-
-## Creating Custom Teams
-
-```python
-custom_team = TeamAgent(
-    name="CustomTeam",
-    role="Specialist",
-    description="Does specialized work",
-    llm=llm,  # Optional
-    capabilities=[...],  # Optional
-    system_prompt="Custom instructions..."  # Optional
-)
-
-agency.add_team(custom_team)
-```
-
-## Configuration
-
-Use environment variables or configuration files:
-
-```python
-from autonomous_data_agency.utils.config import ConfigManager
-
-config_manager = ConfigManager()
-config = config_manager.load_config()
-
-# Update configuration
-config_manager.update_config(
-    max_iterations=20,
-    log_level="DEBUG"
-)
-```
-
-## Testing
-
-Run the test suite:
+### Frontend não conecta à API
 
 ```bash
-# All tests
-pytest tests/
+# Verifique se a API está rodando
+curl http://localhost:8000/health
 
-# Specific test file
-pytest tests/test_agency.py
-
-# With verbose output
-pytest tests/ -v
+# Verifique CORS no navegador
+# A API deve estar em localhost:8000
 ```
 
-## Common Use Cases
+### Erro de importação de módulos
 
-### Data Science Workflow
-
-```python
-teams = [
-    TeamAgent(name="DataCollection", role="Data Engineer", ...),
-    TeamAgent(name="DataAnalysis", role="Data Scientist", ...),
-    TeamAgent(name="Modeling", role="ML Engineer", ...),
-    TeamAgent(name="Reporting", role="Report Writer", ...)
-]
-```
-
-### Research & Analysis
-
-```python
-teams = [
-    TeamAgent(name="Research", role="Researcher", ...),
-    TeamAgent(name="Analysis", role="Analyst", ...),
-    TeamAgent(name="Writing", role="Writer", ...)
-]
-```
-
-### Customer Service
-
-```python
-teams = [
-    TeamAgent(name="Routing", role="Classifier", ...),
-    TeamAgent(name="Technical", role="Tech Support", ...),
-    TeamAgent(name="Billing", role="Billing Support", ...),
-    TeamAgent(name="Escalation", role="Senior Support", ...)
-]
-```
-
-## Next Steps
-
-1. **Read the full documentation**: Check out the README.md for detailed information
-2. **Explore examples**: Look at the examples/ directory for more use cases
-3. **Customize**: Create your own specialized teams and workflows
-4. **Integrate**: Connect with your data sources, tools, and systems
-5. **Deploy**: Use in production for real-world tasks
-
-## Troubleshooting
-
-### Import Errors
-
-Make sure all dependencies are installed:
 ```bash
-pip install langchain langchain-core langchain-openai langgraph pydantic python-dotenv
+# Certifique-se de estar no diretório raiz
+cd autonomous-data-agency
+
+# Adicione ao PYTHONPATH
+export PYTHONPATH="${PYTHONPATH}:$(pwd)"
 ```
 
-### API Key Issues
+## 📚 Próximos Passos
 
-Ensure your `.env` file is in the project root and contains:
-```bash
-OPENAI_API_KEY=your_actual_key_here
-```
+1. **Explore a API**: Acesse http://localhost:8000/docs
+2. **Personalize times**: Edite arquivos em `teams/`
+3. **Adicione conhecimento**: Adicione YAMLs em `knowledge/`
+4. **Integre sistemas**: Use os eventos WebSocket
 
-### LangChain Version Issues
+## 🤝 Contribuindo
 
-This framework is tested with LangChain 0.1.0+. If you have issues:
-```bash
-pip install --upgrade langchain langchain-core langchain-openai langgraph
-```
-
-## Support
-
-- **Issues**: Open an issue on GitHub
-- **Documentation**: See README.md for comprehensive documentation
-- **Examples**: Check the examples/ directory
-
-## Contributing
-
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes with tests
-4. Submit a pull request
+1. Fork o repositório
+2. Crie uma branch: `git checkout -b feature/minha-feature`
+3. Commit: `git commit -m 'Add: minha feature'`
+4. Push: `git push origin feature/minha-feature`
+5. Abra um Pull Request
 
 ---
 

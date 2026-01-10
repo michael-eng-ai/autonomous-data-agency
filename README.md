@@ -1,53 +1,35 @@
-# Autonomous Data Agency Framework v6.0
+# Autonomous Data Agency Framework v7.0
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Um framework avançado para criar agências autônomas de dados usando múltiplos times de agentes de IA com LLMs diversos, **governança e LGPD integrados**, sistema de conhecimento em 3 camadas, validação anti-alucinação robusta, **data quality**, **observabilidade e FinOps**, **data catalog**, **lineage tracking** e **business glossary**.
+Um framework avançado para criar agências autônomas de desenvolvimento usando múltiplos times de agentes de IA com **Gemini 2.5 Flash** como LLM padrão, **15 times especializados**, **interface web moderna**, sistema de **geração de projetos completos**, governança e LGPD integrados, sistema de conhecimento em 3 camadas, validação anti-alucinação robusta e muito mais.
 
-## 🌟 Novidades da v6.0
+## 🌟 Novidades da v7.0
 
-- **QuarantineManager**: Gestão de dados inválidos com isolamento e reprocessamento
-- **ProcessControl**: Rastreabilidade completa de execuções com checkpoints
-- **GovernancePolicies**: Políticas de governança versionáveis em YAML
-- **DataCatalog**: Catálogo de dados com integração OpenMetadata
-- **LineageTracker**: Rastreamento de linhagem de dados com análise de impacto
-- **BusinessGlossary**: Glossário de negócio padronizado com termos e relacionamentos
+- **15 Times Especializados**: Frontend, Backend, Mobile, Fullstack, Database, Data Engineering, Data Science, Data Analytics, DevOps, QA, Security, UX/UI, Architecture, Product Owner, Project Manager
+- **Gemini 2.5 Flash**: LLM padrão para todos os 60+ agentes
+- **Interface Web Moderna**: React + Vite + TailwindCSS com chat em tempo real
+- **ProjectGenerator**: Geração de código real com estrutura completa de projeto
+- **Entrega ao Cliente**: Empacotamento em ZIP/TAR.GZ para download
+- **WebSocket Events**: Acompanhamento em tempo real do progresso
+- **Integration Architect**: Novo agente para integração de sistemas
 
-## 📁 Arquitetura Completa
+## 📁 Arquitetura Completa v7.0
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           AUTONOMOUS DATA AGENCY                             │
-│                              Framework v6.0                                  │
+│                              Framework v7.0                                  │
+│                         🤖 Powered by Gemini 2.5 Flash                       │
 └─────────────────────────────────────────────────────────────────────────────┘
                                      │
         ┌────────────────────────────┼────────────────────────────┐
         │                            │                            │
         ▼                            ▼                            ▼
 ┌───────────────┐          ┌───────────────┐          ┌───────────────┐
-│  GOVERNANÇA   │          │ OBSERVABILITY │          │   WORKFLOW    │
-│  & LGPD 🛡️   │          │  & FINOPS 📊  │          │  INTEGRADO    │
-└───────────────┘          └───────────────┘          └───────────────┘
-        │                            │                            │
-        └────────────────────────────┼────────────────────────────┘
-                                     │
-        ┌────────────────────────────┼────────────────────────────┐
-        │                            │                            │
-        ▼                            ▼                            ▼
-┌───────────────┐          ┌───────────────┐          ┌───────────────┐
-│ DATA CATALOG  │          │   LINEAGE     │          │   BUSINESS    │
-│     📚        │          │   TRACKER 🔗  │          │   GLOSSARY 📖 │
-└───────────────┘          └───────────────┘          └───────────────┘
-        │                            │                            │
-        └────────────────────────────┼────────────────────────────┘
-                                     │
-        ┌────────────────────────────┼────────────────────────────┐
-        │                            │                            │
-        ▼                            ▼                            ▼
-┌───────────────┐          ┌───────────────┐          ┌───────────────┐
-│  QUARANTINE   │          │   PROCESS     │          │  GOVERNANCE   │
-│  MANAGER 🔒   │          │   CONTROL ⚙️  │          │  POLICIES 📋  │
+│   WEB UI 🌐   │          │   REST API    │          │  WEBSOCKET    │
+│ React + Vite  │          │   FastAPI     │          │   Events 📡   │
 └───────────────┘          └───────────────┘          └───────────────┘
                                      │
                     ┌────────────────┼────────────────┐
@@ -58,14 +40,59 @@ Um framework avançado para criar agências autônomas de dados usando múltiplo
              │   Team    │───▶│   Team    │───▶│   Team    │
              └───────────┘    └───────────┘    └───────────┘
                                                      │
-                    ┌────────────────┬───────────────┼───────────────┐
-                    │                │               │               │
-                    ▼                ▼               ▼               ▼
-             ┌───────────┐    ┌───────────┐   ┌───────────┐   ┌───────────┐
-             │ Data Eng  │    │  DevOps   │   │Data Science│   │    QA     │
-             │   Team    │    │   Team    │   │   Team    │   │   Team    │
-             └───────────┘    └───────────┘   └───────────┘   └───────────┘
+     ┌───────────────────────────────────────────────┼───────────────────────┐
+     │           │           │           │           │           │           │
+     ▼           ▼           ▼           ▼           ▼           ▼           ▼
+┌─────────┐┌─────────┐┌─────────┐┌─────────┐┌─────────┐┌─────────┐┌─────────┐
+│Frontend ││Backend  ││ Mobile  ││Fullstack││Database ││ Security││  UX/UI  │
+│  Team   ││  Team   ││  Team   ││  Team   ││  Team   ││  Team   ││  Team   │
+└─────────┘└─────────┘└─────────┘└─────────┘└─────────┘└─────────┘└─────────┘
+     │           │           │           │           │           │           │
+     └───────────┴───────────┴───────────┴───────────┴───────────┴───────────┘
+                                     │
+     ┌───────────────────────────────┼───────────────────────────────┐
+     │                               │                               │
+     ▼                               ▼                               ▼
+┌─────────────┐              ┌─────────────┐              ┌─────────────┐
+│ Data Eng    │              │Data Science │              │Data Analytics│
+│   Team      │              │    Team     │              │    Team     │
+└─────────────┘              └─────────────┘              └─────────────┘
+                                     │
+                    ┌────────────────┼────────────────┐
+                    │                │                │
+                    ▼                ▼                ▼
+             ┌───────────┐    ┌───────────┐    ┌───────────┐
+             │  DevOps   │    │    QA     │    │ PROJECT   │
+             │   Team    │    │   Team    │    │ GENERATOR │
+             └───────────┘    └───────────┘    └───────────┘
+                                     │
+                                     ▼
+                         ┌─────────────────────┐
+                         │  📦 ENTREGA FINAL   │
+                         │   ZIP/TAR.GZ para   │
+                         │      Cliente        │
+                         └─────────────────────┘
 ```
+
+## 👥 15 Times Especializados (NEW v7.0)
+
+| Time | Agentes | Responsabilidade |
+|------|---------|------------------|
+| **Product Owner** | PO Lead, Business Analyst, Stakeholder Manager | Requisitos e escopo |
+| **Project Manager** | PM Lead, Scrum Master, Risk Analyst | Planejamento e gestão |
+| **Architecture** | Tech Lead, Solutions Architect, Integration Architect | Arquitetura técnica |
+| **Frontend** | Frontend Lead, React Dev, UI Developer | Interface web |
+| **Backend** | Backend Lead, API Developer, Database Specialist | Lógica servidor |
+| **Mobile** | Mobile Lead, iOS Dev, Android Dev | Apps mobile |
+| **Fullstack** | Fullstack Lead, Full-Stack Developer | Desenvolvimento completo |
+| **Database** | DBA Lead, Data Modeler, Performance Tuner | Banco de dados |
+| **Data Engineering** | Data Engineer Lead, Pipeline Developer, Data Quality | Pipelines de dados |
+| **Data Science** | Data Scientist Lead, ML Engineer, Statistician | Machine Learning |
+| **Data Analytics** | Analytics Lead, BI Developer, Data Analyst | Business Intelligence |
+| **DevOps** | DevOps Lead, SRE, Cloud Architect | Infraestrutura |
+| **QA** | QA Lead, Test Automation, Performance Tester | Qualidade |
+| **Security** | Security Lead, AppSec, Infrastructure Security | Segurança |
+| **UX/UI** | UX Lead, UI Designer, UX Researcher | Design |
 
 ## 🔒 QuarantineManager (NEW v6.0)
 
@@ -617,7 +644,28 @@ A agência possui **15 times especializados** prontos para serem acionados confo
                     └─────────────────────┘
 ```
 
-## 🚀 Instalação
+## 🚀 Instalação e Execução
+
+### Opção 1: Docker (Recomendado)
+
+```bash
+# Clone o repositório
+git clone https://github.com/michael-eng-ai/autonomous-data-agency.git
+cd autonomous-data-agency
+
+# Configure a variável de ambiente
+export GOOGLE_API_KEY=sua_chave_gemini_aqui
+
+# Execute com Docker Compose
+docker-compose up --build
+```
+
+Acesse:
+- **Interface Web**: http://localhost:5173
+- **API REST**: http://localhost:8000
+- **Docs API**: http://localhost:8000/docs
+
+### Opção 2: Instalação Local
 
 ```bash
 # Clone o repositório
@@ -633,8 +681,30 @@ pip install -r requirements.txt
 
 # Configure as variáveis de ambiente
 cp .env.example .env
-# Edite .env com sua OPENAI_API_KEY
+# Edite .env com sua GOOGLE_API_KEY
+
+# Execute a API
+uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+
+# Em outro terminal, execute o frontend
+cd web
+npm install
+npm run dev
 ```
+
+## 🌐 API REST Endpoints
+
+| Endpoint | Método | Descrição |
+|----------|--------|-----------|
+| `/api/chat` | POST | Inicia projeto ou envia mensagem |
+| `/api/project/status` | GET | Status do projeto atual |
+| `/api/project/summary` | GET | Resumo detalhado do projeto |
+| `/api/project/files` | GET | Lista arquivos gerados |
+| `/api/project/file/{path}` | GET | Conteúdo de um arquivo |
+| `/api/project/finalize` | POST | Gera pacote para download |
+| `/api/project/download` | GET | Baixa pacote do projeto |
+| `/api/teams` | GET | Lista times disponíveis |
+| `/ws` | WebSocket | Eventos em tempo real |
 
 ## 📖 Demos
 
@@ -656,13 +726,24 @@ python test_knowledge_system.py
 
 ```
 autonomous-data-agency/
+├── api/
+│   ├── main.py                    # FastAPI + WebSocket
+│   └── routes.py                  # Endpoints REST
+├── web/                           # Interface React
+│   ├── src/
+│   │   ├── components/            # Componentes React
+│   │   ├── App.tsx                # App principal
+│   │   └── main.tsx               # Entry point
+│   ├── package.json
+│   └── vite.config.ts
 ├── config/
-│   ├── llm_config.py              # Configuração de LLMs
+│   ├── llm_config.py              # Configuração de LLMs (Gemini)
 │   └── governance_policies.yaml   # Políticas de governança
 ├── core/
 │   ├── base_team.py               # Classe base para times
 │   ├── agency_orchestrator.py     # Orquestrador principal
-│   ├── teams_factory.py           # Fábrica de times
+│   ├── teams_factory.py           # Fábrica de 15 times
+│   ├── project_generator.py       # 🆕 Gerador de projetos
 │   ├── task_orchestrator.py       # Orquestrador de tarefas
 │   ├── pm_orchestrator.py         # PM como coordenador
 │   ├── validation_workflow.py     # Fluxo QA + PO
@@ -672,16 +753,33 @@ autonomous-data-agency/
 │   ├── data_quality.py            # Validação de qualidade
 │   ├── observability_team.py      # Observabilidade/FinOps
 │   ├── integrated_workflow.py     # Workflow integrado
-│   ├── quarantine_manager.py      # 🆕 Gestão de quarentena
-│   ├── process_control.py         # 🆕 Controle de processos
-│   ├── governance_policies.py     # 🆕 Políticas YAML
-│   ├── data_catalog.py            # 🆕 Catálogo de dados
-│   ├── lineage_tracker.py         # 🆕 Rastreamento de linhagem
-│   ├── business_glossary.py       # 🆕 Glossário de negócio
+│   ├── quarantine_manager.py      # Gestão de quarentena
+│   ├── process_control.py         # Controle de processos
+│   ├── governance_policies.py     # Políticas YAML
+│   ├── data_catalog.py            # Catálogo de dados
+│   ├── lineage_tracker.py         # Rastreamento de linhagem
+│   ├── business_glossary.py       # Glossário de negócio
 │   └── knowledge/
 │       ├── knowledge_base.py      # Camada 1: YAML
 │       ├── rag_engine.py          # Camada 2: ChromaDB
 │       └── project_memory.py      # Camada 3: SQLite
+├── teams/                         # 🆕 15 Times Especializados
+│   ├── product_owner/
+│   ├── project_manager/
+│   ├── architecture/
+│   ├── frontend/
+│   ├── backend/
+│   ├── mobile/
+│   ├── fullstack/
+│   ├── database/
+│   ├── data_engineering/
+│   ├── data_science/
+│   ├── data_analytics/
+│   ├── devops/
+│   ├── qa/
+│   ├── security/
+│   └── ux_ui/
+├── projects/                      # 🆕 Projetos gerados (gitignore)
 ├── knowledge/
 │   ├── architecture/
 │   ├── data_engineering/
@@ -692,25 +790,23 @@ autonomous-data-agency/
 │   ├── product_owner/
 │   ├── qa/
 │   └── shared/
-├── teams/
-│   ├── product_owner/
-│   ├── project_manager/
-│   ├── data_engineering/
-│   ├── data_science/
-│   ├── data_analytics/
-│   ├── devops/
-│   └── qa/
-├── demo_complete_workflow.py
-├── demo_full_system.py
-├── demo_integrated_v5.py
-├── demo_multi_team.py
-├── test_knowledge_system.py
-├── main.py
+├── docker-compose.yml             # API + Web + Agency
+├── Dockerfile
 ├── requirements.txt
 └── README.md
 ```
 
 ## 🔄 Changelog
+
+### v7.0.0 (2026-01) - Current
+- ✨ **15 Times Especializados**: Frontend, Backend, Mobile, Fullstack, Database, Security, UX/UI adicionados
+- ✨ **Gemini 2.5 Flash**: LLM padrão para todos os agentes
+- ✨ **Interface Web**: React + Vite + TailwindCSS com chat em tempo real
+- ✨ **ProjectGenerator**: Geração de código real com estrutura completa
+- ✨ **Entrega ao Cliente**: Empacotamento ZIP/TAR.GZ para download
+- ✨ **WebSocket Events**: Acompanhamento em tempo real
+- ✨ **Integration Architect**: Novo agente na equipe de Arquitetura
+- ✨ **REST API Expandida**: Endpoints para status, download, listagem de arquivos
 
 ### v6.0.0 (2024-01)
 - ✨ QuarantineManager para gestão de dados inválidos
