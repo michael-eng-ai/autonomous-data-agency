@@ -1,0 +1,390 @@
+# Knowledge Base: DevOps - Best Practices
+# Este arquivo contém as melhores práticas para o time de DevOps e Infraestrutura
+
+metadata:
+  version: "1.0.0"
+  last_updated: "2026-01-05"
+  domain: "devops"
+  type: "best_practices"
+
+principles:
+  - name: "Infrastructure as Code (IaC)"
+    description: "Toda infraestrutura deve ser definida em código versionado"
+    guidelines:
+      - "Use Terraform, Pulumi ou CloudFormation"
+      - "Versione no Git junto com o código da aplicação"
+      - "Revise mudanças de infra como código (PR review)"
+    
+  - name: "Automate Everything"
+    description: "Se você faz algo mais de uma vez, automatize"
+    guidelines:
+      - "CI/CD para todo deploy"
+      - "Scripts para tarefas operacionais"
+      - "Self-healing para problemas conhecidos"
+
+  - name: "Security by Design"
+    description: "Segurança não é um add-on, é parte do design"
+    guidelines:
+      - "Princípio do menor privilégio"
+      - "Secrets nunca em código"
+      - "Scan de vulnerabilidades no CI"
+
+  - name: "Observability"
+    description: "Se você não pode medir, não pode melhorar"
+    guidelines:
+      - "Logs estruturados"
+      - "Métricas de negócio e técnicas"
+      - "Tracing distribuído"
+
+cloud_providers:
+  aws:
+    compute:
+      - service: "EC2"
+        use_case: "VMs tradicionais, controle total"
+      - service: "ECS/EKS"
+        use_case: "Containers gerenciados"
+      - service: "Lambda"
+        use_case: "Serverless, event-driven"
+      - service: "Fargate"
+        use_case: "Containers serverless"
+    
+    storage:
+      - service: "S3"
+        use_case: "Object storage, data lake"
+      - service: "EBS"
+        use_case: "Block storage para EC2"
+      - service: "EFS"
+        use_case: "File system compartilhado"
+    
+    database:
+      - service: "RDS"
+        use_case: "Bancos relacionais gerenciados"
+      - service: "DynamoDB"
+        use_case: "NoSQL serverless"
+      - service: "Redshift"
+        use_case: "Data warehouse"
+      - service: "Aurora"
+        use_case: "MySQL/PostgreSQL de alta performance"
+    
+    networking:
+      - service: "VPC"
+        use_case: "Rede virtual isolada"
+      - service: "ALB/NLB"
+        use_case: "Load balancing"
+      - service: "Route 53"
+        use_case: "DNS"
+      - service: "CloudFront"
+        use_case: "CDN"
+
+  gcp:
+    compute:
+      - service: "Compute Engine"
+        use_case: "VMs"
+      - service: "GKE"
+        use_case: "Kubernetes gerenciado"
+      - service: "Cloud Run"
+        use_case: "Containers serverless"
+      - service: "Cloud Functions"
+        use_case: "Serverless functions"
+    
+    data:
+      - service: "BigQuery"
+        use_case: "Data warehouse serverless"
+      - service: "Cloud Storage"
+        use_case: "Object storage"
+      - service: "Cloud SQL"
+        use_case: "Bancos relacionais"
+      - service: "Dataflow"
+        use_case: "ETL streaming/batch"
+
+  azure:
+    compute:
+      - service: "Virtual Machines"
+        use_case: "VMs"
+      - service: "AKS"
+        use_case: "Kubernetes gerenciado"
+      - service: "Azure Functions"
+        use_case: "Serverless"
+      - service: "Container Instances"
+        use_case: "Containers simples"
+    
+    data:
+      - service: "Synapse Analytics"
+        use_case: "Data warehouse"
+      - service: "Blob Storage"
+        use_case: "Object storage"
+      - service: "Cosmos DB"
+        use_case: "NoSQL global"
+
+infrastructure_as_code:
+  terraform:
+    description: "IaC multi-cloud mais popular"
+    best_practices:
+      - "Use módulos para reutilização"
+      - "State remoto (S3 + DynamoDB lock)"
+      - "Workspaces para ambientes"
+      - "terraform plan antes de apply"
+    structure: |
+      project/
+      ├── main.tf
+      ├── variables.tf
+      ├── outputs.tf
+      ├── providers.tf
+      ├── terraform.tfvars
+      └── modules/
+          └── vpc/
+              ├── main.tf
+              ├── variables.tf
+              └── outputs.tf
+  
+  pulumi:
+    description: "IaC com linguagens de programação reais"
+    languages: ["Python", "TypeScript", "Go", "C#"]
+    when_to_use:
+      - "Lógica complexa de infraestrutura"
+      - "Time mais confortável com código que HCL"
+  
+  cloudformation:
+    description: "IaC nativo da AWS"
+    when_to_use:
+      - "100% AWS"
+      - "Integração nativa com serviços AWS"
+
+ci_cd:
+  principles:
+    - "Build once, deploy many"
+    - "Testes automatizados em cada commit"
+    - "Deploy automatizado para staging"
+    - "Deploy para produção com aprovação"
+  
+  pipeline_stages:
+    - stage: "Build"
+      activities:
+        - "Checkout código"
+        - "Instalar dependências"
+        - "Compilar/Build"
+        - "Gerar artefatos"
+    
+    - stage: "Test"
+      activities:
+        - "Testes unitários"
+        - "Testes de integração"
+        - "Linting e code quality"
+        - "Security scan (SAST)"
+    
+    - stage: "Package"
+      activities:
+        - "Build Docker image"
+        - "Push para registry"
+        - "Tag com versão"
+    
+    - stage: "Deploy Staging"
+      activities:
+        - "Deploy automático"
+        - "Smoke tests"
+        - "Integration tests"
+    
+    - stage: "Deploy Production"
+      activities:
+        - "Aprovação manual (opcional)"
+        - "Deploy gradual (canary/blue-green)"
+        - "Health checks"
+        - "Rollback automático se falhar"
+  
+  tools:
+    - name: "GitHub Actions"
+      pros: ["Integrado ao GitHub", "YAML simples", "Marketplace"]
+      cons: ["Vendor lock-in"]
+    
+    - name: "GitLab CI"
+      pros: ["Integrado ao GitLab", "Auto DevOps", "Self-hosted"]
+      cons: ["Complexidade para pipelines grandes"]
+    
+    - name: "Jenkins"
+      pros: ["Flexível", "Plugins", "Self-hosted"]
+      cons: ["Manutenção", "UI datada"]
+    
+    - name: "ArgoCD"
+      pros: ["GitOps nativo", "Kubernetes-native", "UI moderna"]
+      cons: ["Apenas Kubernetes"]
+
+deployment_strategies:
+  rolling:
+    description: "Atualiza instâncias gradualmente"
+    pros: ["Simples", "Zero downtime"]
+    cons: ["Versões mistas durante deploy"]
+    when: "Aplicações stateless, mudanças compatíveis"
+  
+  blue_green:
+    description: "Dois ambientes idênticos, switch instantâneo"
+    pros: ["Rollback instantâneo", "Testes em produção"]
+    cons: ["Dobro de recursos", "Custo"]
+    when: "Mudanças críticas, necessidade de rollback rápido"
+  
+  canary:
+    description: "Deploy gradual para % de usuários"
+    pros: ["Detecção precoce de problemas", "Risco minimizado"]
+    cons: ["Complexidade", "Necessita métricas"]
+    when: "Mudanças de alto risco, A/B testing"
+  
+  feature_flags:
+    description: "Funcionalidades controladas por flags"
+    pros: ["Deploy separado de release", "Rollback por feature"]
+    cons: ["Complexidade de código", "Dívida técnica"]
+    tools: ["LaunchDarkly", "Unleash", "Flagsmith"]
+
+kubernetes:
+  architecture:
+    control_plane:
+      - "API Server"
+      - "etcd"
+      - "Scheduler"
+      - "Controller Manager"
+    
+    worker_nodes:
+      - "kubelet"
+      - "kube-proxy"
+      - "Container runtime"
+  
+  resources:
+    workloads:
+      - resource: "Deployment"
+        use_case: "Aplicações stateless"
+      - resource: "StatefulSet"
+        use_case: "Aplicações stateful (bancos)"
+      - resource: "DaemonSet"
+        use_case: "Um pod por node (monitoring)"
+      - resource: "Job/CronJob"
+        use_case: "Tarefas batch"
+    
+    networking:
+      - resource: "Service"
+        types: ["ClusterIP", "NodePort", "LoadBalancer"]
+      - resource: "Ingress"
+        use_case: "Roteamento HTTP/HTTPS"
+    
+    config:
+      - resource: "ConfigMap"
+        use_case: "Configurações não-sensíveis"
+      - resource: "Secret"
+        use_case: "Dados sensíveis"
+  
+  best_practices:
+    - "Use namespaces para isolamento"
+    - "Defina resource requests e limits"
+    - "Use liveness e readiness probes"
+    - "Não rode como root"
+    - "Use Network Policies"
+    - "Implemente Pod Disruption Budgets"
+
+observability:
+  three_pillars:
+    logs:
+      description: "Eventos discretos com timestamp"
+      best_practices:
+        - "Logs estruturados (JSON)"
+        - "Níveis apropriados (DEBUG, INFO, WARN, ERROR)"
+        - "Correlation IDs para tracing"
+        - "Não logar dados sensíveis"
+      tools: ["ELK Stack", "Loki", "CloudWatch Logs"]
+    
+    metrics:
+      description: "Valores numéricos ao longo do tempo"
+      types:
+        - "Counter: valores que só aumentam"
+        - "Gauge: valores que variam"
+        - "Histogram: distribuição de valores"
+      golden_signals:
+        - "Latência"
+        - "Tráfego"
+        - "Erros"
+        - "Saturação"
+      tools: ["Prometheus", "Grafana", "Datadog", "CloudWatch"]
+    
+    traces:
+      description: "Jornada de uma request através do sistema"
+      components:
+        - "Trace ID: identificador único da request"
+        - "Span: operação individual"
+        - "Context propagation: passar IDs entre serviços"
+      tools: ["Jaeger", "Zipkin", "AWS X-Ray", "Datadog APM"]
+  
+  alerting:
+    principles:
+      - "Alerte sobre sintomas, não causas"
+      - "Alertas acionáveis"
+      - "Evite alert fatigue"
+      - "Documente runbooks"
+    
+    severity_levels:
+      critical: "Impacto em produção, ação imediata"
+      warning: "Potencial problema, investigar"
+      info: "Informativo, sem ação necessária"
+
+security:
+  secrets_management:
+    principles:
+      - "Nunca em código ou Git"
+      - "Rotação regular"
+      - "Acesso auditado"
+    tools:
+      - name: "HashiCorp Vault"
+        features: ["Dynamic secrets", "Encryption as a service"]
+      - name: "AWS Secrets Manager"
+        features: ["Rotação automática", "Integração AWS"]
+      - name: "Azure Key Vault"
+        features: ["HSM", "Integração Azure"]
+  
+  network_security:
+    - "VPCs com subnets públicas e privadas"
+    - "Security Groups com menor privilégio"
+    - "WAF para aplicações web"
+    - "VPN ou bastion para acesso administrativo"
+  
+  container_security:
+    - "Imagens base mínimas (distroless, alpine)"
+    - "Scan de vulnerabilidades (Trivy, Snyk)"
+    - "Não rodar como root"
+    - "Read-only filesystem quando possível"
+    - "Limitar capabilities"
+
+anti_patterns:
+  - name: "Snowflake Servers"
+    description: "Servidores configurados manualmente, únicos"
+    solution: "Infrastructure as Code, imutabilidade"
+  
+  - name: "Secrets in Code"
+    description: "Credenciais hardcoded ou em Git"
+    solution: "Secrets manager, variáveis de ambiente"
+  
+  - name: "No Monitoring"
+    description: "Descobrir problemas pelo cliente"
+    solution: "Observability completa, alertas proativos"
+  
+  - name: "Manual Deploys"
+    description: "Deploy via SSH ou console"
+    solution: "CI/CD automatizado"
+  
+  - name: "Single Point of Failure"
+    description: "Componente único sem redundância"
+    solution: "Alta disponibilidade, multi-AZ"
+
+checklists:
+  infrastructure_review:
+    - "Infraestrutura está em código?"
+    - "Há ambientes separados (dev/staging/prod)?"
+    - "Secrets estão em secret manager?"
+    - "Há backup e disaster recovery?"
+    - "Network está segmentada corretamente?"
+    - "Há monitoramento e alertas?"
+    - "Custos estão otimizados?"
+  
+  production_readiness:
+    - "CI/CD está configurado?"
+    - "Há estratégia de deploy (blue-green, canary)?"
+    - "Health checks estão implementados?"
+    - "Há auto-scaling configurado?"
+    - "Logs estão centralizados?"
+    - "Métricas estão sendo coletadas?"
+    - "Há runbooks para incidentes?"
+    - "Há plano de disaster recovery testado?"

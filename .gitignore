@@ -139,3 +139,4 @@ Thumbs.db
 logs/
 temp/
 tmp/
+chroma_db/

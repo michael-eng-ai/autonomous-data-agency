@@ -1,0 +1,403 @@
+metadata:
+  version: "1.0.0"
+  last_updated: "2026-01-06"
+  domain: "architecture"
+  type: "best_practices"
+  description: "Melhores práticas para decisões arquiteturais em projetos de dados"
+
+# ============================================================================
+# PRINCÍPIOS DE ARQUITETURA
+# ============================================================================
+principles:
+  - name: "Design for Scalability"
+    description: "Projetar sistemas que possam escalar horizontalmente e verticalmente"
+    guidelines:
+      - "Usar arquiteturas stateless quando possível"
+      - "Implementar auto-scaling baseado em métricas"
+      - "Separar compute de storage"
+      - "Usar filas para desacoplar componentes"
+    priority: critical
+
+  - name: "Cost Optimization"
+    description: "Otimizar custos sem comprometer performance e confiabilidade"
+    guidelines:
+      - "Usar instâncias spot/preemptible para workloads tolerantes a falhas"
+      - "Implementar políticas de lifecycle para dados"
+      - "Usar reserved instances para workloads previsíveis"
+      - "Monitorar e alertar sobre custos anômalos"
+      - "Considerar soluções open source antes de serviços gerenciados"
+    priority: high
+
+  - name: "Portability First"
+    description: "Evitar vendor lock-in e facilitar migração entre ambientes"
+    guidelines:
+      - "Usar containers (Docker) para aplicações"
+      - "Preferir Kubernetes sobre serviços proprietários de orquestração"
+      - "Usar formatos de dados abertos (Parquet, Avro, JSON)"
+      - "Abstrair serviços cloud com camadas de interface"
+      - "Documentar dependências de serviços específicos"
+    priority: high
+
+  - name: "Security by Design"
+    description: "Incorporar segurança desde o início do design"
+    guidelines:
+      - "Implementar princípio de menor privilégio"
+      - "Criptografar dados em repouso e em trânsito"
+      - "Usar IAM e RBAC para controle de acesso"
+      - "Auditar e logar todas as operações sensíveis"
+      - "Implementar network segmentation"
+    priority: critical
+
+  - name: "Observability"
+    description: "Garantir visibilidade completa do sistema"
+    guidelines:
+      - "Implementar logging estruturado"
+      - "Usar distributed tracing"
+      - "Definir métricas de negócio e técnicas"
+      - "Criar dashboards de monitoramento"
+      - "Configurar alertas proativos"
+    priority: high
+
+# ============================================================================
+# PADRÕES ARQUITETURAIS
+# ============================================================================
+patterns:
+  data_architecture:
+    - name: "Data Lakehouse"
+      description: "Combina flexibilidade de data lake com estrutura de data warehouse"
+      use_cases:
+        - "Projetos que precisam de analytics e ML"
+        - "Dados estruturados e não-estruturados"
+        - "Necessidade de ACID transactions em data lake"
+      technologies:
+        - "Delta Lake"
+        - "Apache Iceberg"
+        - "Apache Hudi"
+      pros:
+        - "Flexibilidade de schema"
+        - "Suporte a ML e analytics"
+        - "Custo otimizado"
+      cons:
+        - "Complexidade de implementação"
+        - "Requer expertise específica"
+
+    - name: "Data Mesh"
+      description: "Arquitetura descentralizada com domínios autônomos"
+      use_cases:
+        - "Organizações grandes com múltiplos domínios"
+        - "Times autônomos de dados"
+        - "Necessidade de escalabilidade organizacional"
+      technologies:
+        - "Data products"
+        - "Self-serve platform"
+        - "Federated governance"
+      pros:
+        - "Escalabilidade organizacional"
+        - "Autonomia dos times"
+        - "Ownership claro"
+      cons:
+        - "Complexidade de governança"
+        - "Requer maturidade organizacional"
+
+    - name: "Lambda Architecture"
+      description: "Processamento batch e streaming em paralelo"
+      use_cases:
+        - "Necessidade de dados históricos e real-time"
+        - "Tolerância a latência variável"
+      technologies:
+        - "Apache Spark (batch)"
+        - "Apache Kafka (streaming)"
+        - "Serving layer"
+      pros:
+        - "Flexibilidade de latência"
+        - "Tolerância a falhas"
+      cons:
+        - "Duplicação de lógica"
+        - "Complexidade de manutenção"
+
+    - name: "Kappa Architecture"
+      description: "Processamento unificado via streaming"
+      use_cases:
+        - "Dados nativamente em streaming"
+        - "Necessidade de simplificação"
+        - "Reprocessamento via replay"
+      technologies:
+        - "Apache Kafka"
+        - "Apache Flink"
+        - "ksqlDB"
+      pros:
+        - "Simplicidade"
+        - "Código único"
+        - "Menor latência"
+      cons:
+        - "Reprocessamento pode ser lento"
+        - "Custo de storage de eventos"
+
+  integration_patterns:
+    - name: "Event-Driven Architecture"
+      description: "Comunicação assíncrona via eventos"
+      use_cases:
+        - "Sistemas distribuídos"
+        - "Desacoplamento de serviços"
+        - "Auditoria e replay"
+      technologies:
+        - "Apache Kafka"
+        - "AWS EventBridge"
+        - "RabbitMQ"
+
+    - name: "API Gateway"
+      description: "Ponto único de entrada para APIs"
+      use_cases:
+        - "Múltiplos microservices"
+        - "Rate limiting e autenticação"
+        - "Versionamento de APIs"
+      technologies:
+        - "Kong"
+        - "AWS API Gateway"
+        - "Nginx"
+
+    - name: "CDC (Change Data Capture)"
+      description: "Captura de mudanças em tempo real"
+      use_cases:
+        - "Sincronização de dados"
+        - "Event sourcing"
+        - "Migração de sistemas"
+      technologies:
+        - "Debezium"
+        - "AWS DMS"
+        - "Fivetran"
+
+# ============================================================================
+# COMPARATIVO DE CLOUD PROVIDERS
+# ============================================================================
+cloud_comparison:
+  aws:
+    strengths:
+      - "Maior variedade de serviços"
+      - "Maturidade e documentação"
+      - "Comunidade ampla"
+    weaknesses:
+      - "Complexidade de precificação"
+      - "Vendor lock-in em alguns serviços"
+    data_services:
+      storage: "S3"
+      warehouse: "Redshift"
+      streaming: "Kinesis"
+      etl: "Glue"
+      ml: "SageMaker"
+
+  gcp:
+    strengths:
+      - "BigQuery (analytics)"
+      - "Integração com ML/AI"
+      - "Precificação simples"
+    weaknesses:
+      - "Menos serviços que AWS"
+      - "Menor presença global"
+    data_services:
+      storage: "Cloud Storage"
+      warehouse: "BigQuery"
+      streaming: "Pub/Sub + Dataflow"
+      etl: "Dataflow"
+      ml: "Vertex AI"
+
+  azure:
+    strengths:
+      - "Integração com Microsoft"
+      - "Hybrid cloud"
+      - "Enterprise features"
+    weaknesses:
+      - "Documentação inconsistente"
+      - "Naming confuso"
+    data_services:
+      storage: "Blob Storage"
+      warehouse: "Synapse Analytics"
+      streaming: "Event Hubs"
+      etl: "Data Factory"
+      ml: "Azure ML"
+
+  open_source:
+    strengths:
+      - "Sem vendor lock-in"
+      - "Custo de licença zero"
+      - "Customização total"
+    weaknesses:
+      - "Requer expertise para operar"
+      - "Suporte da comunidade"
+    data_services:
+      storage: "MinIO"
+      warehouse: "ClickHouse, DuckDB"
+      streaming: "Apache Kafka"
+      etl: "Apache Airflow, dbt"
+      ml: "MLflow, Kubeflow"
+
+# ============================================================================
+# ESTIMATIVA DE CUSTOS
+# ============================================================================
+cost_estimation:
+  categories:
+    - name: "Compute"
+      factors:
+        - "Tipo de instância"
+        - "Horas de uso"
+        - "Reservas vs on-demand"
+      optimization_tips:
+        - "Usar spot instances para batch"
+        - "Right-sizing regular"
+        - "Auto-scaling agressivo"
+
+    - name: "Storage"
+      factors:
+        - "Volume de dados"
+        - "Frequência de acesso"
+        - "Redundância"
+      optimization_tips:
+        - "Tiering automático"
+        - "Compressão de dados"
+        - "Lifecycle policies"
+
+    - name: "Network"
+      factors:
+        - "Transferência entre regiões"
+        - "Egress para internet"
+        - "VPN/Direct Connect"
+      optimization_tips:
+        - "Colocar recursos na mesma região"
+        - "Usar CDN para conteúdo estático"
+        - "Comprimir dados em trânsito"
+
+    - name: "Managed Services"
+      factors:
+        - "Tipo de serviço"
+        - "Volume processado"
+        - "Features utilizadas"
+      optimization_tips:
+        - "Avaliar build vs buy"
+        - "Considerar open source"
+        - "Monitorar uso real"
+
+  estimation_template:
+    small_project:
+      description: "< 100GB dados, 1-2 pipelines"
+      monthly_estimate: "$100-500"
+      
+    medium_project:
+      description: "100GB-1TB dados, 5-10 pipelines"
+      monthly_estimate: "$500-2000"
+      
+    large_project:
+      description: "> 1TB dados, 10+ pipelines, ML"
+      monthly_estimate: "$2000-10000+"
+
+# ============================================================================
+# CHECKLISTS
+# ============================================================================
+checklists:
+  architecture_review:
+    - "Requisitos de negócio documentados e validados"
+    - "Requisitos não-funcionais definidos (performance, disponibilidade)"
+    - "Estimativa de volume de dados e crescimento"
+    - "Análise de custos realizada"
+    - "Plano de escalabilidade definido"
+    - "Estratégia de migração documentada"
+    - "Riscos técnicos identificados"
+    - "Dependências de terceiros mapeadas"
+    - "Compliance e segurança validados"
+    - "Plano de disaster recovery"
+
+  technology_selection:
+    - "Requisitos técnicos atendidos"
+    - "Custo total de ownership calculado"
+    - "Expertise do time considerada"
+    - "Suporte e comunidade avaliados"
+    - "Vendor lock-in analisado"
+    - "Alternativas open source consideradas"
+    - "PoC realizado quando necessário"
+    - "Integração com stack existente validada"
+
+  scalability_review:
+    - "Bottlenecks identificados"
+    - "Estratégia de scaling definida (horizontal/vertical)"
+    - "Auto-scaling configurado"
+    - "Limites de recursos definidos"
+    - "Testes de carga planejados"
+    - "Plano de capacity planning"
+
+  migration_readiness:
+    - "Inventário de componentes completo"
+    - "Dependências mapeadas"
+    - "Estratégia de migração definida (big bang, incremental)"
+    - "Rollback plan documentado"
+    - "Testes de migração realizados"
+    - "Comunicação com stakeholders"
+    - "Janela de manutenção definida"
+
+# ============================================================================
+# ANTI-PATTERNS
+# ============================================================================
+anti_patterns:
+  - name: "Big Ball of Mud"
+    description: "Sistema sem estrutura clara ou separação de responsabilidades"
+    symptoms:
+      - "Código espaguete"
+      - "Dependências circulares"
+      - "Dificuldade de manutenção"
+    solution: "Refatorar para arquitetura modular com boundaries claros"
+
+  - name: "Golden Hammer"
+    description: "Usar a mesma tecnologia para todos os problemas"
+    symptoms:
+      - "Tecnologia inadequada para o caso de uso"
+      - "Performance subótima"
+      - "Complexidade desnecessária"
+    solution: "Avaliar cada caso de uso individualmente e escolher a ferramenta adequada"
+
+  - name: "Premature Optimization"
+    description: "Otimizar antes de ter métricas reais"
+    symptoms:
+      - "Complexidade sem necessidade comprovada"
+      - "Tempo gasto em problemas inexistentes"
+    solution: "Medir primeiro, otimizar depois com base em dados"
+
+  - name: "Vendor Lock-in Trap"
+    description: "Dependência excessiva de serviços proprietários"
+    symptoms:
+      - "Impossibilidade de migração"
+      - "Custos crescentes sem alternativas"
+      - "Funcionalidades limitadas pelo vendor"
+    solution: "Usar abstrações, preferir padrões abertos, avaliar exit strategy"
+
+  - name: "Over-Engineering"
+    description: "Arquitetura mais complexa que o necessário"
+    symptoms:
+      - "Microservices para aplicação simples"
+      - "Kubernetes para 2 containers"
+      - "Event sourcing sem necessidade"
+    solution: "Começar simples, evoluir conforme necessidade comprovada"
+
+  - name: "Ignoring Data Gravity"
+    description: "Não considerar onde os dados residem nas decisões"
+    symptoms:
+      - "Alto custo de transferência"
+      - "Latência elevada"
+      - "Compliance issues"
+    solution: "Processar dados próximo à fonte, considerar data locality"
+
+# ============================================================================
+# DECISION RECORDS TEMPLATE
+# ============================================================================
+decision_record_template:
+  title: "ADR-XXX: [Título da Decisão]"
+  sections:
+    - name: "Status"
+      options: ["Proposta", "Aceita", "Deprecada", "Substituída"]
+    - name: "Contexto"
+      description: "Qual é o problema ou necessidade?"
+    - name: "Decisão"
+      description: "Qual é a decisão tomada?"
+    - name: "Alternativas Consideradas"
+      description: "Quais outras opções foram avaliadas?"
+    - name: "Consequências"
+      description: "Quais são os impactos positivos e negativos?"
+    - name: "Compliance"
+      description: "Atende requisitos de segurança/regulatórios?"

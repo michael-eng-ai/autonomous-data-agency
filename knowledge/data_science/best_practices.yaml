@@ -1,0 +1,333 @@
+# Knowledge Base: Data Science - Best Practices
+# Este arquivo contém as melhores práticas para o time de Data Science e MLOps
+
+metadata:
+  version: "1.0.0"
+  last_updated: "2026-01-05"
+  domain: "data_science"
+  type: "best_practices"
+
+principles:
+  - name: "Problem First, Not Tool First"
+    description: "Comece pelo problema de negócio, não pela tecnologia"
+    guidelines:
+      - "Entenda profundamente o problema antes de modelar"
+      - "Questione se ML é realmente necessário"
+      - "Defina métricas de sucesso alinhadas ao negócio"
+    
+  - name: "Reproducibility"
+    description: "Experimentos devem ser 100% reproduzíveis"
+    guidelines:
+      - "Versione código, dados e modelos"
+      - "Use seeds para randomização"
+      - "Documente ambiente e dependências"
+
+  - name: "Simplicity Over Complexity"
+    description: "Comece simples e adicione complexidade apenas se necessário"
+    guidelines:
+      - "Baseline com modelo simples primeiro"
+      - "Justifique cada aumento de complexidade"
+      - "Modelos interpretáveis quando possível"
+
+ml_lifecycle:
+  phases:
+    - name: "Problem Definition"
+      activities:
+        - "Definir objetivo de negócio"
+        - "Traduzir para problema de ML"
+        - "Definir métricas de sucesso"
+        - "Avaliar viabilidade"
+      outputs:
+        - "Documento de definição do problema"
+        - "Métricas de avaliação escolhidas"
+    
+    - name: "Data Collection & Exploration"
+      activities:
+        - "Identificar fontes de dados"
+        - "Análise exploratória (EDA)"
+        - "Avaliar qualidade dos dados"
+        - "Identificar vieses"
+      outputs:
+        - "Relatório de EDA"
+        - "Dataset preparado"
+    
+    - name: "Feature Engineering"
+      activities:
+        - "Criar features relevantes"
+        - "Seleção de features"
+        - "Encoding de variáveis categóricas"
+        - "Tratamento de missing values"
+      outputs:
+        - "Feature store ou pipeline de features"
+        - "Documentação de features"
+    
+    - name: "Model Development"
+      activities:
+        - "Definir baseline"
+        - "Experimentar algoritmos"
+        - "Tuning de hiperparâmetros"
+        - "Validação cruzada"
+      outputs:
+        - "Modelo treinado"
+        - "Relatório de experimentos"
+    
+    - name: "Evaluation"
+      activities:
+        - "Avaliar em conjunto de teste"
+        - "Análise de erros"
+        - "Verificar fairness"
+        - "Validar com stakeholders"
+      outputs:
+        - "Métricas finais"
+        - "Análise de viés"
+    
+    - name: "Deployment"
+      activities:
+        - "Empacotar modelo"
+        - "Criar API de inferência"
+        - "Configurar monitoramento"
+        - "Documentar"
+      outputs:
+        - "Modelo em produção"
+        - "Documentação de deploy"
+    
+    - name: "Monitoring"
+      activities:
+        - "Monitorar data drift"
+        - "Monitorar model drift"
+        - "Tracking de performance"
+        - "Retreino quando necessário"
+      outputs:
+        - "Dashboards de monitoramento"
+        - "Alertas configurados"
+
+problem_types:
+  classification:
+    binary:
+      description: "Duas classes (sim/não, fraude/não-fraude)"
+      algorithms:
+        - "Logistic Regression (baseline)"
+        - "Random Forest"
+        - "XGBoost/LightGBM"
+        - "Neural Networks"
+      metrics:
+        balanced: ["Accuracy", "F1-Score", "AUC-ROC"]
+        imbalanced: ["Precision", "Recall", "AUC-PR", "F1-Score"]
+    
+    multiclass:
+      description: "Múltiplas classes mutuamente exclusivas"
+      algorithms:
+        - "Multinomial Logistic Regression"
+        - "Random Forest"
+        - "Gradient Boosting"
+      metrics: ["Accuracy", "Macro F1", "Weighted F1", "Confusion Matrix"]
+    
+    multilabel:
+      description: "Múltiplas labels por amostra"
+      algorithms:
+        - "Binary Relevance"
+        - "Classifier Chains"
+        - "Neural Networks com sigmoid"
+      metrics: ["Hamming Loss", "Subset Accuracy", "Micro/Macro F1"]
+
+  regression:
+    description: "Prever valor contínuo"
+    algorithms:
+      - "Linear Regression (baseline)"
+      - "Ridge/Lasso Regression"
+      - "Random Forest Regressor"
+      - "XGBoost/LightGBM Regressor"
+      - "Neural Networks"
+    metrics: ["MAE", "RMSE", "MAPE", "R²"]
+  
+  clustering:
+    description: "Agrupar dados similares"
+    algorithms:
+      - "K-Means"
+      - "DBSCAN"
+      - "Hierarchical Clustering"
+      - "Gaussian Mixture Models"
+    metrics: ["Silhouette Score", "Davies-Bouldin Index", "Inertia"]
+  
+  recommendation:
+    description: "Recomendar itens para usuários"
+    approaches:
+      collaborative: "Baseado em comportamento de usuários similares"
+      content_based: "Baseado em características dos itens"
+      hybrid: "Combinação de abordagens"
+    metrics: ["Precision@K", "Recall@K", "NDCG", "MAP"]
+  
+  time_series:
+    description: "Prever valores futuros baseado em histórico"
+    algorithms:
+      statistical: ["ARIMA", "SARIMA", "Prophet"]
+      ml_based: ["XGBoost com features temporais", "LSTM", "Transformer"]
+    metrics: ["MAE", "RMSE", "MAPE", "SMAPE"]
+
+feature_engineering:
+  numerical:
+    - technique: "Scaling"
+      methods: ["StandardScaler", "MinMaxScaler", "RobustScaler"]
+      when: "Algoritmos sensíveis a escala (SVM, KNN, Neural Networks)"
+    
+    - technique: "Binning"
+      methods: ["Equal-width", "Equal-frequency", "Custom"]
+      when: "Capturar relações não-lineares"
+    
+    - technique: "Log Transform"
+      when: "Distribuições skewed"
+    
+    - technique: "Polynomial Features"
+      when: "Capturar interações entre features"
+
+  categorical:
+    - technique: "One-Hot Encoding"
+      when: "Poucas categorias, sem ordem"
+    
+    - technique: "Label Encoding"
+      when: "Categorias ordinais"
+    
+    - technique: "Target Encoding"
+      when: "Alta cardinalidade"
+      warning: "Risco de data leakage - usar com cuidado"
+    
+    - technique: "Embedding"
+      when: "Deep learning, alta cardinalidade"
+
+  temporal:
+    - "Extrair: ano, mês, dia, dia da semana, hora"
+    - "Cyclical encoding (sin/cos) para features cíclicas"
+    - "Lag features para séries temporais"
+    - "Rolling statistics (média móvel, etc.)"
+
+  text:
+    - technique: "TF-IDF"
+      when: "Baseline para texto"
+    
+    - technique: "Word Embeddings"
+      methods: ["Word2Vec", "GloVe", "FastText"]
+      when: "Capturar semântica"
+    
+    - technique: "Sentence Embeddings"
+      methods: ["BERT", "Sentence-BERT"]
+      when: "Entender contexto completo"
+
+validation_strategies:
+  holdout:
+    description: "Divisão simples train/test"
+    split: "70-80% train, 20-30% test"
+    when: "Datasets grandes, prototipação rápida"
+  
+  k_fold:
+    description: "K divisões rotativas"
+    typical_k: 5
+    when: "Datasets médios, avaliação robusta"
+  
+  stratified_k_fold:
+    description: "K-fold mantendo proporção de classes"
+    when: "Classificação com classes desbalanceadas"
+  
+  time_series_split:
+    description: "Divisão respeitando ordem temporal"
+    when: "Dados temporais - NUNCA use random split"
+  
+  group_k_fold:
+    description: "K-fold respeitando grupos"
+    when: "Múltiplas amostras por entidade (ex: múltiplas compras por cliente)"
+
+mlops:
+  experiment_tracking:
+    tools: ["MLflow", "Weights & Biases", "Neptune"]
+    what_to_track:
+      - "Hiperparâmetros"
+      - "Métricas"
+      - "Artefatos (modelos, gráficos)"
+      - "Código (commit hash)"
+      - "Dados (versão do dataset)"
+  
+  model_registry:
+    purpose: "Versionamento e governança de modelos"
+    stages: ["Development", "Staging", "Production", "Archived"]
+    metadata:
+      - "Versão do modelo"
+      - "Métricas de performance"
+      - "Dataset de treino"
+      - "Responsável"
+  
+  serving:
+    patterns:
+      batch:
+        description: "Inferência em lotes programados"
+        when: "Latência não é crítica, grandes volumes"
+      
+      real_time:
+        description: "Inferência sob demanda via API"
+        when: "Baixa latência necessária"
+        considerations:
+          - "Latência P99"
+          - "Throughput"
+          - "Fallback strategy"
+      
+      streaming:
+        description: "Inferência contínua em eventos"
+        when: "Processamento de eventos em tempo real"
+  
+  monitoring:
+    data_drift:
+      description: "Mudança na distribuição dos dados de entrada"
+      detection: ["PSI", "KS Test", "Chi-Square"]
+      action: "Investigar causa, considerar retreino"
+    
+    model_drift:
+      description: "Degradação da performance do modelo"
+      detection: "Monitorar métricas em produção vs. baseline"
+      action: "Retreinar com dados recentes"
+    
+    concept_drift:
+      description: "Mudança na relação entre features e target"
+      detection: "Performance degradada mesmo sem data drift"
+      action: "Reavaliar features e modelo"
+
+anti_patterns:
+  - name: "Data Leakage"
+    description: "Informação do futuro vazando para o treino"
+    examples:
+      - "Usar target encoding sem separar train/test"
+      - "Normalizar antes de split"
+      - "Features que contêm informação do target"
+    prevention: "Pipeline de preprocessamento dentro do CV"
+  
+  - name: "Training-Serving Skew"
+    description: "Diferença entre ambiente de treino e produção"
+    examples:
+      - "Features calculadas diferentemente"
+      - "Versões diferentes de bibliotecas"
+    prevention: "Usar mesmo código de feature engineering"
+  
+  - name: "Overfitting to Validation"
+    description: "Otimizar demais no conjunto de validação"
+    prevention: "Manter test set intocado até avaliação final"
+  
+  - name: "Ignoring Business Context"
+    description: "Otimizar métrica técnica sem considerar impacto real"
+    prevention: "Alinhar métricas de ML com KPIs de negócio"
+
+checklists:
+  model_review:
+    - "O problema foi bem definido?"
+    - "A métrica de avaliação está alinhada ao negócio?"
+    - "O baseline foi estabelecido?"
+    - "Não há data leakage?"
+    - "A validação é apropriada para o tipo de dados?"
+    - "O modelo foi avaliado para fairness?"
+    - "A performance é estável entre folds?"
+    - "O modelo é interpretável o suficiente?"
+  
+  production_readiness:
+    - "O modelo está versionado?"
+    - "Há testes automatizados?"
+    - "O serving está configurado corretamente?"
+    - "Há monitoramento de drift?"
+    - "Há estratégia de rollback?"
+    - "A documentação está completa?"
+    - "Há runbook para incidentes?"

@@ -1,0 +1,473 @@
+# Knowledge Base: Observabilidade e FinOps
+# Autonomous Data Agency Framework
+# Versão: 1.0
+
+metadata:
+  domain: observability
+  version: "1.0"
+  last_updated: "2026-01-06"
+  description: "Base de conhecimento para observabilidade, monitoramento e FinOps"
+
+# =============================================================================
+# PRINCÍPIOS DE OBSERVABILIDADE
+# =============================================================================
+principles:
+  - name: "Os Três Pilares"
+    description: "Logs, Métricas e Traces são complementares"
+    details:
+      logs: "Registros detalhados de eventos para debugging"
+      metrics: "Dados numéricos agregados para tendências"
+      traces: "Rastreamento de requisições através do sistema"
+
+  - name: "Observabilidade vs Monitoramento"
+    description: "Observabilidade permite entender o 'porquê', não apenas o 'o quê'"
+    monitoring: "Detecta problemas conhecidos"
+    observability: "Permite investigar problemas desconhecidos"
+
+  - name: "Shift-Left"
+    description: "Incorporar observabilidade desde o início do desenvolvimento"
+    implementation:
+      - "Definir SLIs/SLOs antes de desenvolver"
+      - "Instrumentar código durante desenvolvimento"
+      - "Testar alertas antes de produção"
+
+  - name: "Custo-Benefício"
+    description: "Balancear granularidade com custo de armazenamento"
+    guidelines:
+      - "Logs detalhados em dev, agregados em prod"
+      - "Amostrar traces em alto volume"
+      - "Reter métricas por tempo adequado"
+
+# =============================================================================
+# LOGGING
+# =============================================================================
+logging:
+  structured_logging:
+    description: "Logs em formato estruturado (JSON) para facilitar análise"
+    benefits:
+      - "Facilita busca e filtro"
+      - "Permite agregação automática"
+      - "Integra com ferramentas de análise"
+    
+    required_fields:
+      - name: "timestamp"
+        format: "ISO 8601"
+        example: "2026-01-06T10:30:00.000Z"
+      - name: "level"
+        values: ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+      - name: "service"
+        description: "Nome do serviço/componente"
+      - name: "message"
+        description: "Mensagem legível"
+      - name: "trace_id"
+        description: "ID para correlação (quando aplicável)"
+    
+    optional_fields:
+      - "user_id"
+      - "request_id"
+      - "duration_ms"
+      - "error_code"
+      - "stack_trace"
+
+  log_levels:
+    DEBUG:
+      use_for: "Informações detalhadas para debugging"
+      production: "Desabilitado por padrão"
+    INFO:
+      use_for: "Eventos normais do sistema"
+      examples:
+        - "Requisição recebida"
+        - "Tarefa concluída"
+    WARNING:
+      use_for: "Situações inesperadas que não impedem funcionamento"
+      examples:
+        - "Retry necessário"
+        - "Recurso próximo do limite"
+    ERROR:
+      use_for: "Erros que impedem uma operação específica"
+      examples:
+        - "Falha ao processar requisição"
+        - "Timeout de conexão"
+    CRITICAL:
+      use_for: "Erros que comprometem o sistema"
+      examples:
+        - "Banco de dados indisponível"
+        - "Memória esgotada"
+
+  sensitive_data:
+    never_log:
+      - "Senhas"
+      - "Tokens de API"
+      - "Números de cartão de crédito"
+      - "CPF/CNPJ completo"
+    mask_partially:
+      - "Email: u***@domain.com"
+      - "Telefone: ***-***-1234"
+      - "CPF: ***.***-00"
+
+# =============================================================================
+# MÉTRICAS
+# =============================================================================
+metrics:
+  types:
+    counter:
+      description: "Valor que só aumenta"
+      use_for: "Contagens (requisições, erros, eventos)"
+      example: "http_requests_total"
+    
+    gauge:
+      description: "Valor que pode subir ou descer"
+      use_for: "Estado atual (conexões ativas, uso de memória)"
+      example: "active_connections"
+    
+    histogram:
+      description: "Distribuição de valores"
+      use_for: "Latências, tamanhos"
+      example: "request_duration_seconds"
+      buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]
+    
+    summary:
+      description: "Quantis calculados no cliente"
+      use_for: "Quando precisa de percentis precisos"
+      quantiles: [0.5, 0.9, 0.95, 0.99]
+
+  golden_signals:
+    description: "As 4 métricas essenciais (Google SRE)"
+    signals:
+      - name: "Latência"
+        description: "Tempo para processar requisições"
+        metrics:
+          - "request_duration_seconds"
+          - "p50, p95, p99 latency"
+      
+      - name: "Tráfego"
+        description: "Volume de requisições"
+        metrics:
+          - "requests_per_second"
+          - "concurrent_users"
+      
+      - name: "Erros"
+        description: "Taxa de falhas"
+        metrics:
+          - "error_rate"
+          - "5xx_responses"
+      
+      - name: "Saturação"
+        description: "Quão cheio o sistema está"
+        metrics:
+          - "cpu_utilization"
+          - "memory_usage"
+          - "queue_depth"
+
+  naming_conventions:
+    format: "{namespace}_{subsystem}_{name}_{unit}"
+    examples:
+      - "agency_agent_requests_total"
+      - "agency_llm_tokens_total"
+      - "agency_pipeline_duration_seconds"
+    rules:
+      - "Use snake_case"
+      - "Inclua unidade no nome (_seconds, _bytes, _total)"
+      - "Use _total para counters"
+      - "Seja consistente no namespace"
+
+# =============================================================================
+# ALERTAS
+# =============================================================================
+alerting:
+  principles:
+    - name: "Alerte sobre sintomas, não causas"
+      description: "Alerte quando usuário é impactado, não quando CPU está alta"
+    
+    - name: "Evite alert fatigue"
+      description: "Alertas demais = alertas ignorados"
+      guidelines:
+        - "Cada alerta deve ser acionável"
+        - "Agrupe alertas relacionados"
+        - "Defina severidades apropriadas"
+    
+    - name: "Documente runbooks"
+      description: "Cada alerta deve ter procedimento de resposta"
+
+  severity_levels:
+    critical:
+      description: "Impacto imediato em usuários"
+      response_time: "Imediato (< 5 min)"
+      notification: "PagerDuty, SMS, ligação"
+      examples:
+        - "Sistema completamente indisponível"
+        - "Perda de dados"
+    
+    error:
+      description: "Funcionalidade degradada"
+      response_time: "< 30 min"
+      notification: "Slack, email"
+      examples:
+        - "Taxa de erro > 5%"
+        - "Latência > 5s"
+    
+    warning:
+      description: "Potencial problema futuro"
+      response_time: "< 4 horas"
+      notification: "Slack"
+      examples:
+        - "Disco > 80%"
+        - "Certificado expira em 7 dias"
+    
+    info:
+      description: "Informativo, sem ação necessária"
+      response_time: "Próximo dia útil"
+      notification: "Dashboard"
+
+  slo_based_alerts:
+    description: "Alertas baseados em SLOs (Service Level Objectives)"
+    example:
+      slo: "99.9% das requisições < 500ms"
+      error_budget: "0.1% = 43.2 min/mês"
+      alert_when: "Consumindo error budget muito rápido"
+
+# =============================================================================
+# FINOPS
+# =============================================================================
+finops:
+  principles:
+    - name: "Visibilidade"
+      description: "Todos devem ver e entender os custos"
+      implementation:
+        - "Dashboards de custo por time/projeto"
+        - "Alertas de anomalia de custo"
+        - "Relatórios semanais"
+    
+    - name: "Otimização"
+      description: "Buscar continuamente eficiência"
+      strategies:
+        - "Right-sizing de recursos"
+        - "Reserved instances / Savings Plans"
+        - "Spot instances para workloads tolerantes"
+        - "Auto-scaling"
+    
+    - name: "Governança"
+      description: "Políticas e controles de custo"
+      implementation:
+        - "Budgets por projeto/time"
+        - "Aprovação para recursos caros"
+        - "Tags obrigatórias"
+
+  cost_allocation:
+    tagging_strategy:
+      required_tags:
+        - name: "project"
+          description: "Nome do projeto"
+        - name: "environment"
+          values: ["dev", "staging", "prod"]
+        - name: "owner"
+          description: "Time responsável"
+        - name: "cost-center"
+          description: "Centro de custo"
+      
+      optional_tags:
+        - "feature"
+        - "customer"
+        - "temporary"
+
+  optimization_checklist:
+    compute:
+      - "Usar instâncias adequadas ao workload"
+      - "Implementar auto-scaling"
+      - "Considerar spot/preemptible para batch"
+      - "Desligar recursos não utilizados"
+    
+    storage:
+      - "Implementar lifecycle policies"
+      - "Usar classes de storage apropriadas"
+      - "Comprimir dados quando possível"
+      - "Deletar dados não necessários"
+    
+    network:
+      - "Minimizar transferência entre regiões"
+      - "Usar CDN para conteúdo estático"
+      - "Comprimir payloads"
+    
+    llm_apis:
+      - "Usar modelo adequado à complexidade"
+      - "Implementar cache de respostas"
+      - "Otimizar prompts para menos tokens"
+      - "Batch requests quando possível"
+
+  cloud_pricing:
+    aws:
+      compute:
+        - service: "EC2 t3.medium"
+          price: "$0.0416/hora"
+          monthly: "~$30"
+        - service: "EC2 t3.large"
+          price: "$0.0832/hora"
+          monthly: "~$60"
+        - service: "Lambda"
+          price: "$0.20/1M requests + $0.0000166667/GB-s"
+      
+      storage:
+        - service: "S3 Standard"
+          price: "$0.023/GB/mês"
+        - service: "S3 Glacier"
+          price: "$0.004/GB/mês"
+        - service: "EBS gp3"
+          price: "$0.08/GB/mês"
+      
+      database:
+        - service: "RDS t3.medium"
+          price: "$0.068/hora"
+          monthly: "~$50"
+        - service: "DynamoDB"
+          price: "$1.25/1M writes, $0.25/1M reads"
+    
+    gcp:
+      compute:
+        - service: "e2-medium"
+          price: "$0.0335/hora"
+        - service: "Cloud Run"
+          price: "$0.00002400/vCPU-s"
+      
+      storage:
+        - service: "Cloud Storage Standard"
+          price: "$0.020/GB/mês"
+    
+    llm_apis:
+      - model: "GPT-4.1-mini"
+        input: "$0.15/1M tokens"
+        output: "$0.60/1M tokens"
+      - model: "GPT-4.1-nano"
+        input: "$0.075/1M tokens"
+        output: "$0.30/1M tokens"
+      - model: "Gemini 2.5 Flash"
+        input: "$0.075/1M tokens"
+        output: "$0.30/1M tokens"
+      - model: "Claude 3.5 Sonnet"
+        input: "$3.00/1M tokens"
+        output: "$15.00/1M tokens"
+
+# =============================================================================
+# FERRAMENTAS RECOMENDADAS
+# =============================================================================
+tools:
+  logging:
+    open_source:
+      - name: "ELK Stack"
+        components: ["Elasticsearch", "Logstash", "Kibana"]
+        use_case: "Stack completa de logging"
+      - name: "Loki + Grafana"
+        use_case: "Logging leve, integrado com Grafana"
+      - name: "Fluentd"
+        use_case: "Coletor de logs unificado"
+    
+    managed:
+      - name: "AWS CloudWatch Logs"
+      - name: "GCP Cloud Logging"
+      - name: "Datadog Logs"
+
+  metrics:
+    open_source:
+      - name: "Prometheus"
+        use_case: "Coleta e armazenamento de métricas"
+      - name: "Grafana"
+        use_case: "Visualização e dashboards"
+      - name: "VictoriaMetrics"
+        use_case: "Alternativa ao Prometheus, mais eficiente"
+    
+    managed:
+      - name: "AWS CloudWatch Metrics"
+      - name: "GCP Cloud Monitoring"
+      - name: "Datadog Metrics"
+
+  tracing:
+    open_source:
+      - name: "Jaeger"
+        use_case: "Distributed tracing"
+      - name: "Zipkin"
+        use_case: "Distributed tracing"
+      - name: "OpenTelemetry"
+        use_case: "Padrão unificado para instrumentação"
+    
+    managed:
+      - name: "AWS X-Ray"
+      - name: "GCP Cloud Trace"
+      - name: "Datadog APM"
+
+  finops:
+    - name: "AWS Cost Explorer"
+      use_case: "Análise de custos AWS"
+    - name: "GCP Cost Management"
+      use_case: "Análise de custos GCP"
+    - name: "Kubecost"
+      use_case: "Custos de Kubernetes"
+    - name: "Infracost"
+      use_case: "Estimativa de custo em IaC"
+
+# =============================================================================
+# CHECKLISTS
+# =============================================================================
+checklists:
+  new_service:
+    name: "Checklist de Observabilidade para Novo Serviço"
+    items:
+      - "[ ] Logging estruturado implementado"
+      - "[ ] Métricas dos 4 golden signals expostas"
+      - "[ ] Health check endpoint (/health)"
+      - "[ ] Readiness/Liveness probes configurados"
+      - "[ ] Trace propagation implementado"
+      - "[ ] Dashboard básico criado"
+      - "[ ] Alertas críticos configurados"
+      - "[ ] Runbooks documentados"
+      - "[ ] Tags de custo aplicadas"
+
+  incident_response:
+    name: "Checklist de Resposta a Incidentes"
+    items:
+      - "[ ] Identificar impacto (usuários afetados)"
+      - "[ ] Comunicar stakeholders"
+      - "[ ] Verificar dashboards e métricas"
+      - "[ ] Analisar logs recentes"
+      - "[ ] Verificar deploys recentes"
+      - "[ ] Aplicar mitigação"
+      - "[ ] Documentar timeline"
+      - "[ ] Agendar post-mortem"
+
+  cost_review:
+    name: "Checklist de Revisão de Custos"
+    items:
+      - "[ ] Verificar recursos não utilizados"
+      - "[ ] Analisar picos de custo"
+      - "[ ] Revisar sizing de instâncias"
+      - "[ ] Verificar oportunidades de reserved/spot"
+      - "[ ] Analisar custos de transferência"
+      - "[ ] Verificar lifecycle policies de storage"
+      - "[ ] Revisar uso de APIs externas"
+
+# =============================================================================
+# ANTI-PATTERNS
+# =============================================================================
+anti_patterns:
+  - name: "Log Everything"
+    description: "Logar tudo sem critério"
+    problem: "Custo alto, difícil encontrar informação relevante"
+    solution: "Definir níveis de log, amostrar em alto volume"
+
+  - name: "Alert on Everything"
+    description: "Criar alerta para cada métrica"
+    problem: "Alert fatigue, alertas ignorados"
+    solution: "Alertar sobre sintomas, não causas"
+
+  - name: "Metrics Without Context"
+    description: "Métricas sem labels/tags adequados"
+    problem: "Impossível filtrar ou agrupar"
+    solution: "Definir estratégia de labeling consistente"
+
+  - name: "Ignoring Costs"
+    description: "Não monitorar custos de observabilidade"
+    problem: "Custos podem crescer exponencialmente"
+    solution: "Incluir observabilidade no budget, otimizar retenção"
+
+  - name: "No Runbooks"
+    description: "Alertas sem procedimento de resposta"
+    problem: "Tempo perdido descobrindo o que fazer"
+    solution: "Cada alerta deve ter runbook associado"

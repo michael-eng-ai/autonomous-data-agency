@@ -1,0 +1,359 @@
+# Knowledge Base: QA - Best Practices
+# Este arquivo contém as melhores práticas para o time de Quality Assurance
+
+metadata:
+  version: "1.0.0"
+  last_updated: "2026-01-05"
+  domain: "qa"
+  type: "best_practices"
+
+principles:
+  - name: "Shift Left Testing"
+    description: "Testar o mais cedo possível no ciclo de desenvolvimento"
+    guidelines:
+      - "Testes unitários durante o desenvolvimento"
+      - "Code review com foco em testabilidade"
+      - "TDD quando apropriado"
+    
+  - name: "Test Pyramid"
+    description: "Mais testes unitários, menos testes E2E"
+    distribution:
+      unit: "70% - Rápidos, isolados, muitos"
+      integration: "20% - Componentes integrados"
+      e2e: "10% - Fluxos críticos completos"
+
+  - name: "Automation First"
+    description: "Automatize tudo que é repetitivo"
+    guidelines:
+      - "Testes de regressão automatizados"
+      - "Testes em CI/CD"
+      - "Testes manuais apenas para exploratório"
+
+testing_types:
+  unit_tests:
+    description: "Testam unidades isoladas de código"
+    characteristics:
+      - "Rápidos (milissegundos)"
+      - "Isolados (sem dependências externas)"
+      - "Determinísticos"
+    frameworks:
+      python: ["pytest", "unittest"]
+      javascript: ["Jest", "Mocha"]
+      java: ["JUnit", "TestNG"]
+    best_practices:
+      - "Um assert por teste (quando possível)"
+      - "Nomes descritivos"
+      - "Arrange-Act-Assert pattern"
+      - "Mock dependências externas"
+  
+  integration_tests:
+    description: "Testam integração entre componentes"
+    characteristics:
+      - "Mais lentos que unitários"
+      - "Podem usar banco de dados de teste"
+      - "Testam contratos entre serviços"
+    approaches:
+      - "Testar API endpoints"
+      - "Testar queries de banco"
+      - "Testar integrações com serviços externos (mockados)"
+    best_practices:
+      - "Use containers para dependências (testcontainers)"
+      - "Dados de teste isolados"
+      - "Cleanup após cada teste"
+  
+  e2e_tests:
+    description: "Testam fluxos completos do usuário"
+    characteristics:
+      - "Mais lentos"
+      - "Mais frágeis"
+      - "Maior cobertura de integração"
+    tools:
+      web: ["Cypress", "Playwright", "Selenium"]
+      mobile: ["Appium", "Detox"]
+      api: ["Postman", "REST Assured"]
+    best_practices:
+      - "Apenas fluxos críticos"
+      - "Page Object Pattern"
+      - "Dados de teste independentes"
+      - "Retry para flakiness"
+  
+  performance_tests:
+    description: "Testam comportamento sob carga"
+    types:
+      load: "Comportamento sob carga esperada"
+      stress: "Comportamento sob carga extrema"
+      spike: "Comportamento com picos repentinos"
+      soak: "Comportamento por longos períodos"
+    tools: ["k6", "JMeter", "Locust", "Gatling"]
+    metrics:
+      - "Response time (P50, P95, P99)"
+      - "Throughput (requests/second)"
+      - "Error rate"
+      - "Resource utilization"
+  
+  security_tests:
+    description: "Identificam vulnerabilidades"
+    types:
+      sast: "Static Application Security Testing"
+      dast: "Dynamic Application Security Testing"
+      dependency_scan: "Vulnerabilidades em dependências"
+    tools:
+      sast: ["SonarQube", "Semgrep", "CodeQL"]
+      dast: ["OWASP ZAP", "Burp Suite"]
+      dependencies: ["Snyk", "Dependabot", "npm audit"]
+    owasp_top_10:
+      - "Injection"
+      - "Broken Authentication"
+      - "Sensitive Data Exposure"
+      - "XML External Entities"
+      - "Broken Access Control"
+      - "Security Misconfiguration"
+      - "Cross-Site Scripting (XSS)"
+      - "Insecure Deserialization"
+      - "Using Components with Known Vulnerabilities"
+      - "Insufficient Logging & Monitoring"
+
+data_quality_testing:
+  dimensions:
+    completeness:
+      description: "Dados não estão faltando"
+      tests:
+        - "NOT NULL checks"
+        - "Required fields present"
+        - "Row count validation"
+    
+    uniqueness:
+      description: "Sem duplicatas indevidas"
+      tests:
+        - "Primary key uniqueness"
+        - "Business key uniqueness"
+    
+    validity:
+      description: "Dados dentro de domínios válidos"
+      tests:
+        - "Enum values"
+        - "Range checks"
+        - "Format validation (email, phone)"
+        - "Referential integrity"
+    
+    consistency:
+      description: "Dados consistentes entre sistemas"
+      tests:
+        - "Cross-system reconciliation"
+        - "Derived field validation"
+    
+    timeliness:
+      description: "Dados atualizados no tempo esperado"
+      tests:
+        - "Freshness checks"
+        - "SLA validation"
+    
+    accuracy:
+      description: "Dados refletem realidade"
+      tests:
+        - "Spot checks against source"
+        - "Business rule validation"
+  
+  frameworks:
+    - name: "Great Expectations"
+      description: "Framework Python para data quality"
+      features:
+        - "Expectations declarativas"
+        - "Data Docs (documentação automática)"
+        - "Integração com Airflow, dbt"
+      example: |
+        expect_column_values_to_not_be_null(column="customer_id")
+        expect_column_values_to_be_between(column="age", min_value=0, max_value=120)
+        expect_column_values_to_match_regex(column="email", regex=r"^[\w\.-]+@[\w\.-]+\.\w+$")
+    
+    - name: "dbt tests"
+      description: "Testes integrados ao dbt"
+      types:
+        schema_tests: ["unique", "not_null", "accepted_values", "relationships"]
+        custom_tests: "SQL que deve retornar 0 rows"
+    
+    - name: "Soda"
+      description: "Data quality monitoring"
+      features:
+        - "SodaCL (linguagem declarativa)"
+        - "Integração com orquestradores"
+        - "Alertas e dashboards"
+
+test_automation:
+  ci_integration:
+    stages:
+      - stage: "Pre-commit"
+        tests: ["Linting", "Formatting", "Unit tests rápidos"]
+        tools: ["pre-commit", "husky"]
+      
+      - stage: "Pull Request"
+        tests: ["Unit tests", "Integration tests", "Code coverage"]
+        blocking: true
+      
+      - stage: "Merge to Main"
+        tests: ["Full test suite", "Security scan"]
+        blocking: true
+      
+      - stage: "Deploy to Staging"
+        tests: ["E2E tests", "Smoke tests"]
+        blocking: true
+      
+      - stage: "Deploy to Production"
+        tests: ["Smoke tests", "Synthetic monitoring"]
+        blocking: false
+  
+  test_data_management:
+    strategies:
+      fixtures:
+        description: "Dados estáticos pré-definidos"
+        pros: ["Simples", "Determinístico"]
+        cons: ["Manutenção", "Pode ficar desatualizado"]
+      
+      factories:
+        description: "Geração dinâmica de dados"
+        tools: ["Factory Boy (Python)", "Faker"]
+        pros: ["Flexível", "Dados realistas"]
+        cons: ["Mais complexo"]
+      
+      snapshots:
+        description: "Cópia de dados de produção (anonimizados)"
+        pros: ["Dados realistas"]
+        cons: ["LGPD/GDPR", "Tamanho"]
+    
+    principles:
+      - "Dados de teste isolados por teste"
+      - "Cleanup após execução"
+      - "Nunca usar dados reais de produção sem anonimização"
+      - "Dados sensíveis devem ser mascarados"
+
+test_design:
+  techniques:
+    equivalence_partitioning:
+      description: "Dividir inputs em classes equivalentes"
+      example: "Idade: negativo, 0-17, 18-65, 66+, inválido"
+    
+    boundary_value_analysis:
+      description: "Testar nos limites das partições"
+      example: "Idade 18: testar 17, 18, 19"
+    
+    decision_table:
+      description: "Combinações de condições e ações"
+      when: "Múltiplas condições interdependentes"
+    
+    state_transition:
+      description: "Testar transições entre estados"
+      when: "Sistema com estados definidos"
+    
+    pairwise_testing:
+      description: "Testar pares de combinações"
+      when: "Muitas variáveis, combinação completa inviável"
+      tools: ["PICT", "AllPairs"]
+  
+  patterns:
+    arrange_act_assert:
+      description: "Estrutura padrão de teste"
+      structure:
+        arrange: "Preparar dados e contexto"
+        act: "Executar ação sendo testada"
+        assert: "Verificar resultado"
+    
+    given_when_then:
+      description: "BDD style"
+      structure:
+        given: "Contexto inicial"
+        when: "Ação executada"
+        then: "Resultado esperado"
+    
+    page_object:
+      description: "Encapsular elementos de UI"
+      benefits:
+        - "Reutilização"
+        - "Manutenção facilitada"
+        - "Legibilidade"
+
+metrics:
+  coverage:
+    types:
+      line: "% de linhas executadas"
+      branch: "% de branches executados"
+      function: "% de funções chamadas"
+    targets:
+      minimum: "80% line coverage"
+      ideal: "90%+ com branch coverage"
+    caveats:
+      - "Coverage alto não garante qualidade"
+      - "Foque em código crítico"
+      - "Não teste getters/setters triviais"
+  
+  quality_metrics:
+    - metric: "Defect Escape Rate"
+      description: "Bugs encontrados em produção vs total"
+      target: "< 10%"
+    
+    - metric: "Test Pass Rate"
+      description: "% de testes passando"
+      target: "> 95%"
+    
+    - metric: "Flaky Test Rate"
+      description: "% de testes instáveis"
+      target: "< 1%"
+    
+    - metric: "Mean Time to Detect (MTTD)"
+      description: "Tempo para detectar bug"
+      target: "Minimizar"
+    
+    - metric: "Test Execution Time"
+      description: "Tempo total de execução"
+      target: "< 10 min para PR, < 30 min full suite"
+
+anti_patterns:
+  - name: "Ice Cream Cone"
+    description: "Muitos testes E2E, poucos unitários"
+    solution: "Inverter a pirâmide de testes"
+  
+  - name: "Flaky Tests"
+    description: "Testes que falham intermitentemente"
+    causes:
+      - "Dependência de timing"
+      - "Dados compartilhados"
+      - "Dependências externas"
+    solution: "Isolar, usar retry com moderação, investigar root cause"
+  
+  - name: "Test Data Coupling"
+    description: "Testes dependem de dados de outros testes"
+    solution: "Cada teste cria seus próprios dados"
+  
+  - name: "Assertion Roulette"
+    description: "Múltiplos asserts sem mensagens claras"
+    solution: "Um assert por teste ou mensagens descritivas"
+  
+  - name: "Slow Tests"
+    description: "Testes que demoram muito para executar"
+    solution: "Paralelizar, otimizar setup, usar mocks"
+
+checklists:
+  test_plan_review:
+    - "Todos os requisitos têm casos de teste?"
+    - "Cenários positivos e negativos cobertos?"
+    - "Edge cases identificados?"
+    - "Testes de performance necessários?"
+    - "Testes de segurança necessários?"
+    - "Dados de teste definidos?"
+    - "Ambiente de teste disponível?"
+  
+  test_code_review:
+    - "Teste é independente?"
+    - "Nome do teste é descritivo?"
+    - "Arrange-Act-Assert está claro?"
+    - "Apenas um conceito por teste?"
+    - "Mocks são necessários e corretos?"
+    - "Cleanup está implementado?"
+    - "Teste não é flaky?"
+  
+  release_quality_gate:
+    - "Todos os testes automatizados passando?"
+    - "Coverage mínimo atingido?"
+    - "Sem bugs críticos abertos?"
+    - "Testes de regressão executados?"
+    - "Performance dentro do esperado?"
+    - "Security scan sem vulnerabilidades críticas?"
