@@ -87,6 +87,49 @@ class AgencyOrchestrator:
         
         # Carrega os times sob demanda
         self._load_teams()
+
+        # Callback para eventos (WebSocket)
+        self._event_callback = None
+
+    def set_event_callback(self, callback):
+        """Define uma função de callback para eventos em tempo real."""
+        self._event_callback = callback
+        self._main_loop = None
+
+    def set_main_loop(self, loop):
+        """Define o loop principal para execução de eventos threads-safe."""
+        self._main_loop = loop
+
+    async def _emit_event(self, event_type: str, data: Any):
+        """Internal async method to call the callback."""
+        if self._event_callback:
+            try:
+                import asyncio
+                if asyncio.iscoroutinefunction(self._event_callback):
+                    await self._event_callback(event_type, data)
+                else:
+                    self._event_callback(event_type, data)
+            except Exception as e:
+                print(f"Erro ao emitir evento: {e}")
+
+    def emit_event_threadsafe(self, event_type: str, data: Any):
+        """Public method to emit events from anywhere (sync or async)."""
+        import asyncio
+        
+        # Try to get running loop
+        try:
+            loop = asyncio.get_running_loop()
+            # If we are in a loop, just create task
+            loop.create_task(self._emit_event(event_type, data))
+            return
+        except RuntimeError:
+            pass # No running loop in this thread
+            
+        # If no loop, check if we have the main loop stored
+        if hasattr(self, '_main_loop') and self._main_loop:
+            asyncio.run_coroutine_threadsafe(self._emit_event(event_type, data), self._main_loop)
+        else:
+            print(f"WARNING: Event dropped. No loop available for event {event_type}")
     
     def _load_teams(self):
         """Carrega todos os times disponíveis."""
@@ -164,6 +207,17 @@ REGRAS ABSOLUTAS:
         print(f"Fase: {self.current_project.current_phase.value}")
         print(f"{'='*60}\n")
         
+        print(f"{'='*60}\n")
+        
+        print(f"{'='*60}\n")
+        
+        # Emit event
+        self.emit_event_threadsafe("project_started", {
+            "project_id": project_id,
+            "name": project_name,
+            "phase": self.current_project.current_phase.value
+        })
+
         return self.current_project
     
     def execute_team(self, team_name: str, task: str) -> TeamOutput:
@@ -180,8 +234,21 @@ REGRAS ABSOLUTAS:
         if team_name not in self.teams:
             raise ValueError(f"Time '{team_name}' não encontrado. Times disponíveis: {list(self.teams.keys())}")
         
+        # Emit event: Team Execution Started
+        self.emit_event_threadsafe("team_execution_started", {
+            "team": team_name,
+            "task": task[:200]
+        })
+
         team = self.teams[team_name]
         output = team.execute(task)
+
+        # Emit event: Team Execution Completed
+        self.emit_event_threadsafe("team_execution_completed", {
+            "team": team_name,
+            "status": output.validation_result.status.value,
+            "summary": output.final_output[:200]
+        })
         
         # Armazena no estado do projeto
         if self.current_project:
@@ -335,10 +402,15 @@ Respostas Recebidas: {len(p.client_responses)}
 """
         return summary
 
+# Global singleton instance
+_orchestrator_instance: Optional[AgencyOrchestrator] = None
 
 def get_agency_orchestrator() -> AgencyOrchestrator:
-    """Factory function para criar o orquestrador da agência."""
-    return AgencyOrchestrator()
+    """Factory function para criar o orquestrador da agência (Singleton)."""
+    global _orchestrator_instance
+    if _orchestrator_instance is None:
+        _orchestrator_instance = AgencyOrchestrator()
+    return _orchestrator_instance
 
 
 if __name__ == "__main__":
