@@ -7,17 +7,27 @@ import traceback
 import os
 
 from core.agency_orchestrator import get_agency_orchestrator
+from core.project_manager import get_project_manager, ProjectStatus
 
 router = APIRouter()
 orchestrator = get_agency_orchestrator()
+project_manager = get_project_manager()
 
 class ProjectRequest(BaseModel):
     name: str
     description: str
+    project_type: Optional[str] = "fullstack"
 
 class ChatMessage(BaseModel):
     message: str
     project_id: Optional[str] = None
+
+class StatusUpdate(BaseModel):
+    status: str
+    details: Optional[str] = ""
+
+class GitHubLink(BaseModel):
+    github_url: str
 
 
 def run_project_workflow(project_name: str, description: str):
@@ -259,3 +269,215 @@ async def list_teams():
         "teams": list(orchestrator.teams.keys()),
         "total": len(orchestrator.teams)
     }
+
+
+# ============================================================
+# ENDPOINTS DE GERENCIAMENTO DE PROJETOS
+# ============================================================
+
+@router.post("/projects/create")
+async def create_new_project(request: ProjectRequest, background_tasks: BackgroundTasks):
+    """
+    Cria um novo projeto e inicia o workflow de análise.
+    
+    Args:
+        request: Nome, descrição e tipo do projeto
+    """
+    # Cria o projeto no gerenciador
+    project_info = project_manager.create_project(
+        name=request.name,
+        description=request.description,
+        project_type=request.project_type or "fullstack"
+    )
+    
+    # Inicia o workflow em background
+    background_tasks.add_task(
+        run_project_workflow,
+        project_info.name,
+        project_info.description
+    )
+    
+    return {
+        "status": "created",
+        "project_id": project_info.project_id,
+        "name": project_info.name,
+        "project_type": project_info.project_type,
+        "path": project_info.path,
+        "message": f"Projeto '{project_info.name}' criado com sucesso! Análise iniciada."
+    }
+
+
+@router.get("/projects/list")
+async def get_all_projects(status: Optional[str] = None):
+    """
+    Lista todos os projetos.
+    
+    Args:
+        status: Filtrar por status (initiated, analyzing, planning, in_progress, review, completed, delivered, cancelled)
+    """
+    status_filter = None
+    if status:
+        try:
+            status_filter = ProjectStatus(status)
+        except ValueError:
+            valid_statuses = [s.value for s in ProjectStatus]
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Status inválido. Use: {', '.join(valid_statuses)}"
+            )
+    
+    projects = project_manager.list_projects(status_filter)
+    summary = project_manager.get_projects_summary()
+    
+    return {
+        "projects": projects,
+        "summary": summary
+    }
+
+
+@router.get("/projects/summary")
+async def get_projects_overview():
+    """Retorna estatísticas gerais dos projetos."""
+    return project_manager.get_projects_summary()
+
+
+@router.get("/projects/{project_id}")
+async def get_project_details(project_id: str):
+    """
+    Obtém detalhes completos de um projeto.
+    
+    Args:
+        project_id: ID do projeto
+    """
+    try:
+        details = project_manager.get_project_details(project_id)
+        return details
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.patch("/projects/{project_id}/status")
+async def update_project_status(project_id: str, update: StatusUpdate):
+    """
+    Atualiza o status de um projeto.
+    
+    Args:
+        project_id: ID do projeto
+        update: Novo status e detalhes
+    """
+    try:
+        new_status = ProjectStatus(update.status)
+    except ValueError:
+        valid_statuses = [s.value for s in ProjectStatus]
+        raise HTTPException(
+            status_code=400,
+            detail=f"Status inválido. Use: {', '.join(valid_statuses)}"
+        )
+    
+    try:
+        project_manager.update_status(project_id, new_status, update.details or "")
+        return {
+            "status": "updated",
+            "project_id": project_id,
+            "new_status": new_status.value
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.post("/projects/{project_id}/prepare-github")
+async def prepare_project_for_github(project_id: str):
+    """
+    Prepara um projeto para ser enviado ao GitHub.
+    Inicializa git, cria .gitignore e faz commit inicial.
+    
+    Args:
+        project_id: ID do projeto
+    """
+    try:
+        path = project_manager.prepare_for_github(project_id)
+        return {
+            "status": "prepared",
+            "project_id": project_id,
+            "path": path,
+            "message": "Projeto preparado para GitHub. Use 'git remote add origin <url>' e 'git push -u origin main' para enviar."
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@router.post("/projects/{project_id}/github-link")
+async def link_project_to_github(project_id: str, link: GitHubLink):
+    """
+    Vincula um projeto a um repositório GitHub.
+    
+    Args:
+        project_id: ID do projeto
+        link: URL do repositório GitHub
+    """
+    try:
+        project_manager.set_github_url(project_id, link.github_url)
+        return {
+            "status": "linked",
+            "project_id": project_id,
+            "github_url": link.github_url
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get("/projects/{project_id}/activities")
+async def get_project_activities(project_id: str):
+    """
+    Obtém o histórico de atividades de um projeto.
+    
+    Args:
+        project_id: ID do projeto
+    """
+    try:
+        details = project_manager.get_project_details(project_id)
+        return {
+            "project_id": project_id,
+            "activities": details["activities"]
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.post("/projects/{project_id}/package")
+async def package_project(project_id: str, output_format: str = "zip"):
+    """
+    Empacota um projeto para download.
+    
+    Args:
+        project_id: ID do projeto
+        output_format: Formato do pacote (zip ou tar.gz)
+    """
+    from core.project_generator import get_project_generator
+    
+    if output_format not in ["zip", "tar.gz"]:
+        raise HTTPException(status_code=400, detail="Formato deve ser 'zip' ou 'tar.gz'")
+    
+    try:
+        generator = get_project_generator()
+        package_path = generator.package_for_delivery(project_id, output_format)
+        
+        # Atualiza status para delivered
+        project_manager.update_status(
+            project_id, 
+            ProjectStatus.DELIVERED, 
+            f"Pacote gerado: {os.path.basename(package_path)}"
+        )
+        
+        return {
+            "status": "packaged",
+            "project_id": project_id,
+            "package_path": package_path,
+            "download_url": f"/api/project/download?path={package_path}"
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
