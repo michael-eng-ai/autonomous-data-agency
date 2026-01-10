@@ -1,8 +1,10 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from typing import Optional, List, Dict, Any
+from typing import Optional
 import uuid
 import traceback
+import os
 
 from core.agency_orchestrator import get_agency_orchestrator
 
@@ -123,3 +125,137 @@ async def list_projects():
     if orchestrator.current_project:
         return [orchestrator.current_project]
     return []
+
+@router.get("/project/status")
+async def get_project_status():
+    """Retorna o status atual do projeto."""
+    if not orchestrator.current_project:
+        return {"status": "no_project", "message": "Nenhum projeto ativo"}
+    
+    p = orchestrator.current_project
+    project_path = orchestrator.get_project_path()
+    
+    return {
+        "status": "active",
+        "project_id": p.project_id,
+        "name": p.project_name,
+        "phase": p.current_phase.value,
+        "project_path": project_path,
+        "teams_executed": list(p.team_outputs.keys()),
+        "created_at": p.created_at,
+        "updated_at": p.updated_at
+    }
+
+@router.get("/project/summary")
+async def get_project_summary():
+    """Retorna um resumo completo do projeto."""
+    return {"summary": orchestrator.get_project_summary()}
+
+@router.post("/project/finalize")
+async def finalize_project(output_format: str = "zip"):
+    """
+    Finaliza o projeto e gera o pacote para download.
+    
+    Args:
+        output_format: "zip" ou "tar.gz"
+    """
+    if not orchestrator.current_project:
+        raise HTTPException(status_code=404, detail="Nenhum projeto ativo")
+    
+    if output_format not in ["zip", "tar.gz"]:
+        raise HTTPException(status_code=400, detail="Formato deve ser 'zip' ou 'tar.gz'")
+    
+    try:
+        package_path = orchestrator.finalize_project(output_format)
+        return {
+            "status": "success",
+            "package_path": package_path,
+            "download_url": f"/api/project/download?path={package_path}"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+@router.get("/project/download")
+async def download_project(path: str):
+    """
+    Faz o download do pacote do projeto.
+    
+    Args:
+        path: Caminho do arquivo gerado por /project/finalize
+    """
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="Arquivo não encontrado")
+    
+    filename = os.path.basename(path)
+    media_type = "application/zip" if path.endswith(".zip") else "application/gzip"
+    
+    return FileResponse(
+        path=path,
+        filename=filename,
+        media_type=media_type
+    )
+
+@router.get("/project/files")
+async def list_project_files():
+    """Lista todos os arquivos gerados no projeto."""
+    project_path = orchestrator.get_project_path()
+    
+    if not project_path or not os.path.exists(project_path):
+        return {"files": [], "message": "Nenhum projeto ativo ou diretório não existe"}
+    
+    files = []
+    for root, dirs, filenames in os.walk(project_path):
+        # Ignorar pastas ocultas e __pycache__
+        dirs[:] = [d for d in dirs if not d.startswith('.') and d != '__pycache__']
+        
+        for filename in filenames:
+            if not filename.startswith('.'):
+                full_path = os.path.join(root, filename)
+                rel_path = os.path.relpath(full_path, project_path)
+                files.append({
+                    "path": rel_path,
+                    "size": os.path.getsize(full_path),
+                    "modified": os.path.getmtime(full_path)
+                })
+    
+    return {
+        "project_path": project_path,
+        "files": sorted(files, key=lambda x: x["path"])
+    }
+
+@router.get("/project/file/{file_path:path}")
+async def get_project_file(file_path: str):
+    """
+    Retorna o conteúdo de um arquivo específico do projeto.
+    
+    Args:
+        file_path: Caminho relativo do arquivo dentro do projeto
+    """
+    project_path = orchestrator.get_project_path()
+    
+    if not project_path:
+        raise HTTPException(status_code=404, detail="Nenhum projeto ativo")
+    
+    full_path = os.path.join(project_path, file_path)
+    
+    # Segurança: garantir que o path está dentro do projeto
+    if not os.path.realpath(full_path).startswith(os.path.realpath(project_path)):
+        raise HTTPException(status_code=403, detail="Acesso negado")
+    
+    if not os.path.exists(full_path):
+        raise HTTPException(status_code=404, detail="Arquivo não encontrado")
+    
+    try:
+        with open(full_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return {"path": file_path, "content": content}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao ler arquivo: {str(e)}") from e
+
+@router.get("/teams")
+async def list_teams():
+    """Lista todos os times disponíveis."""
+    return {
+        "teams": list(orchestrator.teams.keys()),
+        "total": len(orchestrator.teams)
+    }

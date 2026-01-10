@@ -20,17 +20,16 @@ from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 from datetime import datetime
-import json
 
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
 
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config.llm_config import get_llm
-from core.base_team import TeamOutput, ValidationStatus
+from core.base_team import TeamOutput
+from core.project_generator import get_project_generator, ProjectType, ProjectGenerator
 
 
 class ProjectPhase(Enum):
@@ -84,6 +83,9 @@ class AgencyOrchestrator:
         self.global_master_agent = self._create_global_master_agent()
         self.teams = {}
         self.current_project: Optional[ProjectState] = None
+        self.project_generator: Optional[ProjectGenerator] = None
+        self._project_structure = None
+        self._main_loop = None
         
         # Carrega os times sob demanda
         self._load_teams()
@@ -179,13 +181,14 @@ REGRAS ABSOLUTAS:
         
         return prompt_template | self.global_master_llm
     
-    def start_project(self, project_name: str, client_request: str) -> ProjectState:
+    def start_project(self, project_name: str, client_request: str, project_type: str = "web_app") -> ProjectState:
         """
         Inicia um novo projeto.
         
         Args:
             project_name: Nome do projeto
             client_request: Solicitação inicial do cliente
+            project_type: Tipo do projeto (web_app, api_only, data_pipeline, ml_project, mobile_app, fullstack, microservices)
             
         Returns:
             Estado inicial do projeto
@@ -199,23 +202,45 @@ REGRAS ABSOLUTAS:
             client_request=client_request
         )
         
+        # Mapear tipo de projeto para enum
+        type_mapping = {
+            "web_app": ProjectType.WEB_APP,
+            "api_only": ProjectType.API_ONLY,
+            "data_pipeline": ProjectType.DATA_PIPELINE,
+            "ml_project": ProjectType.ML_PROJECT,
+            "mobile_app": ProjectType.MOBILE_APP,
+            "fullstack": ProjectType.FULLSTACK,
+            "microservices": ProjectType.MICROSERVICES
+        }
+        
+        pt = type_mapping.get(project_type, ProjectType.FULLSTACK)
+        
+        # Criar estrutura de diretórios do projeto
+        self.project_generator = get_project_generator()
+        self._project_structure = self.project_generator.create_project(
+            project_id=project_id,
+            project_name=project_name,
+            project_type=pt,
+            client_request=client_request
+        )
+        
         print(f"\n{'='*60}")
-        print(f"NOVO PROJETO INICIADO")
+        print("NOVO PROJETO INICIADO")
         print(f"{'='*60}")
         print(f"ID: {project_id}")
         print(f"Nome: {project_name}")
+        print(f"Tipo: {pt.value}")
         print(f"Fase: {self.current_project.current_phase.value}")
-        print(f"{'='*60}\n")
-        
-        print(f"{'='*60}\n")
-        
+        print(f"Pasta do Projeto: {self._project_structure.root_path}")
         print(f"{'='*60}\n")
         
         # Emit event
         self.emit_event_threadsafe("project_started", {
             "project_id": project_id,
             "name": project_name,
-            "phase": self.current_project.current_phase.value
+            "type": pt.value,
+            "phase": self.current_project.current_phase.value,
+            "project_path": self._project_structure.root_path
         })
 
         return self.current_project
@@ -255,7 +280,55 @@ REGRAS ABSOLUTAS:
             self.current_project.team_outputs[team_name] = output
             self.current_project.updated_at = datetime.now().isoformat()
         
+        # Salva artefatos gerados no diretório do projeto
+        if self.project_generator:
+            self._save_team_artifacts(team_name, output)
+        
         return output
+    
+    def _save_team_artifacts(self, team_name: str, output: TeamOutput) -> None:
+        """Salva os artefatos gerados por um time no projeto."""
+        if not self.project_generator or not hasattr(self, '_project_structure'):
+            return
+        
+        project_id = self._project_structure.project_id
+            
+        # Determinar onde salvar baseado no time
+        artifacts_mapping = {
+            "product_owner": ("docs", "requisitos.md"),
+            "project_manager": ("docs", "plano_projeto.md"),
+            "architecture": ("docs", "arquitetura.md"),
+            "frontend": ("src/frontend", "README.md"),
+            "backend": ("src/backend", "README.md"),
+            "mobile": ("src/mobile", "README.md"),
+            "fullstack": ("src", "README.md"),
+            "database": ("src/database", "schema.sql"),
+            "data_engineering": ("src/data_engineering", "README.md"),
+            "data_science": ("src/data_science", "README.md"),
+            "data_analytics": ("src/data_analytics", "README.md"),
+            "devops": ("infra", "README.md"),
+            "qa": ("tests", "test_plan.md"),
+            "security": ("docs", "security_requirements.md"),
+            "ux_ui": ("docs", "design_spec.md"),
+        }
+        
+        if team_name in artifacts_mapping:
+            folder, filename = artifacts_mapping[team_name]
+            self.project_generator.add_file(
+                project_id=project_id,
+                file_path=f"{folder}/{filename}",
+                content=f"# Saída do Time: {team_name.replace('_', ' ').title()}\n\n{output.final_output}",
+                generated_by=team_name,
+                description=f"Artefato gerado pelo time {team_name}"
+            )
+            
+        # Atualizar documentos específicos
+        if team_name == "product_owner":
+            self.project_generator.update_document(project_id, "requisitos", output.final_output, team_name)
+        elif team_name == "project_manager":
+            self.project_generator.update_document(project_id, "plano_projeto", output.final_output, team_name)
+        elif team_name == "architecture":
+            self.project_generator.update_document(project_id, "arquitetura", output.final_output, team_name)
     
     def execute_workflow(
         self,
@@ -383,6 +456,8 @@ Verifique consistência, detecte alucinações, e produza a entrega final consol
             return "Nenhum projeto ativo."
         
         p = self.current_project
+        project_path = self._project_structure.root_path if hasattr(self, '_project_structure') else "N/A"
+        
         summary = f"""
 {'='*60}
 RESUMO DO PROJETO
@@ -390,6 +465,7 @@ RESUMO DO PROJETO
 ID: {p.project_id}
 Nome: {p.project_name}
 Fase Atual: {p.current_phase.value}
+Pasta do Projeto: {project_path}
 Criado em: {p.created_at}
 Atualizado em: {p.updated_at}
 
@@ -401,6 +477,56 @@ Respostas Recebidas: {len(p.client_responses)}
 {'='*60}
 """
         return summary
+    
+    def finalize_project(self, output_format: str = "zip") -> str:
+        """
+        Finaliza o projeto e gera o pacote para entrega ao cliente.
+        
+        Args:
+            output_format: Formato do pacote ("zip" ou "tar.gz")
+            
+        Returns:
+            Caminho do arquivo gerado
+        """
+        if not self.project_generator or not hasattr(self, '_project_structure'):
+            raise ValueError("Nenhum projeto ativo para finalizar")
+        
+        project_id = self._project_structure.project_id
+        
+        # Marcar projeto como completo
+        if self.current_project:
+            self.current_project.current_phase = ProjectPhase.COMPLETED
+            self.current_project.updated_at = datetime.now().isoformat()
+        
+        # Emitir evento de finalização
+        self.emit_event_threadsafe("project_finalizing", {
+            "project_id": project_id,
+            "format": output_format
+        })
+        
+        # Gerar pacote
+        package_path = self.project_generator.package_for_delivery(project_id, output_format)
+        
+        # Emitir evento de conclusão
+        self.emit_event_threadsafe("project_completed", {
+            "project_id": project_id,
+            "package_path": str(package_path),
+            "format": output_format
+        })
+        
+        print(f"\n{'='*60}")
+        print("PROJETO FINALIZADO!")
+        print(f"{'='*60}")
+        print(f"Pacote gerado: {package_path}")
+        print(f"{'='*60}\n")
+        
+        return str(package_path)
+    
+    def get_project_path(self) -> Optional[str]:
+        """Retorna o caminho do diretório do projeto atual."""
+        if hasattr(self, '_project_structure'):
+            return self._project_structure.root_path
+        return None
 
 # Global singleton instance
 _orchestrator_instance: Optional[AgencyOrchestrator] = None

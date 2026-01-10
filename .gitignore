@@ -151,3 +151,7 @@ chroma_db/
 web/node_modules/
 node_modules/
 
+
+# Generated Projects (client deliverables)
+projects/
+
