@@ -1,21 +1,28 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "autonomous-data-agency"
 version = "0.1.0"
-description = "Autonomous Data Agency - A Multi-Agent Framework"
-authors = [
-    {name = "Michael Santos", email = "michael@example.com"},
-]
+description = "A framework for orchestrating hierarchical teams of AI agents"
 readme = "README.md"
 requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Michael Eng AI"}
+]
+keywords = ["ai", "agents", "langchain", "langgraph", "autonomous", "orchestration"]
 classifiers = [
-    "Programming Language :: Python :: 3",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Operating System :: OS Independent",
 ]
+
 dependencies = [
     "langchain>=0.1.0",
     "langchain-openai>=0.0.5",
@@ -23,36 +30,61 @@ dependencies = [
     "langgraph>=0.0.20",
     "openai>=1.0.0",
     "google-generativeai>=0.3.0",
-    "python-dotenv>=1.0.0",
     "pydantic>=2.0.0",
     "pandas>=2.0.0",
     "numpy>=1.24.0",
     "pyyaml>=6.0",
     "chromadb>=0.4.0",
     "aiohttp>=3.9.0",
-    "typing-extensions>=4.0.0",
+    "python-dotenv>=1.0.0",
+    "typing-extensions>=4.8.0",
     "typer>=0.9.0",
     "rich>=13.0.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
+    "websockets>=11.0",
+    "python-multipart>=0.0.6",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0.0",
+    "pytest>=7.4.0",
     "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
     "pytest-mock>=3.10.0",
     "black>=23.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.5.0",
     "isort>=5.12.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/michael-eng-ai/autonomous-data-agency"
+Repository = "https://github.com/michael-eng-ai/autonomous-data-agency"
+
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["core*", "teams*", "config*"]
-namespaces = false
+include = ["autonomous_data_agency*", "core*", "teams*", "config*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
 
 [tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-ra -q --asyncio-mode=auto"
-testpaths = [
-    "tests",
-]
-python_files = "test_*.py"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+addopts = "-ra -q"
