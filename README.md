@@ -554,18 +554,68 @@ Sistema completo de monitoramento e gestão de custos:
 
 ## 📊 Times Disponíveis
 
+A agência possui **15 times especializados** prontos para serem acionados conforme a necessidade do projeto:
+
+### 🎯 Gestão e Planejamento
+
 | Time | Agentes | Especialização |
 |------|---------|----------------|
-| **Product Owner** | 4 | Requisitos, user stories, priorização |
-| **Project Manager** | 4 | Planejamento, cronograma, riscos |
-| **Architecture** | 5 | Decisões técnicas, custos, escalabilidade |
-| **Data Engineering** | 4 | Pipelines, ETL, qualidade de dados |
-| **Data Science** | 4 | ML, modelos preditivos, MLOps |
-| **Data Analytics** | 4 | Dashboards, métricas, insights |
-| **DevOps** | 4 | Infraestrutura, CI/CD, monitoramento |
-| **QA** | 4 | Testes, validação, qualidade |
-| **Security** | 4 | Segurança, LGPD, compliance |
-| **Governance** | 4 | LGPD, auditoria, conformidade |
+| **Product Owner** | 4 | Requisitos, user stories, priorização, valor de negócio |
+| **Project Manager** | 4 | Planejamento, cronograma, riscos, metodologias ágeis |
+| **Architecture** | 4 | Decisões técnicas, trade-offs, padrões arquiteturais |
+
+### 💻 Desenvolvimento
+
+| Time | Agentes | Especialização |
+|------|---------|----------------|
+| **Frontend** | 4 | React, Vue, Next.js, CSS, performance web |
+| **Backend** | 4 | Python/FastAPI, Node.js, APIs REST/GraphQL |
+| **Mobile** | 4 | React Native, Flutter, iOS (Swift), Android (Kotlin) |
+| **Fullstack** | 4 | MERN/PERN, Django+React, Next.js/T3 |
+| **Database** | 4 | PostgreSQL, MongoDB, modelagem, otimização |
+
+### 📈 Dados e Analytics
+
+| Time | Agentes | Especialização |
+|------|---------|----------------|
+| **Data Engineering** | 4 | Pipelines ETL/ELT, Airflow, Spark, streaming |
+| **Data Science** | 4 | ML, modelos preditivos, MLOps, deep learning |
+| **Data Analytics** | 4 | Dashboards, métricas, KPIs, visualização |
+
+### ⚙️ Qualidade e Operações
+
+| Time | Agentes | Especialização |
+|------|---------|----------------|
+| **DevOps** | 4 | CI/CD, Kubernetes, cloud (AWS/GCP), SRE |
+| **QA** | 4 | Testes automatizados, data quality, performance |
+| **Security** | 4 | OWASP, LGPD/GDPR, criptografia, compliance |
+| **UX/UI** | 4 | Pesquisa UX, design de interface, design systems |
+
+### 🔄 Fluxo de Seleção de Times
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  Solicitação    │────▶│   PO + PM +     │────▶│  Times          │
+│  do Cliente     │     │   Arquiteto     │     │  Selecionados   │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+                               │
+                    Analisam requisitos e
+                    selecionam times necessários
+                               │
+                    ┌──────────┼──────────┐
+                    ▼          ▼          ▼
+              ┌──────────┐ ┌──────────┐ ┌──────────┐
+              │ Frontend │ │ Backend  │ │   Data   │
+              │   Team   │ │   Team   │ │   Eng    │
+              └──────────┘ └──────────┘ └──────────┘
+                    │          │          │
+                    └──────────┼──────────┘
+                               ▼
+                    ┌─────────────────────┐
+                    │   QA + Security +   │
+                    │   DevOps validam    │
+                    └─────────────────────┘
+```
 
 ## 🚀 Instalação
 

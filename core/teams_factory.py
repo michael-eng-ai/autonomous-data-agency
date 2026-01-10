@@ -19,13 +19,22 @@ class TeamType(Enum):
     """Tipos de times disponíveis."""
     PRODUCT_OWNER = "product_owner"
     PROJECT_MANAGER = "project_manager"
+    ARCHITECTURE = "architecture"
+    # Times de Desenvolvimento
+    FRONTEND = "frontend"
+    BACKEND = "backend"
+    MOBILE = "mobile"
+    FULLSTACK = "fullstack"
+    # Times de Dados
     DATA_ENGINEERING = "data_engineering"
     DATA_SCIENCE = "data_science"
     DATA_ANALYTICS = "data_analytics"
+    DATABASE = "database"
+    # Times de Suporte
     DEVOPS = "devops"
     QA = "qa"
     SECURITY = "security"
-    ARCHITECTURE = "architecture"
+    UX_UI = "ux_ui"
 
 
 @dataclass
@@ -369,6 +378,216 @@ TEAM_CONFIGS: Dict[TeamType, TeamConfig] = {
             )
         ],
         collaboration_topics=["arquitetura", "padrões", "decisões_técnicas", "trade_offs"]
+    ),
+    
+    # ==================== FRONTEND ====================
+    TeamType.FRONTEND: TeamConfig(
+        team_type=TeamType.FRONTEND,
+        name="Frontend Team",
+        domain="frontend",
+        description="Responsável por interfaces web, SPAs e experiência do usuário",
+        master_config=AgentConfig(
+            name="Frontend Master",
+            role="Frontend Tech Lead",
+            llm_model="gpt-4.1-mini",
+            specialization="Arquitetura frontend, performance e acessibilidade"
+        ),
+        operational_agents=[
+            AgentConfig(
+                name="Desenvolvedor React/Vue",
+                role="Especialista em frameworks JavaScript modernos",
+                llm_model="gpt-4.1-mini",
+                specialization="React, Vue, Next.js, Nuxt, state management"
+            ),
+            AgentConfig(
+                name="Especialista em CSS/Design Systems",
+                role="Especialista em estilização e componentes",
+                llm_model="gpt-4.1-nano",
+                specialization="Tailwind, Styled Components, design tokens, Storybook"
+            ),
+            AgentConfig(
+                name="Especialista em Performance Web",
+                role="Especialista em otimização frontend",
+                llm_model="gemini-2.5-flash",
+                specialization="Core Web Vitals, lazy loading, bundle optimization, PWA"
+            )
+        ],
+        collaboration_topics=["frontend", "react", "vue", "javascript", "css", "web", "spa", "ui"]
+    ),
+    
+    # ==================== BACKEND ====================
+    TeamType.BACKEND: TeamConfig(
+        team_type=TeamType.BACKEND,
+        name="Backend Team",
+        domain="backend",
+        description="Responsável por APIs, serviços e lógica de negócio",
+        master_config=AgentConfig(
+            name="Backend Master",
+            role="Backend Tech Lead",
+            llm_model="gpt-4.1-mini",
+            specialization="Arquitetura de APIs e design de sistemas"
+        ),
+        operational_agents=[
+            AgentConfig(
+                name="Desenvolvedor Python/FastAPI",
+                role="Especialista em backend Python",
+                llm_model="gpt-4.1-mini",
+                specialization="FastAPI, Django, Flask, async programming"
+            ),
+            AgentConfig(
+                name="Desenvolvedor Node.js",
+                role="Especialista em backend JavaScript",
+                llm_model="gpt-4.1-nano",
+                specialization="Express, NestJS, GraphQL, WebSockets"
+            ),
+            AgentConfig(
+                name="Especialista em APIs",
+                role="Especialista em design e integração de APIs",
+                llm_model="gemini-2.5-flash",
+                specialization="REST, GraphQL, gRPC, OpenAPI, autenticação OAuth2/JWT"
+            )
+        ],
+        collaboration_topics=["backend", "api", "python", "nodejs", "rest", "graphql", "servidor"]
+    ),
+    
+    # ==================== MOBILE ====================
+    TeamType.MOBILE: TeamConfig(
+        team_type=TeamType.MOBILE,
+        name="Mobile Team",
+        domain="mobile",
+        description="Responsável por aplicativos móveis iOS, Android e cross-platform",
+        master_config=AgentConfig(
+            name="Mobile Master",
+            role="Mobile Tech Lead",
+            llm_model="gpt-4.1-mini",
+            specialization="Arquitetura mobile e experiência nativa"
+        ),
+        operational_agents=[
+            AgentConfig(
+                name="Desenvolvedor React Native/Flutter",
+                role="Especialista em desenvolvimento cross-platform",
+                llm_model="gpt-4.1-mini",
+                specialization="React Native, Flutter, Expo, navegação mobile"
+            ),
+            AgentConfig(
+                name="Desenvolvedor iOS",
+                role="Especialista em desenvolvimento nativo Apple",
+                llm_model="gpt-4.1-nano",
+                specialization="Swift, SwiftUI, UIKit, Core Data, App Store"
+            ),
+            AgentConfig(
+                name="Desenvolvedor Android",
+                role="Especialista em desenvolvimento nativo Android",
+                llm_model="gemini-2.5-flash",
+                specialization="Kotlin, Jetpack Compose, Room, Play Store"
+            )
+        ],
+        collaboration_topics=["mobile", "ios", "android", "react_native", "flutter", "app"]
+    ),
+    
+    # ==================== FULLSTACK ====================
+    TeamType.FULLSTACK: TeamConfig(
+        team_type=TeamType.FULLSTACK,
+        name="Fullstack Team",
+        domain="fullstack",
+        description="Responsável por desenvolvimento end-to-end de aplicações web",
+        master_config=AgentConfig(
+            name="Fullstack Master",
+            role="Fullstack Tech Lead",
+            llm_model="gpt-4.1-mini",
+            specialization="Desenvolvimento end-to-end e integração de sistemas"
+        ),
+        operational_agents=[
+            AgentConfig(
+                name="Desenvolvedor MERN/PERN",
+                role="Especialista em stack JavaScript completa",
+                llm_model="gpt-4.1-mini",
+                specialization="MongoDB/PostgreSQL, Express, React, Node.js"
+            ),
+            AgentConfig(
+                name="Desenvolvedor Python Fullstack",
+                role="Especialista em stack Python completa",
+                llm_model="gpt-4.1-nano",
+                specialization="Django, FastAPI, React, PostgreSQL, Redis"
+            ),
+            AgentConfig(
+                name="Desenvolvedor Next.js/T3",
+                role="Especialista em frameworks fullstack modernos",
+                llm_model="gemini-2.5-flash",
+                specialization="Next.js, tRPC, Prisma, TypeScript, serverless"
+            )
+        ],
+        collaboration_topics=["fullstack", "web_app", "sistema", "aplicacao", "crud", "saas"]
+    ),
+    
+    # ==================== DATABASE ====================
+    TeamType.DATABASE: TeamConfig(
+        team_type=TeamType.DATABASE,
+        name="Database Team",
+        domain="database",
+        description="Responsável por modelagem, otimização e administração de bancos de dados",
+        master_config=AgentConfig(
+            name="Database Master",
+            role="DBA Lead",
+            llm_model="gpt-4.1-mini",
+            specialization="Arquitetura de dados e otimização de performance"
+        ),
+        operational_agents=[
+            AgentConfig(
+                name="DBA SQL",
+                role="Especialista em bancos relacionais",
+                llm_model="gpt-4.1-mini",
+                specialization="PostgreSQL, MySQL, SQL Server, otimização de queries"
+            ),
+            AgentConfig(
+                name="DBA NoSQL",
+                role="Especialista em bancos não-relacionais",
+                llm_model="gpt-4.1-nano",
+                specialization="MongoDB, Redis, Elasticsearch, DynamoDB"
+            ),
+            AgentConfig(
+                name="Especialista em Data Modeling",
+                role="Especialista em modelagem de dados",
+                llm_model="gemini-2.5-flash",
+                specialization="ER diagrams, normalização, índices, particionamento"
+            )
+        ],
+        collaboration_topics=["database", "sql", "nosql", "modelagem", "banco_dados", "dba"]
+    ),
+    
+    # ==================== UX/UI ====================
+    TeamType.UX_UI: TeamConfig(
+        team_type=TeamType.UX_UI,
+        name="UX/UI Design Team",
+        domain="ux_ui",
+        description="Responsável por design de experiência e interface do usuário",
+        master_config=AgentConfig(
+            name="UX/UI Master",
+            role="Design Lead",
+            llm_model="gpt-4.1-mini",
+            specialization="Design thinking e arquitetura de informação"
+        ),
+        operational_agents=[
+            AgentConfig(
+                name="UX Designer",
+                role="Especialista em experiência do usuário",
+                llm_model="gpt-4.1-mini",
+                specialization="Pesquisa, personas, jornadas, wireframes, usabilidade"
+            ),
+            AgentConfig(
+                name="UI Designer",
+                role="Especialista em interface visual",
+                llm_model="gpt-4.1-nano",
+                specialization="Figma, design systems, tipografia, cores, iconografia"
+            ),
+            AgentConfig(
+                name="Design System Specialist",
+                role="Especialista em sistemas de design",
+                llm_model="gemini-2.5-flash",
+                specialization="Component libraries, tokens, documentação, Storybook"
+            )
+        ],
+        collaboration_topics=["ux", "ui", "design", "interface", "usabilidade", "figma", "prototipo"]
     ),
 }
 
