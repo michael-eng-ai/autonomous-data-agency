@@ -63,6 +63,9 @@ class TeamConfig:
 # CONFIGURAÇÕES DOS TIMES
 # ============================================================================
 
+# LLM padrão para todos os agentes (pode ser alterado depois para diversificar)
+DEFAULT_LLM = "gemini-2.5-flash"
+
 TEAM_CONFIGS: Dict[TeamType, TeamConfig] = {
     
     # ==================== PRODUCT OWNER ====================
@@ -74,26 +77,26 @@ TEAM_CONFIGS: Dict[TeamType, TeamConfig] = {
         master_config=AgentConfig(
             name="PO Master",
             role="Product Owner Líder",
-            llm_model="gpt-4.1-mini",
+            llm_model=DEFAULT_LLM,
             specialization="Consolidação de requisitos e priorização estratégica"
         ),
         operational_agents=[
             AgentConfig(
                 name="Analista de Requisitos",
                 role="Especialista em elicitação e documentação de requisitos",
-                llm_model="gpt-4.1-mini",
+                llm_model=DEFAULT_LLM,
                 specialization="User stories, critérios de aceitação, BDD"
             ),
             AgentConfig(
                 name="Analista de Negócios",
                 role="Especialista em análise de valor e ROI",
-                llm_model="gpt-4.1-nano",
+                llm_model=DEFAULT_LLM,
                 specialization="Business cases, métricas de sucesso, KPIs"
             ),
             AgentConfig(
                 name="UX Researcher",
                 role="Especialista em experiência do usuário",
-                llm_model="gemini-2.5-flash",
+                llm_model=DEFAULT_LLM,
                 specialization="Personas, jornadas do usuário, usabilidade"
             )
         ],
@@ -109,26 +112,26 @@ TEAM_CONFIGS: Dict[TeamType, TeamConfig] = {
         master_config=AgentConfig(
             name="PM Master",
             role="Project Manager Líder",
-            llm_model="gpt-4.1-mini",
+            llm_model=DEFAULT_LLM,
             specialization="Consolidação de planos e gestão de riscos"
         ),
         operational_agents=[
             AgentConfig(
                 name="Planejador de Projeto",
                 role="Especialista em cronogramas e WBS",
-                llm_model="gpt-4.1-mini",
+                llm_model=DEFAULT_LLM,
                 specialization="Gantt, milestones, dependências, caminho crítico"
             ),
             AgentConfig(
                 name="Gestor de Riscos",
                 role="Especialista em identificação e mitigação de riscos",
-                llm_model="gpt-4.1-nano",
+                llm_model=DEFAULT_LLM,
                 specialization="Matriz de riscos, planos de contingência"
             ),
             AgentConfig(
                 name="Scrum Master",
                 role="Especialista em metodologias ágeis",
-                llm_model="gemini-2.5-flash",
+                llm_model=DEFAULT_LLM,
                 specialization="Sprints, retrospectivas, velocity, burndown"
             )
         ],
@@ -144,26 +147,26 @@ TEAM_CONFIGS: Dict[TeamType, TeamConfig] = {
         master_config=AgentConfig(
             name="Data Engineering Master",
             role="Engenheiro de Dados Líder",
-            llm_model="gpt-4.1-mini",
+            llm_model=DEFAULT_LLM,
             specialization="Arquitetura de dados e validação de pipelines"
         ),
         operational_agents=[
             AgentConfig(
                 name="Arquiteto de Dados",
                 role="Especialista em arquitetura e modelagem de dados",
-                llm_model="gpt-4.1-mini",
+                llm_model=DEFAULT_LLM,
                 specialization="Data warehouse, data lake, modelagem dimensional"
             ),
             AgentConfig(
                 name="Engenheiro de ETL",
                 role="Especialista em pipelines de extração e transformação",
-                llm_model="gpt-4.1-nano",
+                llm_model=DEFAULT_LLM,
                 specialization="Airflow, dbt, Spark, qualidade de dados"
             ),
             AgentConfig(
                 name="Especialista em Streaming",
                 role="Especialista em processamento em tempo real",
-                llm_model="gemini-2.5-flash",
+                llm_model=DEFAULT_LLM,
                 specialization="Kafka, Flink, CDC, event-driven architecture"
             )
         ],
@@ -179,26 +182,26 @@ TEAM_CONFIGS: Dict[TeamType, TeamConfig] = {
         master_config=AgentConfig(
             name="Data Science Master",
             role="Cientista de Dados Líder",
-            llm_model="gpt-4.1-mini",
+            llm_model=DEFAULT_LLM,
             specialization="Validação de modelos e metodologia científica"
         ),
         operational_agents=[
             AgentConfig(
                 name="Cientista de Dados",
                 role="Especialista em modelagem estatística e ML",
-                llm_model="gpt-4.1-mini",
+                llm_model=DEFAULT_LLM,
                 specialization="Regressão, classificação, clustering, feature engineering"
             ),
             AgentConfig(
                 name="Engenheiro de ML",
                 role="Especialista em MLOps e produtização de modelos",
-                llm_model="gpt-4.1-nano",
+                llm_model=DEFAULT_LLM,
                 specialization="MLflow, Kubeflow, model serving, A/B testing"
             ),
             AgentConfig(
                 name="Especialista em Deep Learning",
                 role="Especialista em redes neurais e NLP",
-                llm_model="gemini-2.5-flash",
+                llm_model=DEFAULT_LLM,
                 specialization="Transformers, CNN, RNN, embeddings, LLMs"
             )
         ],
@@ -214,26 +217,26 @@ TEAM_CONFIGS: Dict[TeamType, TeamConfig] = {
         master_config=AgentConfig(
             name="Analytics Master",
             role="Analista de Dados Líder",
-            llm_model="gpt-4.1-mini",
+            llm_model=DEFAULT_LLM,
             specialization="Validação de análises e storytelling com dados"
         ),
         operational_agents=[
             AgentConfig(
                 name="Analista de Dados",
                 role="Especialista em análise exploratória e SQL",
-                llm_model="gpt-4.1-mini",
+                llm_model=DEFAULT_LLM,
                 specialization="SQL avançado, análise estatística, segmentação"
             ),
             AgentConfig(
                 name="Especialista em Visualização",
                 role="Especialista em dashboards e data viz",
-                llm_model="gpt-4.1-nano",
+                llm_model=DEFAULT_LLM,
                 specialization="Tableau, Power BI, Metabase, design de dashboards"
             ),
             AgentConfig(
                 name="Business Intelligence Analyst",
                 role="Especialista em métricas de negócio",
-                llm_model="gemini-2.5-flash",
+                llm_model=DEFAULT_LLM,
                 specialization="KPIs, OKRs, análise de cohort, funil de conversão"
             )
         ],
@@ -249,26 +252,26 @@ TEAM_CONFIGS: Dict[TeamType, TeamConfig] = {
         master_config=AgentConfig(
             name="DevOps Master",
             role="Engenheiro DevOps Líder",
-            llm_model="gpt-4.1-mini",
+            llm_model=DEFAULT_LLM,
             specialization="Arquitetura de infraestrutura e automação"
         ),
         operational_agents=[
             AgentConfig(
                 name="Engenheiro de Infraestrutura",
                 role="Especialista em cloud e IaC",
-                llm_model="gpt-4.1-mini",
+                llm_model=DEFAULT_LLM,
                 specialization="AWS, GCP, Terraform, Kubernetes, Docker"
             ),
             AgentConfig(
                 name="Especialista em CI/CD",
                 role="Especialista em pipelines de deploy",
-                llm_model="gpt-4.1-nano",
+                llm_model=DEFAULT_LLM,
                 specialization="GitHub Actions, Jenkins, ArgoCD, GitOps"
             ),
             AgentConfig(
                 name="SRE - Site Reliability Engineer",
                 role="Especialista em confiabilidade e observabilidade",
-                llm_model="gemini-2.5-flash",
+                llm_model=DEFAULT_LLM,
                 specialization="Prometheus, Grafana, alertas, SLOs, incident response"
             )
         ],
@@ -284,26 +287,26 @@ TEAM_CONFIGS: Dict[TeamType, TeamConfig] = {
         master_config=AgentConfig(
             name="QA Master",
             role="QA Lead",
-            llm_model="gpt-4.1-mini",
+            llm_model=DEFAULT_LLM,
             specialization="Estratégia de testes e garantia de qualidade"
         ),
         operational_agents=[
             AgentConfig(
                 name="Engenheiro de Testes",
                 role="Especialista em automação de testes",
-                llm_model="gpt-4.1-mini",
+                llm_model=DEFAULT_LLM,
                 specialization="Pytest, Selenium, testes unitários, integração"
             ),
             AgentConfig(
                 name="Especialista em Data Quality",
                 role="Especialista em qualidade de dados",
-                llm_model="gpt-4.1-nano",
+                llm_model=DEFAULT_LLM,
                 specialization="Great Expectations, dbt tests, validação de schema"
             ),
             AgentConfig(
                 name="Performance Tester",
                 role="Especialista em testes de performance",
-                llm_model="gemini-2.5-flash",
+                llm_model=DEFAULT_LLM,
                 specialization="Load testing, stress testing, benchmarking"
             )
         ],
@@ -319,26 +322,26 @@ TEAM_CONFIGS: Dict[TeamType, TeamConfig] = {
         master_config=AgentConfig(
             name="Security Master",
             role="Security Lead",
-            llm_model="gpt-4.1-mini",
+            llm_model=DEFAULT_LLM,
             specialization="Arquitetura de segurança e compliance"
         ),
         operational_agents=[
             AgentConfig(
                 name="Engenheiro de Segurança",
                 role="Especialista em segurança de aplicações",
-                llm_model="gpt-4.1-mini",
+                llm_model=DEFAULT_LLM,
                 specialization="OWASP, criptografia, autenticação, autorização"
             ),
             AgentConfig(
                 name="Especialista em Compliance",
                 role="Especialista em regulamentações",
-                llm_model="gpt-4.1-nano",
+                llm_model=DEFAULT_LLM,
                 specialization="LGPD, GDPR, SOC2, ISO 27001"
             ),
             AgentConfig(
                 name="Data Privacy Officer",
                 role="Especialista em privacidade de dados",
-                llm_model="gemini-2.5-flash",
+                llm_model=DEFAULT_LLM,
                 specialization="Anonimização, pseudonimização, consentimento"
             )
         ],
@@ -350,34 +353,40 @@ TEAM_CONFIGS: Dict[TeamType, TeamConfig] = {
         team_type=TeamType.ARCHITECTURE,
         name="Architecture Team",
         domain="architecture",
-        description="Responsável por decisões arquiteturais e padrões técnicos",
+        description="Responsável por decisões arquiteturais, padrões técnicos e visão sistêmica",
         master_config=AgentConfig(
             name="Architecture Master",
             role="Arquiteto de Soluções Líder",
-            llm_model="gpt-4.1-mini",
-            specialization="Decisões arquiteturais e trade-offs"
+            llm_model=DEFAULT_LLM,
+            specialization="Decisões arquiteturais, trade-offs e governança técnica"
         ),
         operational_agents=[
             AgentConfig(
                 name="Arquiteto de Soluções",
                 role="Especialista em arquitetura de sistemas",
-                llm_model="gpt-4.1-mini",
+                llm_model=DEFAULT_LLM,
                 specialization="Microservices, event-driven, CQRS, DDD"
+            ),
+            AgentConfig(
+                name="Arquiteto de Integração",
+                role="Especialista em integração de sistemas e visão holística",
+                llm_model=DEFAULT_LLM,
+                specialization="APIs, mensageria, ESB, service mesh, contratos de integração"
             ),
             AgentConfig(
                 name="Arquiteto de Dados",
                 role="Especialista em arquitetura de dados",
-                llm_model="gpt-4.1-nano",
+                llm_model=DEFAULT_LLM,
                 specialization="Data mesh, data fabric, lakehouse"
             ),
             AgentConfig(
                 name="Arquiteto Cloud",
                 role="Especialista em arquitetura cloud-native",
-                llm_model="gemini-2.5-flash",
+                llm_model=DEFAULT_LLM,
                 specialization="Well-architected framework, multi-cloud, serverless"
             )
         ],
-        collaboration_topics=["arquitetura", "padrões", "decisões_técnicas", "trade_offs"]
+        collaboration_topics=["arquitetura", "padrões", "decisões_técnicas", "trade_offs", "integração", "visão_sistêmica"]
     ),
     
     # ==================== FRONTEND ====================
@@ -389,26 +398,26 @@ TEAM_CONFIGS: Dict[TeamType, TeamConfig] = {
         master_config=AgentConfig(
             name="Frontend Master",
             role="Frontend Tech Lead",
-            llm_model="gpt-4.1-mini",
+            llm_model=DEFAULT_LLM,
             specialization="Arquitetura frontend, performance e acessibilidade"
         ),
         operational_agents=[
             AgentConfig(
                 name="Desenvolvedor React/Vue",
                 role="Especialista em frameworks JavaScript modernos",
-                llm_model="gpt-4.1-mini",
+                llm_model=DEFAULT_LLM,
                 specialization="React, Vue, Next.js, Nuxt, state management"
             ),
             AgentConfig(
                 name="Especialista em CSS/Design Systems",
                 role="Especialista em estilização e componentes",
-                llm_model="gpt-4.1-nano",
+                llm_model=DEFAULT_LLM,
                 specialization="Tailwind, Styled Components, design tokens, Storybook"
             ),
             AgentConfig(
                 name="Especialista em Performance Web",
                 role="Especialista em otimização frontend",
-                llm_model="gemini-2.5-flash",
+                llm_model=DEFAULT_LLM,
                 specialization="Core Web Vitals, lazy loading, bundle optimization, PWA"
             )
         ],
@@ -424,26 +433,26 @@ TEAM_CONFIGS: Dict[TeamType, TeamConfig] = {
         master_config=AgentConfig(
             name="Backend Master",
             role="Backend Tech Lead",
-            llm_model="gpt-4.1-mini",
+            llm_model=DEFAULT_LLM,
             specialization="Arquitetura de APIs e design de sistemas"
         ),
         operational_agents=[
             AgentConfig(
                 name="Desenvolvedor Python/FastAPI",
                 role="Especialista em backend Python",
-                llm_model="gpt-4.1-mini",
+                llm_model=DEFAULT_LLM,
                 specialization="FastAPI, Django, Flask, async programming"
             ),
             AgentConfig(
                 name="Desenvolvedor Node.js",
                 role="Especialista em backend JavaScript",
-                llm_model="gpt-4.1-nano",
+                llm_model=DEFAULT_LLM,
                 specialization="Express, NestJS, GraphQL, WebSockets"
             ),
             AgentConfig(
                 name="Especialista em APIs",
                 role="Especialista em design e integração de APIs",
-                llm_model="gemini-2.5-flash",
+                llm_model=DEFAULT_LLM,
                 specialization="REST, GraphQL, gRPC, OpenAPI, autenticação OAuth2/JWT"
             )
         ],
@@ -459,26 +468,26 @@ TEAM_CONFIGS: Dict[TeamType, TeamConfig] = {
         master_config=AgentConfig(
             name="Mobile Master",
             role="Mobile Tech Lead",
-            llm_model="gpt-4.1-mini",
+            llm_model=DEFAULT_LLM,
             specialization="Arquitetura mobile e experiência nativa"
         ),
         operational_agents=[
             AgentConfig(
                 name="Desenvolvedor React Native/Flutter",
                 role="Especialista em desenvolvimento cross-platform",
-                llm_model="gpt-4.1-mini",
+                llm_model=DEFAULT_LLM,
                 specialization="React Native, Flutter, Expo, navegação mobile"
             ),
             AgentConfig(
                 name="Desenvolvedor iOS",
                 role="Especialista em desenvolvimento nativo Apple",
-                llm_model="gpt-4.1-nano",
+                llm_model=DEFAULT_LLM,
                 specialization="Swift, SwiftUI, UIKit, Core Data, App Store"
             ),
             AgentConfig(
                 name="Desenvolvedor Android",
                 role="Especialista em desenvolvimento nativo Android",
-                llm_model="gemini-2.5-flash",
+                llm_model=DEFAULT_LLM,
                 specialization="Kotlin, Jetpack Compose, Room, Play Store"
             )
         ],
@@ -494,26 +503,26 @@ TEAM_CONFIGS: Dict[TeamType, TeamConfig] = {
         master_config=AgentConfig(
             name="Fullstack Master",
             role="Fullstack Tech Lead",
-            llm_model="gpt-4.1-mini",
+            llm_model=DEFAULT_LLM,
             specialization="Desenvolvimento end-to-end e integração de sistemas"
         ),
         operational_agents=[
             AgentConfig(
                 name="Desenvolvedor MERN/PERN",
                 role="Especialista em stack JavaScript completa",
-                llm_model="gpt-4.1-mini",
+                llm_model=DEFAULT_LLM,
                 specialization="MongoDB/PostgreSQL, Express, React, Node.js"
             ),
             AgentConfig(
                 name="Desenvolvedor Python Fullstack",
                 role="Especialista em stack Python completa",
-                llm_model="gpt-4.1-nano",
+                llm_model=DEFAULT_LLM,
                 specialization="Django, FastAPI, React, PostgreSQL, Redis"
             ),
             AgentConfig(
                 name="Desenvolvedor Next.js/T3",
                 role="Especialista em frameworks fullstack modernos",
-                llm_model="gemini-2.5-flash",
+                llm_model=DEFAULT_LLM,
                 specialization="Next.js, tRPC, Prisma, TypeScript, serverless"
             )
         ],
@@ -529,26 +538,26 @@ TEAM_CONFIGS: Dict[TeamType, TeamConfig] = {
         master_config=AgentConfig(
             name="Database Master",
             role="DBA Lead",
-            llm_model="gpt-4.1-mini",
+            llm_model=DEFAULT_LLM,
             specialization="Arquitetura de dados e otimização de performance"
         ),
         operational_agents=[
             AgentConfig(
                 name="DBA SQL",
                 role="Especialista em bancos relacionais",
-                llm_model="gpt-4.1-mini",
+                llm_model=DEFAULT_LLM,
                 specialization="PostgreSQL, MySQL, SQL Server, otimização de queries"
             ),
             AgentConfig(
                 name="DBA NoSQL",
                 role="Especialista em bancos não-relacionais",
-                llm_model="gpt-4.1-nano",
+                llm_model=DEFAULT_LLM,
                 specialization="MongoDB, Redis, Elasticsearch, DynamoDB"
             ),
             AgentConfig(
                 name="Especialista em Data Modeling",
                 role="Especialista em modelagem de dados",
-                llm_model="gemini-2.5-flash",
+                llm_model=DEFAULT_LLM,
                 specialization="ER diagrams, normalização, índices, particionamento"
             )
         ],
@@ -564,26 +573,26 @@ TEAM_CONFIGS: Dict[TeamType, TeamConfig] = {
         master_config=AgentConfig(
             name="UX/UI Master",
             role="Design Lead",
-            llm_model="gpt-4.1-mini",
+            llm_model=DEFAULT_LLM,
             specialization="Design thinking e arquitetura de informação"
         ),
         operational_agents=[
             AgentConfig(
                 name="UX Designer",
                 role="Especialista em experiência do usuário",
-                llm_model="gpt-4.1-mini",
+                llm_model=DEFAULT_LLM,
                 specialization="Pesquisa, personas, jornadas, wireframes, usabilidade"
             ),
             AgentConfig(
                 name="UI Designer",
                 role="Especialista em interface visual",
-                llm_model="gpt-4.1-nano",
+                llm_model=DEFAULT_LLM,
                 specialization="Figma, design systems, tipografia, cores, iconografia"
             ),
             AgentConfig(
                 name="Design System Specialist",
                 role="Especialista em sistemas de design",
-                llm_model="gemini-2.5-flash",
+                llm_model=DEFAULT_LLM,
                 specialization="Component libraries, tokens, documentação, Storybook"
             )
         ],
