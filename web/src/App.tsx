@@ -1,23 +1,53 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ClientChat } from './components/ClientChat';
-import { ProcessingStatus, ProcessStep } from './components/ProcessingStatus';
+import { ProcessingStatus, type ProcessStep } from './components/ProcessingStatus';
 import { ResultSummary } from './components/ResultSummary';
 import { EventLog } from './components/EventLog';
 import { useWebSocket } from './useWebSocket';
 import { Cpu, Wifi, WifiOff, Github, Sparkles } from 'lucide-react';
 
+interface WebSocketEventData {
+  team?: string;
+  result?: string;
+  summary?: string;
+  [key: string]: unknown;
+}
+
+interface WebSocketEvent {
+  type: string;
+  data: WebSocketEventData;
+  timestamp: string;
+}
+
 function App() {
   const { messages, isConnected } = useWebSocket();
-  const [allEvents, setAllEvents] = useState<any[]>([]);
+  const [allEvents, setAllEvents] = useState<WebSocketEvent[]>([]);
   const [processingSteps, setProcessingSteps] = useState<ProcessStep[]>([]);
   const [agentResults, setAgentResults] = useState<{ agent: string; output: string; timestamp?: string }[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const formatTeamName = useCallback((name: string) => {
+    const names: Record<string, string> = {
+      'product_owner': 'Product Owner',
+      'project_manager': 'Project Manager',
+      'data_engineering': 'Data Engineering',
+      'data_science': 'Data Science',
+      'governance': 'Governance',
+      'observability': 'Observability',
+      'qa': 'QA Team'
+    };
+    return names[name] || name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  }, []);
 
   // Processar mensagens WebSocket
   useEffect(() => {
     if (messages.length > 0) {
       const lastMsg = messages[messages.length - 1];
-      const eventWithTime = { ...lastMsg, timestamp: new Date().toISOString() };
+      const eventWithTime: WebSocketEvent = { 
+        type: lastMsg.type ?? 'unknown',
+        data: lastMsg.data ?? {},
+        timestamp: new Date().toISOString() 
+      };
       
       setAllEvents(prev => [eventWithTime, ...prev]);
 
@@ -48,7 +78,7 @@ function App() {
         if (lastMsg.data?.result) {
           setAgentResults(prev => [...prev, {
             agent: teamName,
-            output: lastMsg.data.result,
+            output: lastMsg.data?.result ?? '',
             timestamp: new Date().toISOString()
           }]);
         }
@@ -63,20 +93,7 @@ function App() {
         // Não limpar, manter o histórico
       }
     }
-  }, [messages]);
-
-  const formatTeamName = (name: string) => {
-    const names: Record<string, string> = {
-      'product_owner': 'Product Owner',
-      'project_manager': 'Project Manager',
-      'data_engineering': 'Data Engineering',
-      'data_science': 'Data Science',
-      'governance': 'Governance',
-      'observability': 'Observability',
-      'qa': 'QA Team'
-    };
-    return names[name] || name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-  };
+  }, [messages, formatTeamName]);
 
   const handleProcessingStart = () => {
     setIsProcessing(true);

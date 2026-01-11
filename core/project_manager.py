@@ -25,6 +25,7 @@ class ProjectStatus(Enum):
     INITIATED = "initiated"        # Projeto criado, aguardando análise
     ANALYZING = "analyzing"        # PO/PM analisando requisitos
     PLANNING = "planning"          # Criando plano de projeto
+    GENERATING = "generating"      # Gerando código/artefatos
     IN_PROGRESS = "in_progress"    # Em desenvolvimento pelos times
     REVIEW = "review"              # Em revisão/validação
     COMPLETED = "completed"        # Concluído

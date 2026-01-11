@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Bot, Briefcase, Code2, BarChart3, Shield, Eye, TestTube, Sparkles } from 'lucide-react';
+import { Bot, Briefcase, Code2, BarChart3, Shield, Eye, TestTube, Sparkles } from 'lucide-react';
 
 interface ResultSummaryProps {
     results: {
