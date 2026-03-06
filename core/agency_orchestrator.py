@@ -30,6 +30,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config.llm_config import get_llm
 from core.base_team import TeamOutput
 from core.project_generator import get_project_generator, ProjectType, ProjectGenerator
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ProjectPhase(Enum):
@@ -96,7 +99,7 @@ class AgencyOrchestrator:
     def set_event_callback(self, callback):
         """Define uma função de callback para eventos em tempo real."""
         self._event_callback = callback
-        self._main_loop = None
+        # Note: Don't reset _main_loop here - it should be set separately via set_main_loop()
 
     def set_main_loop(self, loop):
         """Define o loop principal para execução de eventos threads-safe."""
@@ -112,12 +115,12 @@ class AgencyOrchestrator:
                 else:
                     self._event_callback(event_type, data)
             except Exception as e:
-                print(f"Erro ao emitir evento: {e}")
+                logger.error(f"Erro ao emitir evento via WebSocket {event_type}: {e}")
 
     def emit_event_threadsafe(self, event_type: str, data: Any):
         """Public method to emit events from anywhere (sync or async)."""
         import asyncio
-        
+
         # Try to get running loop
         try:
             loop = asyncio.get_running_loop()
@@ -126,12 +129,12 @@ class AgencyOrchestrator:
             return
         except RuntimeError:
             pass # No running loop in this thread
-            
+
         # If no loop, check if we have the main loop stored
         if hasattr(self, '_main_loop') and self._main_loop:
             asyncio.run_coroutine_threadsafe(self._emit_event(event_type, data), self._main_loop)
         else:
-            print(f"WARNING: Event dropped. No loop available for event {event_type}")
+            logger.warning(f"Event dropped - no loop available for {event_type}")
     
     def _load_teams(self):
         """Carrega todos os times disponíveis."""
@@ -224,15 +227,9 @@ REGRAS ABSOLUTAS:
             client_request=client_request
         )
         
-        print(f"\n{'='*60}")
-        print("NOVO PROJETO INICIADO")
-        print(f"{'='*60}")
-        print(f"ID: {project_id}")
-        print(f"Nome: {project_name}")
-        print(f"Tipo: {pt.value}")
-        print(f"Fase: {self.current_project.current_phase.value}")
-        print(f"Pasta do Projeto: {self._project_structure.root_path}")
-        print(f"{'='*60}\n")
+        # Emissão de logs profissionais organizados
+        logger.info(f"NOVO PROJETO INICIADO | ID: {project_id} | Nome: {project_name} | Tipo: {pt.value} | Fase: {self.current_project.current_phase.value}")
+        logger.info(f"Diretório Alocado Raiz: {self._project_structure.root_path}")
         
         # Emit event
         self.emit_event_threadsafe("project_started", {
@@ -349,7 +346,7 @@ REGRAS ABSOLUTAS:
         current_task = initial_task
         
         for team_name in teams_sequence:
-            print(f"\n[WORKFLOW] Executando time: {team_name}")
+            logger.info(f"Executando pipeline analítico do time: {team_name}")
             
             # Adiciona contexto dos times anteriores
             if outputs:
@@ -374,9 +371,7 @@ REGRAS ABSOLUTAS:
         Returns:
             Resultado da validação global
         """
-        print(f"\n{'='*60}")
-        print("VALIDAÇÃO GLOBAL - AGENTE MESTRE")
-        print(f"{'='*60}")
+        logger.info("Processamento de Validação Global - Engajando Agente Mestre")
         
         # Formata todas as saídas para o Agente Mestre Global
         all_outputs = "\n\n".join([
@@ -430,12 +425,9 @@ Verifique consistência, detecte alucinações, e produza a entrega final consol
         if self.current_project:
             self.current_project.questions_for_client.extend(questions)
         
-        print(f"\n{'='*60}")
-        print("PERGUNTAS PARA O CLIENTE")
-        print(f"{'='*60}")
+        logger.info(f"Geradas {len(questions)} Perguntas Formais para o Cliente.")
         for i, q in enumerate(questions, 1):
-            print(f"{i}. {q}")
-        print(f"{'='*60}\n")
+            logger.info(f"Q{i}. {q}")
     
     def receive_client_response(self, question_index: int, response: str) -> None:
         """
@@ -514,11 +506,7 @@ Respostas Recebidas: {len(p.client_responses)}
             "format": output_format
         })
         
-        print(f"\n{'='*60}")
-        print("PROJETO FINALIZADO!")
-        print(f"{'='*60}")
-        print(f"Pacote gerado: {package_path}")
-        print(f"{'='*60}\n")
+        logger.info(f"Projeto Finalizado Exitosamente. Pacote Consolidado: {package_path}")
         
         return str(package_path)
     
@@ -541,7 +529,8 @@ def get_agency_orchestrator() -> AgencyOrchestrator:
 
 if __name__ == "__main__":
     # Teste do orquestrador
-    print("Iniciando teste do Agency Orchestrator...")
+    logging.basicConfig(level=logging.INFO)
+    logger.info("Iniciando rotinas de inicialização do Orquestrador Autônomo...")
     
     orchestrator = get_agency_orchestrator()
-    print(f"Times disponíveis: {list(orchestrator.teams.keys())}")
+    logger.info(f"Carga de Integração Inicializada. Times Dispostos: {list(orchestrator.teams.keys())}")

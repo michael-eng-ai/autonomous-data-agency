@@ -11,20 +11,100 @@ interface ChatMessage {
 interface ClientChatProps {
     onProcessingStart?: () => void;
     onProcessingEnd?: () => void;
+    onDevelopmentStarted?: () => void;
+    externalSessionId?: string | null;
+    onSessionChange?: (sessionId: string) => void;
 }
 
-export const ClientChat: React.FC<ClientChatProps> = ({ onProcessingStart, onProcessingEnd }) => {
+type ChatStatus = 'conversation' | 'started' | 'ok';
+
+export const ClientChat: React.FC<ClientChatProps> = ({
+    onProcessingStart,
+    onProcessingEnd,
+    onDevelopmentStarted,
+    externalSessionId,
+    onSessionChange
+}) => {
     const [input, setInput] = useState('');
-    const [history, setHistory] = useState<ChatMessage[]>([
-        { 
-            sender: 'bot', 
-            text: '👋 Olá! Sou o Product Owner da Autonomous Data Agency.\n\nPosso ajudá-lo a construir pipelines de dados, dashboards, modelos de ML e muito mais.\n\n**O que você gostaria de criar hoje?**',
-            timestamp: new Date()
-        }
-    ]);
+    const [history, setHistory] = useState<ChatMessage[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [sessionId, setSessionId] = useState<string | null>(null);
+    const [chatStatus, setChatStatus] = useState<ChatStatus>('conversation');
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    // Carregar saudação inicial ou conversa existente
+    useEffect(() => {
+        const loadConversation = async () => {
+            // Se tem um sessionId externo, carrega a conversa existente
+            if (externalSessionId) {
+                try {
+                    const response = await axios.post(`http://localhost:8000/conversations/${externalSessionId}/continue`);
+                    setSessionId(externalSessionId);
+
+                    // Converte mensagens do backend para o formato do chat
+                    const messages = response.data.messages || [];
+                    const formattedHistory: ChatMessage[] = messages.map((msg: { role: string; content: string; timestamp: string }) => ({
+                        sender: msg.role === 'user' ? 'user' : 'bot',
+                        text: msg.content,
+                        timestamp: new Date(msg.timestamp)
+                    }));
+
+                    // Se não tem mensagens, adiciona greeting
+                    if (formattedHistory.length === 0) {
+                        const greeting = await axios.get('http://localhost:8000/chat/greeting');
+                        formattedHistory.push({
+                            sender: 'bot',
+                            text: greeting.data.greeting,
+                            timestamp: new Date()
+                        });
+                    }
+
+                    setHistory(formattedHistory);
+
+                    // Define status baseado na fase
+                    if (response.data.status === 'in_development') {
+                        setChatStatus('started');
+                    } else {
+                        setChatStatus('conversation');
+                    }
+
+                    onSessionChange?.(externalSessionId);
+                } catch (error) {
+                    console.error('Error loading conversation:', error);
+                    loadGreeting();
+                }
+            } else {
+                loadGreeting();
+            }
+        };
+
+        const loadGreeting = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/chat/greeting');
+                setSessionId(response.data.session_id);
+                setHistory([{
+                    sender: 'bot',
+                    text: response.data.greeting,
+                    timestamp: new Date()
+                }]);
+                onSessionChange?.(response.data.session_id);
+            } catch (error) {
+                console.error('Error loading greeting:', error);
+                // Fallback greeting
+                const fallbackId = crypto.randomUUID();
+                setHistory([{
+                    sender: 'bot',
+                    text: '👋 Olá! Sou o Product Owner da Autonomous Data Agency.\n\nPosso ajudá-lo a construir pipelines de dados, dashboards, modelos de ML e muito mais.\n\n**O que você gostaria de criar hoje?**',
+                    timestamp: new Date()
+                }]);
+                setSessionId(fallbackId);
+                onSessionChange?.(fallbackId);
+            }
+        };
+
+        loadConversation();
+    }, [externalSessionId]);
 
     // Auto-scroll para última mensagem
     useEffect(() => {
@@ -58,8 +138,8 @@ export const ClientChat: React.FC<ClientChatProps> = ({ onProcessingStart, onPro
     const sendMessage = async () => {
         if (!input.trim() || isLoading) return;
 
-        const userMessage: ChatMessage = { 
-            sender: 'user', 
+        const userMessage: ChatMessage = {
+            sender: 'user',
             text: input,
             timestamp: new Date()
         };
@@ -69,11 +149,29 @@ export const ClientChat: React.FC<ClientChatProps> = ({ onProcessingStart, onPro
         onProcessingStart?.();
 
         try {
-            const response = await axios.post('http://localhost:8000/chat', { message: input });
-            
+            const response = await axios.post('http://localhost:8000/chat', {
+                message: input,
+                session_id: sessionId
+            });
+
             const botResponse = response.data?.response || 'Recebido! Os agentes estão trabalhando na sua solicitação...';
-            setHistory(prev => [...prev, { 
-                sender: 'bot', 
+            const newStatus = response.data?.status as ChatStatus || 'conversation';
+
+            // Atualiza session_id se retornado
+            if (response.data?.session_id) {
+                setSessionId(response.data.session_id);
+            }
+
+            // Atualiza status do chat
+            setChatStatus(newStatus);
+
+            // Se desenvolvimento iniciou, notifica o componente pai
+            if (newStatus === 'started') {
+                onDevelopmentStarted?.();
+            }
+
+            setHistory(prev => [...prev, {
+                sender: 'bot',
                 text: botResponse,
                 timestamp: new Date()
             }]);
@@ -97,6 +195,26 @@ export const ClientChat: React.FC<ClientChatProps> = ({ onProcessingStart, onPro
         }
     };
 
+    const getStatusText = () => {
+        switch (chatStatus) {
+            case 'started':
+                return 'Desenvolvimento em andamento';
+            case 'conversation':
+            default:
+                return 'Conversando para entender seu projeto';
+        }
+    };
+
+    const getStatusColor = () => {
+        switch (chatStatus) {
+            case 'started':
+                return 'bg-green-500';
+            case 'conversation':
+            default:
+                return 'bg-blue-500';
+        }
+    };
+
     return (
         <div className="flex flex-col h-full bg-gradient-to-b from-gray-900 to-gray-950 rounded-2xl border border-gray-800 overflow-hidden shadow-xl">
             {/* Header */}
@@ -106,11 +224,11 @@ export const ClientChat: React.FC<ClientChatProps> = ({ onProcessingStart, onPro
                         <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
                             <Sparkles className="w-5 h-5 text-white" />
                         </div>
-                        <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-900"></span>
+                        <span className={`absolute -bottom-1 -right-1 w-3 h-3 ${getStatusColor()} rounded-full border-2 border-gray-900`}></span>
                     </div>
                     <div>
                         <h2 className="text-base font-semibold text-white">Data Agency Assistant</h2>
-                        <p className="text-xs text-gray-400">Pronto para ajudar</p>
+                        <p className="text-xs text-gray-400">{getStatusText()}</p>
                     </div>
                 </div>
             </div>

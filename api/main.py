@@ -5,10 +5,15 @@ import json
 import asyncio
 import sys
 import os
+import logging
 
 # Carregar variáveis de ambiente do .env
 from dotenv import load_dotenv
 load_dotenv()
+
+# Configuração de Logging Centralizado
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger("agency_api")
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -52,15 +57,39 @@ manager = ConnectionManager()
 # In reality, we will patch the orchestrator to call our manager.broadcast
 
 @app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(websocket: WebSocket) -> None:
     await manager.connect(websocket)
+    logger.info(f"WebSocket Client connected. Total: {len(manager.active_connections)}")
     try:
         while True:
             # Simple echo or command processing
             data = await websocket.receive_text()
-            # For now, just keep alive
+            # For now, just keep alive - client messages are handled via HTTP
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+        logger.info(f"WebSocket Client disconnected. Total: {len(manager.active_connections)}")
+
+# Test endpoint to check WebSocket connections
+@app.get("/ws-status")
+async def ws_status():
+    """Returns the current number of WebSocket connections."""
+    return {
+        "connections": len(manager.active_connections),
+        "message": "WebSocket status"
+    }
+
+# Test endpoint to trigger a test event
+@app.post("/test-event")
+async def test_event():
+    """Sends a test event through WebSocket to all connected clients."""
+    await manager.broadcast({
+        "type": "test_event",
+        "data": {"message": "This is a test event", "timestamp": "now"}
+    })
+    return {
+        "sent": True,
+        "connections": len(manager.active_connections)
+    }
 
 # Include Routes
 app.include_router(api_router)
@@ -69,18 +98,17 @@ app.include_router(api_router)
 @app.on_event("startup")
 async def startup_event():
     orchestrator = get_agency_orchestrator()
-    
-    # Monkey patch or set a callback on the orchestrator to broadcast events
-    # This assumes we will add a 'set_event_callback' method to AgencyOrchestrator
+
+    # Configure WebSocket event broadcasting
     if hasattr(orchestrator, "set_event_callback"):
         async def broadcast_event(event_type: str, data: Any):
-            await manager.broadcast({"type": event_type, "data": data})
-        
-        orchestrator.set_event_callback(broadcast_event)
-        
-        # Set main loop for thread-safe execution
+            if manager.active_connections:
+                await manager.broadcast({"type": event_type, "data": data})
+
+        # IMPORTANT: Set the main loop BEFORE setting the callback
         loop = asyncio.get_running_loop()
         if hasattr(orchestrator, "set_main_loop"):
             orchestrator.set_main_loop(loop)
-            
-        print("Orchestrator event callback set")
+
+        orchestrator.set_event_callback(broadcast_event)
+        logger.info("WebSocket event broadcasting configured")

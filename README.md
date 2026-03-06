@@ -5,7 +5,7 @@
 
 Um framework avançado para criar agências autônomas de desenvolvimento usando múltiplos times de agentes de IA com **Gemini 2.5 Flash** como LLM padrão, **15 times especializados**, **interface web moderna**, sistema de **geração de projetos completos**, governança e LGPD integrados, sistema de conhecimento em 3 camadas, validação anti-alucinação robusta e muito mais.
 
-## 🌟 Novidades da v7.0
+## Novidades Técnicas da v7.0
 
 - **15 Times Especializados**: Frontend, Backend, Mobile, Fullstack, Database, Data Engineering, Data Science, Data Analytics, DevOps, QA, Security, UX/UI, Architecture, Product Owner, Project Manager
 - **Gemini 2.5 Flash**: LLM padrão para todos os 60+ agentes
@@ -15,20 +15,20 @@ Um framework avançado para criar agências autônomas de desenvolvimento usando
 - **WebSocket Events**: Acompanhamento em tempo real do progresso
 - **Integration Architect**: Novo agente para integração de sistemas
 
-## 📁 Arquitetura Completa v7.0
+##  Arquitetura Completa v7.0
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           AUTONOMOUS DATA AGENCY                             │
 │                              Framework v7.0                                  │
-│                         🤖 Powered by Gemini 2.5 Flash                       │
+│                          Powered by Gemini 2.5 Flash                       │
 └─────────────────────────────────────────────────────────────────────────────┘
                                      │
         ┌────────────────────────────┼────────────────────────────┐
         │                            │                            │
         ▼                            ▼                            ▼
 ┌───────────────┐          ┌───────────────┐          ┌───────────────┐
-│   WEB UI 🌐   │          │   REST API    │          │  WEBSOCKET    │
+│   WEB UI    │          │   REST API    │          │  WEBSOCKET    │
 │ React + Vite  │          │   FastAPI     │          │   Events 📡   │
 └───────────────┘          └───────────────┘          └───────────────┘
                                      │
@@ -68,13 +68,13 @@ Um framework avançado para criar agências autônomas de desenvolvimento usando
                                      │
                                      ▼
                          ┌─────────────────────┐
-                         │  📦 ENTREGA FINAL   │
+                         │   ENTREGA FINAL   │
                          │   ZIP/TAR.GZ para   │
                          │      Cliente        │
                          └─────────────────────┘
 ```
 
-## 👥 15 Times Especializados (NEW v7.0)
+##  15 Times Especializados (NEW v7.0)
 
 | Time | Agentes | Responsabilidade |
 |------|---------|------------------|
@@ -94,7 +94,7 @@ Um framework avançado para criar agências autônomas de desenvolvimento usando
 | **Security** | Security Lead, AppSec, Infrastructure Security | Segurança |
 | **UX/UI** | UX Lead, UI Designer, UX Researcher | Design |
 
-## 🔒 QuarantineManager (NEW v6.0)
+##  QuarantineManager (NEW v6.0)
 
 Sistema de gestão de dados inválidos inspirado no projeto ABInBev:
 
@@ -145,7 +145,7 @@ reprocessed = quarantine.reprocess_pending(
 )
 ```
 
-## ⚙️ ProcessControl (NEW v6.0)
+##  ProcessControl (NEW v6.0)
 
 Rastreabilidade completa de execuções:
 
@@ -198,7 +198,7 @@ history = pc.get_execution_history(
 )
 ```
 
-## 📋 GovernancePolicies (NEW v6.0)
+##  GovernancePolicies (NEW v6.0)
 
 Políticas de governança versionáveis em YAML:
 
@@ -297,7 +297,7 @@ lgpd_check = policies.validate_lgpd_compliance(
 )
 ```
 
-## 📚 DataCatalog (NEW v6.0)
+##  DataCatalog (NEW v6.0)
 
 Catálogo de dados com suporte a OpenMetadata:
 
@@ -374,7 +374,7 @@ catalog.sync_to_openmetadata(
 )
 ```
 
-## 🔗 LineageTracker (NEW v6.0)
+##  LineageTracker (NEW v6.0)
 
 Rastreamento de linhagem de dados:
 
@@ -463,7 +463,7 @@ print(mermaid)
 #   silver_vendas --> gold_vendas_diarias
 ```
 
-## 📖 BusinessGlossary (NEW v6.0)
+##  BusinessGlossary (NEW v6.0)
 
 Glossário de negócio padronizado:
 
@@ -535,7 +535,7 @@ glossary.export_to_yaml("glossary.yaml")
 glossary.import_from_yaml("glossary.yaml")
 ```
 
-## 🛡️ Governança e LGPD
+##  Governança e LGPD
 
 O framework inclui um **Time de Governança** completo:
 
@@ -551,7 +551,7 @@ O framework inclui um **Time de Governança** completo:
 | **Auditoria** | Registra todas as operações para compliance |
 | **DPIA** | Suporte a Data Protection Impact Assessment |
 
-## 📊 Data Quality
+##  Data Quality
 
 Sistema completo de validação de qualidade de dados:
 
@@ -566,7 +566,7 @@ Sistema completo de validação de qualidade de dados:
 | **Atualidade** | Dados recentes | Última atualização < 30 dias |
 | **Validade** | Valores permitidos | Status in ['ativo', 'inativo'] |
 
-## 📈 Observabilidade e FinOps
+##  Observabilidade e FinOps
 
 Sistema completo de monitoramento e gestão de custos:
 
@@ -579,11 +579,11 @@ Sistema completo de monitoramento e gestão de custos:
 | **Alerts** | Alertas configuráveis com thresholds |
 | **Costs** | Estimativa e tracking de custos |
 
-## 📊 Times Disponíveis
+##  Times Disponíveis
 
 A agência possui **15 times especializados** prontos para serem acionados conforme a necessidade do projeto:
 
-### 🎯 Gestão e Planejamento
+###  Gestão e Planejamento
 
 | Time | Agentes | Especialização |
 |------|---------|----------------|
@@ -591,7 +591,7 @@ A agência possui **15 times especializados** prontos para serem acionados confo
 | **Project Manager** | 4 | Planejamento, cronograma, riscos, metodologias ágeis |
 | **Architecture** | 4 | Decisões técnicas, trade-offs, padrões arquiteturais |
 
-### 💻 Desenvolvimento
+###  Desenvolvimento
 
 | Time | Agentes | Especialização |
 |------|---------|----------------|
@@ -601,7 +601,7 @@ A agência possui **15 times especializados** prontos para serem acionados confo
 | **Fullstack** | 4 | MERN/PERN, Django+React, Next.js/T3 |
 | **Database** | 4 | PostgreSQL, MongoDB, modelagem, otimização |
 
-### 📈 Dados e Analytics
+###  Dados e Analytics
 
 | Time | Agentes | Especialização |
 |------|---------|----------------|
@@ -609,7 +609,7 @@ A agência possui **15 times especializados** prontos para serem acionados confo
 | **Data Science** | 4 | ML, modelos preditivos, MLOps, deep learning |
 | **Data Analytics** | 4 | Dashboards, métricas, KPIs, visualização |
 
-### ⚙️ Qualidade e Operações
+###  Qualidade e Operações
 
 | Time | Agentes | Especialização |
 |------|---------|----------------|
@@ -618,7 +618,7 @@ A agência possui **15 times especializados** prontos para serem acionados confo
 | **Security** | 4 | OWASP, LGPD/GDPR, criptografia, compliance |
 | **UX/UI** | 4 | Pesquisa UX, design de interface, design systems |
 
-### 🔄 Fluxo de Seleção de Times
+###  Fluxo de Seleção de Times
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
@@ -644,7 +644,7 @@ A agência possui **15 times especializados** prontos para serem acionados confo
                     └─────────────────────┘
 ```
 
-## 🚀 Instalação e Execução
+##  Instalação e Execução
 
 ### Opção 1: Docker (Recomendado)
 
@@ -692,7 +692,7 @@ npm install
 npm run dev
 ```
 
-## 🌐 API REST Endpoints
+##  API REST Endpoints
 
 | Endpoint | Método | Descrição |
 |----------|--------|-----------|
@@ -706,7 +706,7 @@ npm run dev
 | `/api/teams` | GET | Lista times disponíveis |
 | `/ws` | WebSocket | Eventos em tempo real |
 
-## 📖 Demos
+##  Demos
 
 ```bash
 # Demo do workflow completo com governança
@@ -722,7 +722,7 @@ python demo_full_system.py
 python test_knowledge_system.py
 ```
 
-## 📁 Estrutura do Projeto
+##  Estrutura do Projeto
 
 ```
 autonomous-data-agency/
@@ -796,47 +796,47 @@ autonomous-data-agency/
 └── README.md
 ```
 
-## 🔄 Changelog
+##  Changelog
 
 ### v7.0.0 (2026-01) - Current
-- ✨ **15 Times Especializados**: Frontend, Backend, Mobile, Fullstack, Database, Security, UX/UI adicionados
-- ✨ **Gemini 2.5 Flash**: LLM padrão para todos os agentes
-- ✨ **Interface Web**: React + Vite + TailwindCSS com chat em tempo real
-- ✨ **ProjectGenerator**: Geração de código real com estrutura completa
-- ✨ **Entrega ao Cliente**: Empacotamento ZIP/TAR.GZ para download
-- ✨ **WebSocket Events**: Acompanhamento em tempo real
-- ✨ **Integration Architect**: Novo agente na equipe de Arquitetura
-- ✨ **REST API Expandida**: Endpoints para status, download, listagem de arquivos
+-  **15 Times Especializados**: Frontend, Backend, Mobile, Fullstack, Database, Security, UX/UI adicionados
+-  **Gemini 2.5 Flash**: LLM padrão para todos os agentes
+-  **Interface Web**: React + Vite + TailwindCSS com chat em tempo real
+-  **ProjectGenerator**: Geração de código real com estrutura completa
+-  **Entrega ao Cliente**: Empacotamento ZIP/TAR.GZ para download
+-  **WebSocket Events**: Acompanhamento em tempo real
+-  **Integration Architect**: Novo agente na equipe de Arquitetura
+-  **REST API Expandida**: Endpoints para status, download, listagem de arquivos
 
 ### v6.0.0 (2024-01)
-- ✨ QuarantineManager para gestão de dados inválidos
-- ✨ ProcessControl para rastreabilidade de execuções
-- ✨ GovernancePolicies com suporte a YAML
-- ✨ DataCatalog com integração OpenMetadata
-- ✨ LineageTracker para rastreamento de linhagem
-- ✨ BusinessGlossary para termos padronizados
+-  QuarantineManager para gestão de dados inválidos
+-  ProcessControl para rastreabilidade de execuções
+-  GovernancePolicies com suporte a YAML
+-  DataCatalog com integração OpenMetadata
+-  LineageTracker para rastreamento de linhagem
+-  BusinessGlossary para termos padronizados
 
 ### v5.0.0 (2024-01)
-- ✨ Time de Governança e LGPD
-- ✨ Data Quality com 6 dimensões
-- ✨ Observabilidade e FinOps
-- ✨ Workflow Integrado
+-  Time de Governança e LGPD
+-  Data Quality com 6 dimensões
+-  Observabilidade e FinOps
+-  Workflow Integrado
 
 ### v4.0.0 (2024-01)
-- ✨ Time de Arquitetura expandido
-- ✨ PM como orquestrador central
-- ✨ Sistema de dependências e paralelização
-- ✨ Validação QA + PO
+-  Time de Arquitetura expandido
+-  PM como orquestrador central
+-  Sistema de dependências e paralelização
+-  Validação QA + PO
 
 ### v3.0.0 (2024-01)
-- ✨ Sistema de conhecimento em 3 camadas
-- ✨ RAG com ChromaDB
-- ✨ Project Memory com SQLite
+-  Sistema de conhecimento em 3 camadas
+-  RAG com ChromaDB
+-  Project Memory com SQLite
 
 ### v2.0.0 (2024-01)
-- ✨ Multi-agent com diversidade de LLMs
-- ✨ Validação anti-alucinação
-- ✨ Comunicação entre times
+-  Multi-agent com diversidade de LLMs
+-  Validação anti-alucinação
+-  Comunicação entre times
 
 ### v1.0.0 (2024-01)
 - 🎉 Versão inicial
@@ -845,6 +845,6 @@ autonomous-data-agency/
 
 MIT License
 
-## 👨‍💻 Autor
+## 👨‍ Autor
 
-Desenvolvido com ❤️ para automação de projetos de dados.
+Desenvolvido com  para automação de projetos de dados.
